@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Star, Heart, Percent, Eye } from 'lucide-react'
+import { ShoppingCart, Star, Heart, Percent, Eye, GitCompare } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
+import { useCompare } from '../context/CompareContext'
+import { useNotification } from '../context/NotificationContext'
 import { Product } from '../data/products'
 
 interface ProductCardProps {
@@ -11,8 +13,12 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart()
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { addToCompare, isInCompare, canAddMore } = useCompare()
+  const { success, warning } = useNotification()
+  
   const discount = Math.round((1 - product.price / product.originalPrice) * 100)
   const liked = isFavorite(product.id)
+  const inCompare = isInCompare(product.id)
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault()
@@ -27,6 +33,36 @@ export default function ProductCard({ product }: ProductCardProps) {
       rating: product.rating,
       sold: product.sold
     })
+  }
+
+  const handleCompareClick = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    
+    if (inCompare) {
+      return
+    }
+    
+    if (!canAddMore()) {
+      warning('Maximum atteint', 'Vous pouvez comparer jusqu\'à 4 produits')
+      return
+    }
+
+    const added = addToCompare({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: product.image,
+      category: product.category,
+      rating: product.rating,
+      reviews: product.reviews,
+      stock: product.stock
+    })
+
+    if (added) {
+      success('Ajouté à la comparaison', product.name)
+    }
   }
 
   return (
@@ -46,19 +82,31 @@ export default function ProductCard({ product }: ProductCardProps) {
           </span>
         )}
         
-        <span className="absolute top-2 right-10 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-0.5">
+        <span className="absolute top-2 right-20 bg-red-500 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-0.5">
           <Percent className="w-3 h-3" />-{discount}%
         </span>
 
         <button 
           onClick={handleFavoriteClick}
-          className={`absolute top-2 right-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-all ${
+          className={`absolute top-2 right-10 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-all ${
             liked 
               ? 'bg-red-500 text-white' 
               : 'bg-white text-gray-400 hover:bg-red-50 hover:text-red-500'
           }`}
         >
           <Heart className={`w-4 h-4 ${liked ? 'fill-white' : ''}`} />
+        </button>
+
+        <button 
+          onClick={handleCompareClick}
+          className={`absolute top-2 right-2 w-8 h-8 rounded-full shadow-md flex items-center justify-center transition-all ${
+            inCompare 
+              ? 'bg-blue-500 text-white' 
+              : 'bg-white text-gray-400 hover:bg-blue-50 hover:text-blue-500'
+          }`}
+          title={inCompare ? 'Déjà en comparaison' : 'Comparer'}
+        >
+          <GitCompare className="w-4 h-4" />
         </button>
 
         <Link 

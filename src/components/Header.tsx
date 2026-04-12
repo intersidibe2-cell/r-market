@@ -1,44 +1,109 @@
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ShoppingCart, Menu, X, Search, Bell, ShoppingBag, Package, House, Settings, Heart } from 'lucide-react'
+import { ShoppingCart, Menu, X, Search, Bell, ShoppingBag, Package, House, Settings, Heart, User, LogOut, Globe, DollarSign, Star, Truck } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
+import { useAuth } from '../context/AuthContext'
+import { useCurrency, Currency } from '../context/CurrencyContext'
+import { languages, Language } from '../i18n'
 import { categories } from '../data/products'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchOpen, setSearchOpen] = useState(false)
+  const [langMenuOpen, setLangMenuOpen] = useState(false)
+  const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false)
+  const [userMenuOpen, setUserMenuOpen] = useState(false)
+  
   const { totalItems } = useCart()
   const { totalFavorites } = useFavorites()
+  const { user, isAuthenticated, logout } = useAuth()
+  const { currency, setCurrency, currencies } = useCurrency()
   const location = useLocation()
 
   const navLinks = [
     { label: 'Accueil', path: '/', icon: House },
     { label: 'Boutique', path: '/shop', icon: ShoppingBag },
-    { label: 'Guide', path: '/guide', icon: null, emoji: '📱' },
-    { label: 'Mes Commandes', path: '/orders', icon: Package },
-    { label: 'Mon Profil', path: '/account', icon: null, emoji: '👤' },
+    { label: 'Suivi', path: '/order-tracking', icon: Truck },
+    { label: 'Fidélité', path: '/loyalty', icon: Star },
+    { label: 'Mon Profil', path: '/account', icon: User },
   ]
+
+  const handleLogout = () => {
+    logout()
+    setUserMenuOpen(false)
+  }
+
+  const currentLang = languages.find(l => l.code === 'fr') || languages[0]
 
   return (
     <header className="sticky top-0 z-50 transition-all duration-300 bg-white">
-      {/* Top Search Bar */}
-      <div className="bg-gradient-to-r from-green-600 to-emerald-600 py-3 px-4 shadow-lg">
-        <div className="max-w-7xl mx-auto">
-          <div className="flex-1 relative group">
-            <div className="relative flex items-center">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-green-600 transition-colors">
-                <Search className="w-5 h-5" />
+      {/* Top Bar */}
+      <div className="bg-gradient-to-r from-green-600 to-emerald-600 py-2 px-4">
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          {/* Language Selector */}
+          <div className="relative">
+            <button 
+              onClick={() => setLangMenuOpen(!langMenuOpen)}
+              className="flex items-center gap-1 text-white/90 hover:text-white text-sm"
+            >
+              <Globe className="w-4 h-4" />
+              <span>{currentLang.flag}</span>
+              <span className="hidden sm:inline">{currentLang.nativeName}</span>
+            </button>
+            {langMenuOpen && (
+              <div className="absolute top-full left-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[150px] z-50">
+                {languages.map(lang => (
+                  <button
+                    key={lang.code}
+                    onClick={() => setLangMenuOpen(false)}
+                    className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                  >
+                    <span>{lang.flag}</span>
+                    <span>{lang.nativeName}</span>
+                  </button>
+                ))}
               </div>
+            )}
+          </div>
+
+          {/* Search Bar */}
+          <div className="flex-1 max-w-xl mx-4">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Rechercher des produits, marques, catégories..."
-                className="w-full pl-12 pr-10 py-3 rounded-xl border-2 border-transparent focus:border-white focus:ring-2 focus:ring-white/30 transition-all shadow-md text-gray-900 placeholder-gray-400"
+                placeholder="Rechercher..."
+                className="w-full pl-10 pr-4 py-2 rounded-lg text-sm bg-white/20 placeholder-white/70 text-white border border-white/30 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 transition-all"
               />
-              <button className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-green-600 transition-colors">
-                <Search className="w-4 h-4" />
-              </button>
             </div>
+          </div>
+
+          {/* Currency Selector */}
+          <div className="relative">
+            <button 
+              onClick={() => setCurrencyMenuOpen(!currencyMenuOpen)}
+              className="flex items-center gap-1 text-white/90 hover:text-white text-sm"
+            >
+              <DollarSign className="w-4 h-4" />
+              <span>{currency}</span>
+            </button>
+            {currencyMenuOpen && (
+              <div className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[120px] z-50">
+                {currencies.map(curr => (
+                  <button
+                    key={curr.code}
+                    onClick={() => { setCurrency(curr.code); setCurrencyMenuOpen(false) }}
+                    className={`w-full px-4 py-2 text-left text-sm hover:bg-gray-50 flex items-center gap-2 ${
+                      currency === curr.code ? 'bg-green-50 text-green-700' : 'text-gray-700'
+                    }`}
+                  >
+                    <span>{curr.flag}</span>
+                    <span>{curr.code}</span>
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -50,7 +115,7 @@ export default function Header() {
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 md:gap-3 group min-w-0">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform duration-200">
-                <ShoppingBag className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                <span className="text-white font-bold text-xl">R</span>
               </div>
               <div className="hidden sm:block min-w-0">
                 <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 whitespace-nowrap leading-none truncate">R-Market</h1>
@@ -74,14 +139,6 @@ export default function Header() {
                 <Bell className="w-5 h-5" />
               </button>
 
-              {/* Mobile search toggle */}
-              <button
-                className="lg:hidden inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
-                onClick={() => setSearchOpen(!searchOpen)}
-              >
-                <Search className="w-5 h-5" />
-              </button>
-
               {/* Cart */}
               <Link to="/cart" className="inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-600 hover:bg-gray-100 transition-colors relative">
                 <ShoppingCart className="w-5 h-5" />
@@ -91,6 +148,75 @@ export default function Header() {
                   </span>
                 )}
               </Link>
+
+              {/* User Menu */}
+              <div className="relative">
+                {isAuthenticated ? (
+                  <button 
+                    onClick={() => setUserMenuOpen(!userMenuOpen)}
+                    className="inline-flex items-center justify-center h-9 w-9 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+                  >
+                    <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                      <span className="text-sm font-bold text-green-700">{user?.name[0]}</span>
+                    </div>
+                  </button>
+                ) : (
+                  <Link 
+                    to="/login"
+                    className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-green-700 transition-colors"
+                  >
+                    <User className="w-4 h-4" />
+                    <span className="hidden sm:inline">Connexion</span>
+                  </Link>
+                )}
+
+                {userMenuOpen && isAuthenticated && (
+                  <div className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-lg border border-gray-100 py-2 min-w-[200px] z-50">
+                    <div className="px-4 py-3 border-b border-gray-100">
+                      <p className="font-semibold text-gray-900">{user?.name}</p>
+                      <p className="text-sm text-gray-500">{user?.email}</p>
+                      <span className="inline-block mt-1 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full capitalize">
+                        {user?.role}
+                      </span>
+                    </div>
+                    <Link 
+                      to="/account" 
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <User className="w-4 h-4" />
+                      Mon compte
+                    </Link>
+                    <Link 
+                      to="/loyalty" 
+                      onClick={() => setUserMenuOpen(false)}
+                      className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                    >
+                      <Star className="w-4 h-4" />
+                      Programme fidélité
+                    </Link>
+                    {user?.role === 'admin' && (
+                      <Link 
+                        to="/admin" 
+                        onClick={() => setUserMenuOpen(false)}
+                        className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2"
+                      >
+                        <Settings className="w-4 h-4" />
+                        Administration
+                      </Link>
+                    )}
+                    <div className="border-t border-gray-100 mt-1 pt-1">
+                      <button 
+                        onClick={handleLogout}
+                        className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        Déconnexion
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
 
               {/* Mobile menu */}
               <button
@@ -115,19 +241,11 @@ export default function Header() {
                         : 'text-gray-700 hover:bg-green-50'
                     }`}
                   >
-                    {link.icon ? <link.icon className="w-4 h-4" /> : <span>{link.emoji}</span>}
+                    <link.icon className="w-4 h-4" />
                     {link.label}
                   </Link>
                 )
               })}
-              <div className="w-px h-6 bg-gray-200 mx-2" />
-              <Link
-                to="/admin"
-                className="px-3 py-2 rounded-lg font-medium bg-gray-100 text-gray-700 hover:bg-gray-200 transition-all duration-200 flex items-center gap-2"
-              >
-                <Settings className="w-4 h-4" />
-                Admin
-              </Link>
             </nav>
           </div>
         </div>
@@ -148,7 +266,7 @@ export default function Header() {
                     : 'text-gray-700 hover:bg-green-50'
                 }`}
               >
-                {link.icon ? <link.icon className="w-5 h-5" /> : <span className="text-lg">{link.emoji}</span>}
+                <link.icon className="w-5 h-5" />
                 {link.label}
               </Link>
             ))}

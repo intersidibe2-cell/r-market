@@ -3,7 +3,9 @@ import { Link } from 'react-router-dom'
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3,
   TrendingUp, Truck, Search, Plus, Trash2, Edit, Eye, Download,
-  Bell, Calendar, Package2, X, DollarSign, ArrowLeft, Home
+  Bell, Calendar, Package2, X, DollarSign, ArrowLeft, Home,
+  Warehouse, RefreshCw, FileText, Wallet, Users2, ArrowDownCircle,
+  ArrowUpCircle, AlertTriangle, CheckCircle, Clock, Scale, Box
 } from 'lucide-react'
 import { products as initialProducts, categories, paymentMethods } from '../data/products'
 
@@ -42,6 +44,42 @@ export default function Admin() {
   const [newProduct, setNewProduct] = useState({ 
     name: '', price: '', originalPrice: '', stock: '', image: '', description: '', category: 'mode' 
   })
+
+  // Inventory state
+  const [inventoryItems, setInventoryItems] = useState([
+    { id: 1, name: 'Boubou Malien', sku: 'BM-001', category: 'mode', quantity: 45, weight: 0.8, age: 15, location: 'Entrepôt A', status: 'good', lastUpdated: '13/04/2026' },
+    { id: 2, name: 'Sac en Cuir', sku: 'SC-002', category: 'accessoires', quantity: 23, weight: 0.5, age: 30, location: 'Entrepôt B', status: 'good', lastUpdated: '12/04/2026' },
+    { id: 3, name: 'Bijoux Artisanaux', sku: 'BA-003', category: 'bijoux', quantity: 8, weight: 0.2, age: 60, location: 'Entrepôt A', status: 'low', lastUpdated: '10/04/2026' },
+    { id: 4, name: 'Tissu Bogolan', sku: 'TB-004', category: 'textile', quantity: 67, weight: 1.2, age: 5, location: 'Entrepôt C', status: 'good', lastUpdated: '13/04/2026' },
+    { id: 5, name: 'Poterie Traditionnelle', sku: 'PT-005', category: 'artisanat', quantity: 3, weight: 2.5, age: 90, location: 'Entrepôt B', status: 'critical', lastUpdated: '01/04/2026' },
+  ])
+
+  // Returns state
+  const [returns, setReturns] = useState([
+    { id: 'RET-001', orderId: 'CMD-001', customer: 'Moussa Dembélé', product: 'Boubou Malien', reason: 'defective', status: 'pending', date: '13/04/2026', amount: 35000, notes: 'Déchirure visible' },
+    { id: 'RET-002', orderId: 'CMD-002', customer: 'Fatima Zohra', product: 'Sac en Cuir', reason: 'wrong_size', status: 'approved', date: '12/04/2026', amount: 15000, notes: 'Taille incorrecte' },
+    { id: 'RET-003', orderId: 'CMD-003', customer: 'Alpha Oumar', product: 'Bijoux Artisanaux', reason: 'damaged', status: 'completed', date: '10/04/2026', amount: 8000, notes: 'Cassé pendant livraison' },
+    { id: 'RET-004', orderId: 'CMD-005', customer: 'Mamadou Traoré', product: 'Tissu Bogolan', reason: 'not_as_described', status: 'pending', date: '09/04/2026', amount: 22000, notes: 'Couleur différente' },
+  ])
+
+  // Suppliers state
+  const [suppliers, setSuppliers] = useState([
+    { id: 1, name: 'Artisans du Mali', contact: 'Amadou Coulibaly', phone: '+223 76 12 34 56', email: 'amadou@artisansmali.com', city: 'Bamako', products: 25, rating: 4.8, status: 'active', totalOrders: 45, lastOrder: '10/04/2026' },
+    { id: 2, name: 'Textiles Traditionnels', contact: 'Fatoumata Diallo', phone: '+223 65 23 45 67', email: 'fatoumata@textilesmali.ml', city: 'Ségou', products: 18, rating: 4.5, status: 'active', totalOrders: 32, lastOrder: '08/04/2026' },
+    { id: 3, name: 'Bijoux Artisanaux SA', contact: 'Ibrahim Traoré', phone: '+223 77 34 56 78', email: 'ibrahim@bijouxartisanaux.ml', city: 'Mopti', products: 12, rating: 4.2, status: 'inactive', totalOrders: 15, lastOrder: '25/03/2026' },
+    { id: 4, name: 'Cuir & Maroquinerie', contact: 'Moussa Sangaré', phone: '+223 79 45 67 89', email: 'moussa@cuirmali.com', city: 'Kayes', products: 8, rating: 4.9, status: 'active', totalOrders: 28, lastOrder: '11/04/2026' },
+  ])
+
+  // Finances state
+  const [transactions, setTransactions] = useState([
+    { id: 'TXN-001', type: 'income', category: 'Ventes', description: 'Commande CMD-001', amount: 65000, date: '13/04/2026', paymentMethod: 'Orange Money' },
+    { id: 'TXN-002', type: 'expense', category: 'Achats', description: 'Stock fournisseur', amount: 120000, date: '12/04/2026', paymentMethod: 'Virement' },
+    { id: 'TXN-003', type: 'income', category: 'Ventes', description: 'Commande CMD-002', amount: 25800, date: '11/04/2026', paymentMethod: 'Wave' },
+    { id: 'TXN-004', type: 'expense', category: 'Transport', description: 'Livraison Bamako', amount: 15000, date: '10/04/2026', paymentMethod: 'Cash' },
+    { id: 'TXN-005', type: 'expense', category: 'Marketing', description: 'Publicité Facebook', amount: 25000, date: '09/04/2026', paymentMethod: 'Carte' },
+    { id: 'TXN-006', type: 'income', category: 'Ventes', description: 'Commande CMD-003', amount: 58000, date: '08/04/2026', paymentMethod: 'Orange Money' },
+    { id: 'TXN-007', type: 'expense', category: 'Salaires', description: 'Équipe mars', amount: 180000, date: '05/04/2026', paymentMethod: 'Virement' },
+  ])
 
   const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter)
   const searchedProducts = productSearch 
@@ -97,6 +135,11 @@ export default function Admin() {
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'orders', label: 'Commandes', icon: ShoppingCart },
     { id: 'products', label: 'Produits', icon: Package },
+    { id: 'inventory', label: 'Inventaire', icon: Warehouse },
+    { id: 'returns', label: 'Retours', icon: RefreshCw },
+    { id: 'reports', label: 'Rapports', icon: FileText },
+    { id: 'finances', label: 'Finances', icon: Wallet },
+    { id: 'suppliers', label: 'Fournisseurs', icon: Users2 },
     { id: 'customers', label: 'Clients', icon: Users },
     { id: 'analytics', label: 'Statistiques', icon: BarChart3 },
     { id: 'settings', label: 'Paramètres', icon: Settings },
@@ -779,6 +822,647 @@ export default function Admin() {
               <button className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-lg shadow-lg">
                 Sauvegarder tous les paramètres 🇲🇱
               </button>
+            </div>
+          )}
+
+          {/* Inventory Tab */}
+          {activeTab === 'inventory' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">📦 Gestion de l'inventaire</h3>
+                  <p className="text-sm text-gray-500">Suivi des réceptions, tri et état du stock</p>
+                </div>
+                <div className="flex gap-3">
+                  <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-gray-50">
+                    <ArrowDownCircle className="w-4 h-4" /> Réception
+                  </button>
+                  <button className="bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg">
+                    <Plus className="w-4 h-4" /> Nouveau produit
+                  </button>
+                </div>
+              </div>
+
+              {/* Inventory Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Box className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Total articles</p>
+                      <p className="text-2xl font-bold text-gray-900">{inventoryItems.reduce((s, i) => s + i.quantity, 0)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">En bon état</p>
+                      <p className="text-2xl font-bold text-green-600">{inventoryItems.filter(i => i.status === 'good').length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                      <AlertTriangle className="w-6 h-6 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Stock faible</p>
+                      <p className="text-2xl font-bold text-yellow-600">{inventoryItems.filter(i => i.status === 'low').length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                      <AlertTriangle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Critique</p>
+                      <p className="text-2xl font-bold text-red-600">{inventoryItems.filter(i => i.status === 'critical').length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Inventory Table */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div>
+                    <h4 className="font-bold text-lg text-gray-900">Liste de l'inventaire</h4>
+                    <p className="text-sm text-gray-500">{inventoryItems.length} produits référencés</p>
+                  </div>
+                  <div className="relative">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input type="text" placeholder="Rechercher..." className="pl-10 pr-4 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500 w-full sm:w-64" />
+                  </div>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase bg-gray-50">
+                        <th className="px-6 py-4 font-medium">Produit</th>
+                        <th className="px-6 py-4 font-medium">SKU</th>
+                        <th className="px-6 py-4 font-medium hidden md:table-cell">Quantité</th>
+                        <th className="px-6 py-4 font-medium hidden lg:table-cell">Poids (kg)</th>
+                        <th className="px-6 py-4 font-medium hidden lg:table-cell">Âge (jours)</th>
+                        <th className="px-6 py-4 font-medium hidden md:table-cell">Emplacement</th>
+                        <th className="px-6 py-4 font-medium">Statut</th>
+                        <th className="px-6 py-4 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {inventoryItems.map(item => (
+                        <tr key={item.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div>
+                              <p className="font-semibold text-gray-900">{item.name}</p>
+                              <p className="text-xs text-gray-500">{item.category}</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 text-gray-600 font-mono text-sm">{item.sku}</td>
+                          <td className="px-6 py-4 hidden md:table-cell">
+                            <span className={`font-bold ${item.quantity < 10 ? 'text-red-600' : item.quantity < 20 ? 'text-yellow-600' : 'text-green-600'}`}>
+                              {item.quantity}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 hidden lg:table-cell text-gray-600">{item.weight} kg</td>
+                          <td className="px-6 py-4 hidden lg:table-cell">
+                            <span className={`font-medium ${item.age > 60 ? 'text-red-600' : item.age > 30 ? 'text-yellow-600' : 'text-green-600'}`}>
+                              {item.age} jours
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 hidden md:table-cell text-gray-600">{item.location}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
+                              item.status === 'good' ? 'bg-green-100 text-green-700' :
+                              item.status === 'low' ? 'bg-yellow-100 text-yellow-700' :
+                              'bg-red-100 text-red-700'
+                            }`}>
+                              {item.status === 'good' ? 'Bon' : item.status === 'low' ? 'Faible' : 'Critique'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1">
+                              <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                                <ArrowDownCircle className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Returns Tab */}
+          {activeTab === 'returns' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">🔄 Gestion des retours</h3>
+                  <p className="text-sm text-gray-500">Retours clients et produits défectueux</p>
+                </div>
+                <div className="flex gap-3">
+                  <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-gray-50">
+                    <RefreshCw className="w-4 h-4" /> Nouveau retour
+                  </button>
+                </div>
+              </div>
+
+              {/* Returns Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <RefreshCw className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Total retours</p>
+                      <p className="text-2xl font-bold text-gray-900">{returns.length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                      <Clock className="w-6 h-6 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">En attente</p>
+                      <p className="text-2xl font-bold text-yellow-600">{returns.filter(r => r.status === 'pending').length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Approuvés</p>
+                      <p className="text-2xl font-bold text-green-600">{returns.filter(r => r.status === 'approved').length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Terminés</p>
+                      <p className="text-2xl font-bold text-purple-600">{returns.filter(r => r.status === 'completed').length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Returns Table */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                  <h4 className="font-bold text-lg text-gray-900">Liste des retours</h4>
+                  <p className="text-sm text-gray-500">Gestion des retours et remplacements</p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase bg-gray-50">
+                        <th className="px-6 py-4 font-medium">ID</th>
+                        <th className="px-6 py-4 font-medium">Client</th>
+                        <th className="px-6 py-4 font-medium hidden md:table-cell">Produit</th>
+                        <th className="px-6 py-4 font-medium hidden lg:table-cell">Motif</th>
+                        <th className="px-6 py-4 font-medium">Montant</th>
+                        <th className="px-6 py-4 font-medium">Statut</th>
+                        <th className="px-6 py-4 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {returns.map(ret => (
+                        <tr key={ret.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4">
+                            <div>
+                              <span className="font-bold text-gray-900">{ret.id}</span>
+                              <p className="text-xs text-gray-500">{ret.date}</p>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-green-600 rounded-full flex items-center justify-center">
+                                <span className="text-xs font-bold text-white">{ret.customer[0]}</span>
+                              </div>
+                              <span className="font-medium text-gray-900">{ret.customer}</span>
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 hidden md:table-cell text-gray-600">{ret.product}</td>
+                          <td className="px-6 py-4 hidden lg:table-cell">
+                            <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
+                              ret.reason === 'defective' ? 'bg-red-100 text-red-700' :
+                              ret.reason === 'damaged' ? 'bg-orange-100 text-orange-700' :
+                              ret.reason === 'wrong_size' ? 'bg-blue-100 text-blue-700' :
+                              'bg-gray-100 text-gray-700'
+                            }`}>
+                              {ret.reason === 'defective' ? 'Défectueux' :
+                               ret.reason === 'damaged' ? 'Endommagé' :
+                               ret.reason === 'wrong_size' ? 'Mauvaise taille' :
+                               'Non conforme'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 font-bold text-gray-900">{ret.amount.toLocaleString()} F</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
+                              ret.status === 'pending' ? 'bg-yellow-100 text-yellow-700' :
+                              ret.status === 'approved' ? 'bg-green-100 text-green-700' :
+                              'bg-purple-100 text-purple-700'
+                            }`}>
+                              {ret.status === 'pending' ? 'En attente' :
+                               ret.status === 'approved' ? 'Approuvé' : 'Terminé'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="flex items-center gap-1">
+                              <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                                <Eye className="w-4 h-4" />
+                              </button>
+                              <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                                <CheckCircle className="w-4 h-4" />
+                              </button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Reports Tab */}
+          {activeTab === 'reports' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">📊 Rapports et analyses</h3>
+                  <p className="text-sm text-gray-500">Ventes, stock, pertes et bénéfices</p>
+                </div>
+                <button className="bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg">
+                  <Download className="w-4 h-4" /> Exporter PDF
+                </button>
+              </div>
+
+              {/* Report Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Sales Report */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                      <TrendingUp className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">Rapport des ventes</h4>
+                      <p className="text-sm text-gray-500">Ce mois</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Chiffre d'affaires</span>
+                      <span className="font-bold text-green-600">{totalRevenue.toLocaleString()} F</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Commandes livrées</span>
+                      <span className="font-bold text-gray-900">{deliveredOrders}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Panier moyen</span>
+                      <span className="font-bold text-gray-900">{Math.round(totalRevenue / orders.length).toLocaleString()} F</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Stock Report */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Package className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">Rapport du stock</h4>
+                      <p className="text-sm text-gray-500">État actuel</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Produits en stock</span>
+                      <span className="font-bold text-gray-900">{products.length}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Unités disponibles</span>
+                      <span className="font-bold text-gray-900">{totalStock}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Alertes stock</span>
+                      <span className="font-bold text-red-600">{lowStock}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Losses Report */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
+                      <AlertTriangle className="w-6 h-6 text-red-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">Rapport des pertes</h4>
+                      <p className="text-sm text-gray-500">Retours et annulations</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Retours ce mois</span>
+                      <span className="font-bold text-gray-900">{returns.length}</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Valeur retours</span>
+                      <span className="font-bold text-red-600">{returns.reduce((s, r) => s + r.amount, 0).toLocaleString()} F</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Commandes annulées</span>
+                      <span className="font-bold text-gray-900">{orders.filter(o => o.status === 'cancelled').length}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Profit Report */}
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                      <DollarSign className="w-6 h-6 text-yellow-600" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">Rapport bénéfices</h4>
+                      <p className="text-sm text-gray-500">Marge et profits</p>
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Revenus totaux</span>
+                      <span className="font-bold text-green-600">{totalRevenue.toLocaleString()} F</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                      <span className="text-gray-600">Coûts estimés</span>
+                      <span className="font-bold text-red-600">{Math.round(totalRevenue * 0.6).toLocaleString()} F</span>
+                    </div>
+                    <div className="flex justify-between items-center p-3 bg-green-50 rounded-lg">
+                      <span className="text-gray-700 font-medium">Bénéfice net</span>
+                      <span className="font-bold text-green-600">{Math.round(totalRevenue * 0.4).toLocaleString()} F</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Finances Tab */}
+          {activeTab === 'finances' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">💰 Gestion financière</h3>
+                  <p className="text-sm text-gray-500">Flux de trésorerie, dépenses et revenus</p>
+                </div>
+                <div className="flex gap-3">
+                  <button className="bg-white border border-gray-200 text-gray-700 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-gray-50">
+                    <ArrowUpCircle className="w-4 h-4" /> Nouvelle entrée
+                  </button>
+                  <button className="bg-white border border-gray-200 text-red-600 px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-red-50">
+                    <ArrowDownCircle className="w-4 h-4" /> Nouvelle dépense
+                  </button>
+                </div>
+              </div>
+
+              {/* Finance Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl p-5 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <ArrowUpCircle className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm opacity-80">Revenus totaux</p>
+                      <p className="text-2xl font-bold">{transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0).toLocaleString()} F</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-red-500 to-rose-500 rounded-2xl p-5 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <ArrowDownCircle className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm opacity-80">Dépenses totales</p>
+                      <p className="text-2xl font-bold">{transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0).toLocaleString()} F</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl p-5 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <Wallet className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm opacity-80">Solde actuel</p>
+                      <p className="text-2xl font-bold">{(transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0) - transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0)).toLocaleString()} F</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-gradient-to-br from-purple-500 to-violet-500 rounded-2xl p-5 text-white">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <p className="text-sm opacity-80">Transactions</p>
+                      <p className="text-2xl font-bold">{transactions.length}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Transactions Table */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                  <h4 className="font-bold text-lg text-gray-900">Historique des transactions</h4>
+                  <p className="text-sm text-gray-500">Entrées et sorties de trésorerie</p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase bg-gray-50">
+                        <th className="px-6 py-4 font-medium">ID</th>
+                        <th className="px-6 py-4 font-medium">Type</th>
+                        <th className="px-6 py-4 font-medium">Catégorie</th>
+                        <th className="px-6 py-4 font-medium hidden md:table-cell">Description</th>
+                        <th className="px-6 py-4 font-medium">Montant</th>
+                        <th className="px-6 py-4 font-medium hidden sm:table-cell">Date</th>
+                        <th className="px-6 py-4 font-medium hidden lg:table-cell">Paiement</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {transactions.map(txn => (
+                        <tr key={txn.id} className="hover:bg-gray-50 transition-colors">
+                          <td className="px-6 py-4 font-mono text-sm text-gray-600">{txn.id}</td>
+                          <td className="px-6 py-4">
+                            <span className={`inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full ${
+                              txn.type === 'income' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                            }`}>
+                              {txn.type === 'income' ? <ArrowUpCircle className="w-3 h-3" /> : <ArrowDownCircle className="w-3 h-3" />}
+                              {txn.type === 'income' ? 'Entrée' : 'Sortie'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 text-gray-600">{txn.category}</td>
+                          <td className="px-6 py-4 hidden md:table-cell text-gray-600">{txn.description}</td>
+                          <td className={`px-6 py-4 font-bold ${txn.type === 'income' ? 'text-green-600' : 'text-red-600'}`}>
+                            {txn.type === 'income' ? '+' : '-'}{txn.amount.toLocaleString()} F
+                          </td>
+                          <td className="px-6 py-4 hidden sm:table-cell text-gray-500 text-sm">{txn.date}</td>
+                          <td className="px-6 py-4 hidden lg:table-cell text-gray-600 text-sm">{txn.paymentMethod}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Suppliers Tab */}
+          {activeTab === 'suppliers' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">👥 Gestion des fournisseurs</h3>
+                  <p className="text-sm text-gray-500">Partenaires et approvisionnement</p>
+                </div>
+                <button className="bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg">
+                  <Plus className="w-4 h-4" /> Nouveau fournisseur
+                </button>
+              </div>
+
+              {/* Suppliers Stats */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <Users2 className="w-6 h-6 text-blue-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Total fournisseurs</p>
+                      <p className="text-2xl font-bold text-gray-900">{suppliers.length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                      <CheckCircle className="w-6 h-6 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Actifs</p>
+                      <p className="text-2xl font-bold text-green-600">{suppliers.filter(s => s.status === 'active').length}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-yellow-100 rounded-xl flex items-center justify-center">
+                      <Package className="w-6 h-6 text-yellow-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Produits totaux</p>
+                      <p className="text-2xl font-bold text-gray-900">{suppliers.reduce((s, sup) => s + sup.products, 0)}</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <BarChart3 className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500">Note moyenne</p>
+                      <p className="text-2xl font-bold text-gray-900">{(suppliers.reduce((s, sup) => s + sup.rating, 0) / suppliers.length).toFixed(1)} ⭐</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Suppliers Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {suppliers.map(supplier => (
+                  <div key={supplier.id} className="bg-white rounded-2xl p-6 border border-gray-100 hover:shadow-md transition-shadow">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center">
+                          <span className="text-lg font-bold text-white">{supplier.name[0]}</span>
+                        </div>
+                        <div>
+                          <h4 className="font-bold text-gray-900">{supplier.name}</h4>
+                          <p className="text-sm text-gray-500">{supplier.city}</p>
+                        </div>
+                      </div>
+                      <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
+                        supplier.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                      }`}>
+                        {supplier.status === 'active' ? 'Actif' : 'Inactif'}
+                      </span>
+                    </div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Contact</span>
+                        <span className="font-medium text-gray-900">{supplier.contact}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Téléphone</span>
+                        <span className="font-medium text-gray-900">{supplier.phone}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Produits</span>
+                        <span className="font-medium text-gray-900">{supplier.products}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Commandes</span>
+                        <span className="font-medium text-gray-900">{supplier.totalOrders}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-gray-500">Note</span>
+                        <span className="font-medium text-yellow-500">{supplier.rating} ⭐</span>
+                      </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-gray-100 flex gap-2">
+                      <button className="flex-1 bg-gray-100 text-gray-700 py-2 rounded-lg text-sm font-medium hover:bg-gray-200 transition-colors">
+                        <Edit className="w-4 h-4 inline mr-1" /> Modifier
+                      </button>
+                      <button className="flex-1 bg-green-100 text-green-700 py-2 rounded-lg text-sm font-medium hover:bg-green-200 transition-colors">
+                        <ShoppingCart className="w-4 h-4 inline mr-1" /> Commander
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

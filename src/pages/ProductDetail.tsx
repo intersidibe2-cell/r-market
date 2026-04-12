@@ -1,15 +1,20 @@
 import { useParams, Link } from 'react-router-dom'
-import { ShoppingCart, Star, Truck, Shield, RefreshCw, ArrowLeft, Minus, Plus, Heart, Share2, Check, ChevronRight } from 'lucide-react'
+import { ShoppingCart, Star, Truck, Shield, RefreshCw, ArrowLeft, Minus, Plus, Heart, Share2, Check, ChevronRight, GitCompare } from 'lucide-react'
 import { useState } from 'react'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
+import { useCompare } from '../context/CompareContext'
+import { useNotification } from '../context/NotificationContext'
 import { products } from '../data/products'
 import ProductCard from '../components/ProductCard'
+import Reviews from '../components/Reviews'
 
 export default function ProductDetail() {
   const { id } = useParams()
   const { addToCart } = useCart()
   const { isFavorite, toggleFavorite } = useFavorites()
+  const { addToCompare, isInCompare, canAddMore } = useCompare()
+  const { success, warning } = useNotification()
   const [quantity, setQuantity] = useState(1)
   const [addedFeedback, setAddedFeedback] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
@@ -33,6 +38,7 @@ export default function ProductDetail() {
 
   const discount = Math.round((1 - product.price / product.originalPrice) * 100)
   const liked = isFavorite(product.id)
+  const inCompare = isInCompare(product.id)
 
   const handleAddToCart = () => {
     for (let i = 0; i < quantity; i++) addToCart(product)
@@ -51,6 +57,31 @@ export default function ProductDetail() {
       rating: product.rating,
       sold: product.sold
     })
+  }
+
+  const handleCompareClick = () => {
+    if (inCompare) return
+    
+    if (!canAddMore()) {
+      warning('Maximum atteint', 'Vous pouvez comparer jusqu\'à 4 produits')
+      return
+    }
+
+    const added = addToCompare({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      originalPrice: product.originalPrice,
+      image: product.image,
+      category: product.category,
+      rating: product.rating,
+      reviews: product.reviews,
+      stock: product.stock
+    })
+
+    if (added) {
+      success('Ajouté à la comparaison', product.name)
+    }
   }
 
   return (
@@ -229,6 +260,19 @@ export default function ProductDetail() {
                   {liked ? 'Retiré des favoris' : 'Ajouter aux favoris'}
                 </button>
 
+                <button
+                  onClick={handleCompareClick}
+                  disabled={inCompare}
+                  className={`w-full py-4 rounded-xl font-semibold text-base flex items-center justify-center gap-2 transition-all border-2 ${
+                    inCompare
+                      ? 'bg-blue-50 border-blue-200 text-blue-600'
+                      : 'bg-white border-gray-200 text-gray-700 hover:border-blue-200 hover:text-blue-500'
+                  }`}
+                >
+                  <GitCompare className="w-5 h-5" />
+                  {inCompare ? 'Déjà en comparaison' : 'Comparer'}
+                </button>
+
                 <Link
                   to="/checkout"
                   className="w-full py-4 rounded-xl font-semibold text-base flex items-center justify-center gap-2 bg-gray-900 text-white hover:bg-gray-800 transition-all active:scale-[0.98]"
@@ -253,6 +297,12 @@ export default function ProductDetail() {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12 bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <h2 className="text-xl font-bold text-gray-900 mb-6">Avis clients</h2>
+          <Reviews productId={product.id} />
         </div>
 
         {/* Related Products */}
