@@ -3,15 +3,15 @@ import { ChevronLeft, ChevronRight } from 'lucide-react'
 
 const slides = [
   {
-    image: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=1400&h=500&fit=crop",
+    image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1400&h=500&fit=crop&crop=face",
     title: "Bienvenue sur R-Market",
-    subtitle: "Le marketplace N°1 au Mali",
+    subtitle: "Le marketplace N°1 au Mali 🇲🇱",
     cta: "Acheter maintenant",
     link: "/shop",
     gradient: "from-green-900/80 to-transparent"
   },
   {
-    image: "https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=1400&h=500&fit=crop",
+    image: "https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1400&h=500&fit=crop&crop=face",
     title: "Mode Africaine",
     subtitle: "Bazin, Wax, Broderies traditionnelles",
     cta: "Découvrir",
@@ -19,15 +19,15 @@ const slides = [
     gradient: "from-purple-900/80 to-transparent"
   },
   {
-    image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=1400&h=500&fit=crop",
-    title: "Produits Maliens 🇲🇱",
-    subtitle: "Bazin riche Getzner, Wax Vlisco, Or artisanal",
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=1400&h=500&fit=crop&crop=face",
+    title: "Beauté Africaine",
+    subtitle: "Cosmétiques, soins, parfums pour femme",
     cta: "Voir la collection",
-    link: "/shop?category=malien",
-    gradient: "from-yellow-900/80 to-transparent"
+    link: "/shop?category=sante",
+    gradient: "from-pink-900/80 to-transparent"
   },
   {
-    image: "https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=1400&h=500&fit=crop",
+    image: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=1400&h=500&fit=crop&crop=face",
     title: "Électronique",
     subtitle: "iPhone, Samsung, Tecno, Infinix au meilleur prix",
     cta: "Profiter des offres",
@@ -35,9 +35,9 @@ const slides = [
     gradient: "from-blue-900/80 to-transparent"
   },
   {
-    image: "https://images.unsplash.com/photo-1509391366360-2e959784a276?w=1400&h=500&fit=crop",
-    title: "Maison & Énergie",
-    subtitle: "Générateurs solaires, ventilateurs, meubles",
+    image: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=1400&h=500&fit=crop&crop=face",
+    title: "Maison & Décoration",
+    subtitle: "Tout pour équiper votre maison",
     cta: "Explorer",
     link: "/shop?category=maison",
     gradient: "from-orange-900/80 to-transparent"
