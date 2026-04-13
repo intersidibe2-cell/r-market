@@ -36,6 +36,8 @@ import CustomersMali from './pages/admin/CustomersMali'
 import Analytics from './pages/admin/Analytics'
 import SettingsPage from './pages/admin/SettingsPage'
 import ContentManager from './pages/admin/ContentManager'
+import InternationalShops from './pages/admin/InternationalShops'
+import InternationalLanding from './pages/InternationalLanding'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -92,6 +94,7 @@ export default function App() {
                             <Route path="suppliers" element={<Suppliers />} />
                             <Route path="customers" element={<CustomersMali />} />
                             <Route path="content" element={<ContentManager />} />
+                            <Route path="international" element={<InternationalShops />} />
                             <Route path="users" element={<UserManagement />} />
                             <Route path="russian-orders" element={<RussianOrders />} />
                             <Route path="russian-products" element={<RussianProducts />} />
@@ -101,6 +104,9 @@ export default function App() {
                           
                           {/* QR Code militaire */}
                           <Route path="/military-qr" element={<MilitaryQRCode />} />
+                          
+                          {/* International */}
+                          <Route path="/international" element={<InternationalLanding />} />
                           
                           {/* Routes avec layout */}
                           <Route path="/ru" element={<RussianLanding />} />
