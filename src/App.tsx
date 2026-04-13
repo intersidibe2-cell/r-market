@@ -24,6 +24,17 @@ import Home from './pages/Home'
 import UserManagement from './pages/admin/UserManagement'
 import RussianOrders from './pages/admin/RussianOrders'
 import RussianProducts from './pages/admin/RussianProducts'
+import OrdersMali from './pages/admin/OrdersMali'
+import ProductsMali from './pages/admin/ProductsMali'
+import Inventory from './pages/admin/Inventory'
+import Delivery from './pages/admin/Delivery'
+import Returns from './pages/admin/Returns'
+import Reports from './pages/admin/Reports'
+import Finances from './pages/admin/Finances'
+import Suppliers from './pages/admin/Suppliers'
+import CustomersMali from './pages/admin/CustomersMali'
+import Analytics from './pages/admin/Analytics'
+import SettingsPage from './pages/admin/SettingsPage'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -70,20 +81,20 @@ export default function App() {
                           <Route path="/admin-panel" element={<AdminLayout />}>
                             <Route index element={<AdminDashboard />} />
                             <Route path="dashboard" element={<AdminDashboard />} />
-                            <Route path="orders" element={<AdminDashboard />} />
-                            <Route path="products" element={<AdminDashboard />} />
-                            <Route path="inventory" element={<AdminDashboard />} />
-                            <Route path="delivery" element={<AdminDashboard />} />
-                            <Route path="returns" element={<AdminDashboard />} />
-                            <Route path="reports" element={<AdminDashboard />} />
-                            <Route path="finances" element={<AdminDashboard />} />
-                            <Route path="suppliers" element={<AdminDashboard />} />
-                            <Route path="customers" element={<AdminDashboard />} />
+                            <Route path="orders" element={<OrdersMali />} />
+                            <Route path="products" element={<ProductsMali />} />
+                            <Route path="inventory" element={<Inventory />} />
+                            <Route path="delivery" element={<Delivery />} />
+                            <Route path="returns" element={<Returns />} />
+                            <Route path="reports" element={<Reports />} />
+                            <Route path="finances" element={<Finances />} />
+                            <Route path="suppliers" element={<Suppliers />} />
+                            <Route path="customers" element={<CustomersMali />} />
                             <Route path="users" element={<UserManagement />} />
                             <Route path="russian-orders" element={<RussianOrders />} />
                             <Route path="russian-products" element={<RussianProducts />} />
-                            <Route path="analytics" element={<AdminDashboard />} />
-                            <Route path="settings" element={<AdminDashboard />} />
+                            <Route path="analytics" element={<Analytics />} />
+                            <Route path="settings" element={<SettingsPage />} />
                           </Route>
                           
                           {/* QR Code militaire */}
