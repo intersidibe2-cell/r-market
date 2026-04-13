@@ -9,6 +9,7 @@ import { LoyaltyProvider } from './context/LoyaltyContext'
 import { PromoProvider } from './context/PromoContext'
 import { ReviewProvider } from './context/ReviewContext'
 import { CurrencyProvider } from './context/CurrencyContext'
+import { AdultAccessProvider } from './context/AdultAccessContext'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
@@ -36,20 +37,22 @@ import OrderTracking from './pages/OrderTracking'
 import Loyalty from './pages/Loyalty'
 import DeliveryScan from './pages/DeliveryScan'
 import BarcodeScanner from './pages/BarcodeScanner'
+import AdultShop from './pages/AdultShop'
 
 export default function App() {
   return (
-    <NotificationProvider>
-      <AuthProvider>
-        <AuditProvider>
-          <CurrencyProvider>
-            <PromoProvider>
-              <ReviewProvider>
-                <LoyaltyProvider>
-                  <CompareProvider>
-                    <CartProvider>
-                      <FavoritesProvider>
-                        <ToastContainer />
+    <AdultAccessProvider>
+      <NotificationProvider>
+        <AuthProvider>
+          <AuditProvider>
+            <CurrencyProvider>
+              <PromoProvider>
+                <ReviewProvider>
+                  <LoyaltyProvider>
+                    <CompareProvider>
+                      <CartProvider>
+                        <FavoritesProvider>
+                          <ToastContainer />
                         
                         <Routes>
                           {/* Routes sans layout */}
@@ -87,6 +90,7 @@ export default function App() {
                                   <Route path="/cart" element={<Cart />} />
                                   <Route path="/checkout" element={<Checkout />} />
                                   <Route path="/favorites" element={<Favorites />} />
+                                  <Route path="/adult" element={<AdultShop />} />
                                 </Routes>
                               </main>
                               <Footer />
@@ -95,15 +99,16 @@ export default function App() {
                             </div>
                           } />
                         </Routes>
-                      </FavoritesProvider>
-                    </CartProvider>
-                  </CompareProvider>
-                </LoyaltyProvider>
-              </ReviewProvider>
-            </PromoProvider>
-          </CurrencyProvider>
-        </AuditProvider>
-      </AuthProvider>
-    </NotificationProvider>
+                       </FavoritesProvider>
+                     </CartProvider>
+                   </CompareProvider>
+                 </LoyaltyProvider>
+               </ReviewProvider>
+             </PromoProvider>
+           </CurrencyProvider>
+         </AuditProvider>
+       </AuthProvider>
+     </NotificationProvider>
+    </AdultAccessProvider>
   )
 }
