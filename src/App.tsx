@@ -18,6 +18,7 @@ import ToastContainer from './components/Toast'
 import CompareBar from './components/CompareBar'
 import WhatsAppButton from './components/WhatsAppButton'
 import ProtectedRoute from './components/ProtectedRoute'
+import AdminLayout from './layouts/AdminLayout'
 
 import Home from './pages/Home'
 import Shop from './pages/Shop'
@@ -39,6 +40,8 @@ import Loyalty from './pages/Loyalty'
 import DeliveryScan from './pages/DeliveryScan'
 import BarcodeScanner from './pages/BarcodeScanner'
 import AdultShop from './pages/AdultShop'
+import MilitaryQRCode from './pages/MilitaryQRCode'
+import AdminDashboard from './pages/admin/AdminDashboard'
 
 export default function App() {
   return (
@@ -64,6 +67,26 @@ export default function App() {
                             </ProtectedRoute>
                           } />
                           <Route path="/russian-admin" element={<RussianAdmin />} />
+                          
+                          {/* Admin Panel séparé */}
+                          <Route path="/admin-panel" element={<AdminLayout />}>
+                            <Route index element={<AdminDashboard />} />
+                            <Route path="dashboard" element={<AdminDashboard />} />
+                            <Route path="orders" element={<AdminDashboard />} />
+                            <Route path="products" element={<AdminDashboard />} />
+                            <Route path="inventory" element={<AdminDashboard />} />
+                            <Route path="delivery" element={<AdminDashboard />} />
+                            <Route path="returns" element={<AdminDashboard />} />
+                            <Route path="reports" element={<AdminDashboard />} />
+                            <Route path="finances" element={<AdminDashboard />} />
+                            <Route path="suppliers" element={<AdminDashboard />} />
+                            <Route path="customers" element={<AdminDashboard />} />
+                            <Route path="analytics" element={<AdminDashboard />} />
+                            <Route path="settings" element={<AdminDashboard />} />
+                          </Route>
+                          
+                          {/* QR Code militaire */}
+                          <Route path="/military-qr" element={<MilitaryQRCode />} />
                           
                           {/* Routes avec layout */}
                           <Route path="/ru" element={<RussianLanding />} />
