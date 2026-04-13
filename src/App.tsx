@@ -13,6 +13,7 @@ import { AdultAccessProvider } from './context/AdultAccessContext'
 
 import Header from './components/Header'
 import Footer from './components/Footer'
+import ScrollToTop from './components/ScrollToTop'
 import ToastContainer from './components/Toast'
 import CompareBar from './components/CompareBar'
 import WhatsAppButton from './components/WhatsAppButton'
@@ -81,6 +82,7 @@ export default function App() {
                           {/* Routes principales avec Header/Footer */}
                           <Route path="/*" element={
                             <div className="min-h-screen bg-gray-50 flex flex-col">
+                              <ScrollToTop />
                               <Header />
                               <main className="flex-1">
                                 <Routes>
