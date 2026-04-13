@@ -175,27 +175,6 @@ export default function MilitaryQRCode() {
           </div>
         </div>
 
-        {/* Login Info Section */}
-        <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 mb-6">
-          <h3 className="text-white font-bold text-lg mb-4 text-center">
-            🔐 Liens importants
-          </h3>
-          <div className="space-y-3">
-            <div className="bg-white/10 rounded-xl p-4">
-              <p className="text-white/60 text-sm mb-1">Boutique Russe</p>
-              <p className="text-white font-mono text-lg break-all">{russianShopUrl}</p>
-            </div>
-            <div className="bg-white/10 rounded-xl p-4">
-              <p className="text-white/60 text-sm mb-1">Connexion Admin</p>
-              <p className="text-white font-mono text-lg break-all">{loginUrl}</p>
-            </div>
-            <div className="bg-white/10 rounded-xl p-4">
-              <p className="text-white/60 text-sm mb-1">Panel Administration</p>
-              <p className="text-white font-mono text-lg break-all">{adminUrl}</p>
-            </div>
-          </div>
-        </div>
-
         {/* Contact */}
         <div className="bg-gradient-to-r from-green-600/20 to-yellow-500/20 rounded-2xl p-6 text-center">
           <h3 className="text-white font-bold text-lg mb-4">📞 Contact</h3>

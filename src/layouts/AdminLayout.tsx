@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog } from 'lucide-react'
 
 const tabs = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
@@ -13,6 +13,7 @@ const tabs = [
   { id: 'finances', label: 'Finances', icon: Wallet },
   { id: 'suppliers', label: 'Fournisseurs', icon: Users2 },
   { id: 'customers', label: 'Clients', icon: Users },
+  { id: 'users', label: 'Comptes & Accès', icon: UserCog },
   { id: 'analytics', label: 'Statistiques', icon: BarChart3 },
   { id: 'settings', label: 'Paramètres', icon: Settings },
 ]

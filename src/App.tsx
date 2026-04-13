@@ -21,6 +21,7 @@ import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './layouts/AdminLayout'
 
 import Home from './pages/Home'
+import UserManagement from './pages/admin/UserManagement'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -81,6 +82,7 @@ export default function App() {
                             <Route path="finances" element={<AdminDashboard />} />
                             <Route path="suppliers" element={<AdminDashboard />} />
                             <Route path="customers" element={<AdminDashboard />} />
+                            <Route path="users" element={<UserManagement />} />
                             <Route path="analytics" element={<AdminDashboard />} />
                             <Route path="settings" element={<AdminDashboard />} />
                           </Route>
