@@ -35,7 +35,7 @@ const defaultCategories: CategoryImage[] = [
 export default function ContentManager() {
   const [sliders, setSliders] = useState<SliderImage[]>(defaultSliders)
   const [categories, setCategories] = useState<CategoryImage[]>(defaultCategories)
-  const [logoUrl, setLogoUrl] = useState("/logo.png")
+  const [logoUrl, setLogoUrl] = useState("/logo.svg")
   const [saved, setSaved] = useState(false)
 
   const updateSlider = (id: number, field: keyof SliderImage, value: string | boolean) => {
@@ -74,7 +74,7 @@ export default function ContentManager() {
   const handleReset = () => {
     setSliders(defaultSliders)
     setCategories(defaultCategories)
-    setLogoUrl("/logo.png")
+    setLogoUrl("/logo.svg")
     localStorage.removeItem('rmarket_sliders')
     localStorage.removeItem('rmarket_categories')
     localStorage.removeItem('rmarket_logo')

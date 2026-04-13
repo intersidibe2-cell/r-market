@@ -34,7 +34,7 @@ export default function AdminLayout() {
           <div className="p-6 border-b border-white/10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-4">
-                <img src="/logo.png" alt="R-Market" className="w-12 h-12 rounded-xl shadow-lg object-cover" />
+                <img src="/logo.svg" alt="R-Market" className="w-12 h-12 rounded-xl shadow-lg" />
                 <div>
                   <h1 className="font-bold text-lg">R-Market</h1>
                   <p className="text-xs text-green-200">Administration</p>
