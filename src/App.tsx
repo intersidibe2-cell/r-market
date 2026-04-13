@@ -1,4 +1,4 @@
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { CartProvider } from './context/CartContext'
 import { FavoritesProvider } from './context/FavoritesContext'
 import { NotificationProvider } from './context/NotificationContext'
@@ -22,6 +22,8 @@ import AdminLayout from './layouts/AdminLayout'
 
 import Home from './pages/Home'
 import UserManagement from './pages/admin/UserManagement'
+import RussianOrders from './pages/admin/RussianOrders'
+import RussianProducts from './pages/admin/RussianProducts'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -62,14 +64,9 @@ export default function App() {
                         <Routes>
                           {/* Routes sans layout */}
                           <Route path="/login" element={<Login />} />
-                          <Route path="/admin" element={
-                            <ProtectedRoute requiredPermission="all">
-                              <Admin />
-                            </ProtectedRoute>
-                          } />
-                          <Route path="/russian-admin" element={<RussianAdmin />} />
                           
-                          {/* Admin Panel séparé */}
+                          {/* Admin Panel unifié */}
+                          <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
                           <Route path="/admin-panel" element={<AdminLayout />}>
                             <Route index element={<AdminDashboard />} />
                             <Route path="dashboard" element={<AdminDashboard />} />
@@ -83,6 +80,8 @@ export default function App() {
                             <Route path="suppliers" element={<AdminDashboard />} />
                             <Route path="customers" element={<AdminDashboard />} />
                             <Route path="users" element={<UserManagement />} />
+                            <Route path="russian-orders" element={<RussianOrders />} />
+                            <Route path="russian-products" element={<RussianProducts />} />
                             <Route path="analytics" element={<AdminDashboard />} />
                             <Route path="settings" element={<AdminDashboard />} />
                           </Route>

@@ -1,21 +1,23 @@
 import { useState } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck } from 'lucide-react'
 
 const tabs = [
-  { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-  { id: 'orders', label: 'Commandes', icon: ShoppingCart },
-  { id: 'products', label: 'Produits', icon: Package },
-  { id: 'inventory', label: 'Inventaire', icon: Warehouse },
-  { id: 'delivery', label: 'Livraisons', icon: Truck },
-  { id: 'returns', label: 'Retours', icon: RefreshCw },
-  { id: 'reports', label: 'Rapports', icon: FileText },
-  { id: 'finances', label: 'Finances', icon: Wallet },
-  { id: 'suppliers', label: 'Fournisseurs', icon: Users2 },
-  { id: 'customers', label: 'Clients', icon: Users },
-  { id: 'users', label: 'Comptes & Accès', icon: UserCog },
-  { id: 'analytics', label: 'Statistiques', icon: BarChart3 },
-  { id: 'settings', label: 'Paramètres', icon: Settings },
+  { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, section: 'main' },
+  { id: 'orders', label: 'Commandes Mali', icon: ShoppingCart, section: 'main' },
+  { id: 'products', label: 'Produits Mali', icon: Package, section: 'main' },
+  { id: 'inventory', label: 'Inventaire', icon: Warehouse, section: 'main' },
+  { id: 'delivery', label: 'Livraisons', icon: Truck, section: 'main' },
+  { id: 'returns', label: 'Retours', icon: RefreshCw, section: 'main' },
+  { id: 'reports', label: 'Rapports', icon: FileText, section: 'main' },
+  { id: 'finances', label: 'Finances', icon: Wallet, section: 'main' },
+  { id: 'suppliers', label: 'Fournisseurs', icon: Users2, section: 'main' },
+  { id: 'customers', label: 'Clients Mali', icon: Users, section: 'main' },
+  { id: 'russian-orders', label: 'Commandes Russes', icon: Flag, section: 'russian' },
+  { id: 'russian-products', label: 'Produits Russes', icon: PackageCheck, section: 'russian' },
+  { id: 'users', label: 'Comptes & Accès', icon: UserCog, section: 'settings' },
+  { id: 'analytics', label: 'Statistiques', icon: BarChart3, section: 'settings' },
+  { id: 'settings', label: 'Paramètres', icon: Settings, section: 'settings' },
 ]
 
 export default function AdminLayout() {
@@ -46,26 +48,82 @@ export default function AdminLayout() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-            {tabs.map(item => {
-              const isActive = location.pathname === `/admin-panel/${item.id}` || 
-                              (location.pathname === '/admin-panel' && item.id === 'dashboard')
-              return (
-                <Link
-                  key={item.id}
-                  to={`/admin-panel/${item.id}`}
-                  onClick={() => setSidebarOpen(false)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
-                    isActive
-                      ? 'bg-white text-green-800 shadow-lg'
-                      : 'text-green-100 hover:bg-white/10'
-                  }`}
-                >
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
-                </Link>
-              )
-            })}
+          <nav className="flex-1 p-4 space-y-4 overflow-y-auto">
+            {/* Main Section */}
+            <div>
+              <p className="text-xs text-green-300 uppercase tracking-wider mb-2 px-4">🇲🇱 Mali</p>
+              <div className="space-y-1">
+                {tabs.filter(t => t.section === 'main').map(item => {
+                  const isActive = location.pathname === `/admin-panel/${item.id}` || 
+                                  (location.pathname === '/admin-panel' && item.id === 'dashboard')
+                  return (
+                    <Link
+                      key={item.id}
+                      to={`/admin-panel/${item.id}`}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-white text-green-800 shadow-lg'
+                          : 'text-green-100 hover:bg-white/10'
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Russian Section */}
+            <div>
+              <p className="text-xs text-green-300 uppercase tracking-wider mb-2 px-4">🇷🇺 Boutique Russe</p>
+              <div className="space-y-1">
+                {tabs.filter(t => t.section === 'russian').map(item => {
+                  const isActive = location.pathname === `/admin-panel/${item.id}`
+                  return (
+                    <Link
+                      key={item.id}
+                      to={`/admin-panel/${item.id}`}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-white text-green-800 shadow-lg'
+                          : 'text-green-100 hover:bg-white/10'
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Settings Section */}
+            <div>
+              <p className="text-xs text-green-300 uppercase tracking-wider mb-2 px-4">⚙️ Configuration</p>
+              <div className="space-y-1">
+                {tabs.filter(t => t.section === 'settings').map(item => {
+                  const isActive = location.pathname === `/admin-panel/${item.id}`
+                  return (
+                    <Link
+                      key={item.id}
+                      to={`/admin-panel/${item.id}`}
+                      onClick={() => setSidebarOpen(false)}
+                      className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        isActive
+                          ? 'bg-white text-green-800 shadow-lg'
+                          : 'text-green-100 hover:bg-white/10'
+                      }`}
+                    >
+                      <item.icon className="w-4 h-4" />
+                      {item.label}
+                    </Link>
+                  )
+                })}
+              </div>
+            </div>
           </nav>
 
           {/* Bottom */}

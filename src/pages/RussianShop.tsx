@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen } from 'lucide-react'
+import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check } from 'lucide-react'
 import { russianProducts, russianCategories } from '../data/russianProducts'
 
 interface CartItem {
@@ -29,11 +29,13 @@ export default function RussianShop() {
   const [exchangeResult, setExchangeResult] = useState('')
 
   const [orderForm, setOrderForm] = useState({
-    name: '',
+    code: '',
     phone: '',
     address: '',
     payment: 'CFA'
   })
+  const [orderConfirmed, setOrderConfirmed] = useState(false)
+  const [orderCode, setOrderCode] = useState('')
 
   const exchangeRates: Record<string, Record<string, number>> = {
     EUR: { CFA: 655.96, USD: 1.09 },
@@ -513,7 +515,7 @@ export default function RussianShop() {
       )}
 
       {/* Order Form Modal */}
-      {showOrderForm && (
+      {showOrderForm && !orderConfirmed && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
           <div className="bg-gray-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl">
             <div className="p-6 border-b border-gray-700 flex items-center justify-between">
@@ -525,17 +527,22 @@ export default function RussianShop() {
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Имя' : 'Nom'} *</label>
+                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Ваш код (для доставки)' : 'Votre code (pour livraison)'} *</label>
                 <input 
                   type="text"
-                  value={orderForm.name}
-                  onChange={e => setOrderForm({...orderForm, name: e.target.value})}
-                  placeholder={lang === 'ru' ? 'Иванов Иван' : 'Moussa'}
-                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
+                  value={orderForm.code}
+                  onChange={e => setOrderForm({...orderForm, code: e.target.value.toUpperCase()})}
+                  placeholder={lang === 'ru' ? 'Например: RUS-7823' : 'Ex: RUS-7823'}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg font-mono"
                 />
+                <p className="text-xs text-gray-500 mt-1">
+                  {lang === 'ru' 
+                    ? 'Код для идентификации при доставке' 
+                    : 'Code pour identification à la livraison'}
+                </p>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Телефон' : 'Téléphone'} *</label>
+                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Телефон (WhatsApp)' : 'Téléphone (WhatsApp)'} *</label>
                 <input 
                   type="tel"
                   value={orderForm.phone}
@@ -550,7 +557,7 @@ export default function RussianShop() {
                   type="text"
                   value={orderForm.address}
                   onChange={e => setOrderForm({...orderForm, address: e.target.value})}
-                  placeholder={lang === 'ru' ? 'База / Отель' : 'Base / Hôtel'}
+                  placeholder={lang === 'ru' ? 'База / Отель / Район' : 'Base / Hôtel / Quartier'}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
                 />
               </div>
@@ -578,15 +585,65 @@ export default function RussianShop() {
                 </div>
               </div>
 
-              <button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold">
+              <button 
+                onClick={() => {
+                  const code = orderForm.code || `RUS-${Math.floor(1000 + Math.random() * 9000)}`
+                  setOrderCode(code)
+                  setOrderConfirmed(true)
+                  setCart([])
+                }}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold"
+              >
                 {lang === 'ru' ? 'Подтвердить заказ' : 'Confirmer la commande'}
               </button>
 
               <p className="text-xs text-gray-400 text-center">
                 {lang === 'ru' 
-                  ? 'Анонимный заказ. Доставка в вашу базу/отель.' 
-                  : 'Commande anonyme. Livraison à votre base/hôtel.'}
+                  ? 'Анонимный заказ. Только код для доставки.' 
+                  : 'Commande anonyme. Seul le code est utilisé pour la livraison.'}
               </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order Confirmation Modal */}
+      {orderConfirmed && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
+          <div className="bg-gray-800 w-full max-w-md rounded-t-2xl md:rounded-2xl">
+            <div className="p-8 text-center">
+              <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
+                <Check className="w-10 h-10 text-white" />
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                {lang === 'ru' ? 'Заказ подтверждён!' : 'Commande confirmée!'}
+              </h2>
+              <p className="text-gray-400 mb-6">
+                {lang === 'ru' 
+                  ? 'Ваш заказ принят. Используйте код для получения.' 
+                  : 'Votre commande est acceptée. Utilisez le code pour la réception.'}
+              </p>
+              
+              <div className="bg-gradient-to-r from-blue-600 to-red-600 rounded-xl p-6 mb-6">
+                <p className="text-white/80 text-sm mb-2">{lang === 'ru' ? 'Ваш код заказа' : 'Votre code de commande'}</p>
+                <p className="text-4xl font-bold text-white font-mono">{orderCode}</p>
+              </div>
+
+              <div className="bg-gray-700 rounded-lg p-4 mb-6 text-left">
+                <p className="text-gray-400 text-sm mb-2">{lang === 'ru' ? 'Что делать:' : 'Que faire:'}</p>
+                <ul className="text-sm text-white space-y-1">
+                  <li>📝 {lang === 'ru' ? 'Запомните или запишите ваш код' : 'Mémorisez ou notez votre code'}</li>
+                  <li>📱 {lang === 'ru' ? 'Ливрёр свяжется с вами по WhatsApp' : 'Le livreur vous contactera sur WhatsApp'}</li>
+                  <li>🎁 {lang === 'ru' ? 'Предъявите код при получении' : 'Présentez le code à la réception'}</li>
+                </ul>
+              </div>
+
+              <button 
+                onClick={() => { setShowOrderForm(false); setOrderConfirmed(false); setOrderForm({ code: '', phone: '', address: '', payment: 'CFA' }) }}
+                className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-bold"
+              >
+                {lang === 'ru' ? 'Закрыть' : 'Fermer'}
+              </button>
             </div>
           </div>
         </div>
