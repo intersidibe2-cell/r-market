@@ -72,22 +72,23 @@ export default function Shop() {
 
               <div className="mb-5">
                 <h3 className="font-medium text-gray-900 mb-3 text-sm">Catégories</h3>
-                <div className="space-y-1">
-                  {categories.map(cat => (
+                <div className="grid grid-cols-2 gap-2">
+                  {categories.filter(c => c.id !== 'all').map(cat => (
                     <button
                       key={cat.id}
                       onClick={() => {
-                        setSearchParams(cat.id === 'all' ? {} : { category: cat.id })
+                        setSearchParams({ category: cat.id })
                         setShowFilters(false)
                       }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-all flex items-center gap-2 ${
+                      className={`relative overflow-hidden rounded-xl transition-all ${
                         categoryParam === cat.id
-                          ? 'bg-green-100 text-green-700 font-semibold'
-                          : 'text-gray-600 hover:bg-gray-50'
+                          ? 'ring-2 ring-green-500'
+                          : 'hover:ring-2 hover:ring-gray-200'
                       }`}
                     >
-                      <span>{cat.emoji}</span>
-                      {cat.name}
+                      <img src={cat.image} alt={cat.name} className="w-full h-20 object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                      <span className="absolute bottom-1 left-0 right-0 text-center text-xs text-white font-medium">{cat.name}</span>
                     </button>
                   ))}
                 </div>

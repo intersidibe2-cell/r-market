@@ -41,20 +41,27 @@ export default function Home() {
       </section>
 
       {/* Categories */}
-      <section className="py-10 bg-gray-50">
+      <section className="py-10 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-xl font-bold text-gray-900 mb-6">Catégories populaires</h2>
-          <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-7 gap-3">
+          <h2 className="text-xl font-bold text-white mb-6">Catégories</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
             {categories.filter(c => c.id !== 'all').map(cat => (
               <Link
                 key={cat.id}
                 to={`/shop?category=${cat.id}`}
-                className="bg-white rounded-xl p-4 text-center hover:shadow-md transition-all border border-gray-100 hover:border-green-200 group"
+                className="bg-gray-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all group"
               >
-                <div className={`w-12 h-12 bg-gradient-to-br ${cat.color} rounded-xl flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform`}>
-                  <span className="text-2xl">{cat.emoji}</span>
+                <div className="aspect-square relative overflow-hidden">
+                  <img 
+                    src={cat.image} 
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <span className="text-white text-sm font-semibold">{cat.name}</span>
+                  </div>
                 </div>
-                <span className="text-xs font-medium text-gray-700">{cat.name}</span>
               </Link>
             ))}
           </div>

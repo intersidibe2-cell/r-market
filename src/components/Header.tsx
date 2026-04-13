@@ -116,9 +116,7 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 md:gap-3 group min-w-0">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg transform group-hover:scale-105 transition-transform duration-200">
-                <span className="text-white font-bold text-xl">R</span>
-              </div>
+              <img src="https://i.imgur.com/8xRzKzL.png" alt="R-Market" className="w-10 h-10 md:w-12 md:h-12 rounded-xl shadow-lg transform group-hover:scale-105 transition-transform duration-200 object-cover" />
               <div className="hidden sm:block min-w-0">
                 <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 whitespace-nowrap leading-none truncate">R-Market</h1>
                 <p className="hidden lg:block text-xs text-gray-500 whitespace-nowrap mt-0.5">Votre marketplace au Mali</p>

@@ -15,13 +15,13 @@ export interface Product {
 }
 
 export const categories = [
-  { id: "all", name: "Tous", color: "from-green-600 to-yellow-500", emoji: "🏪" },
-  { id: "mode", name: "Mode & Vêtements", color: "from-pink-500 to-rose-500", emoji: "👗" },
-  { id: "electronique", name: "Électronique", color: "from-blue-500 to-cyan-500", emoji: "📱" },
-  { id: "sante", name: "Santé & Beauté", color: "from-green-500 to-emerald-500", emoji: "💄" },
-  { id: "maison", name: "Maison & Décoration", color: "from-amber-500 to-orange-500", emoji: "🏠" },
-  { id: "alimentation", name: "Alimentation", color: "from-yellow-500 to-green-500", emoji: "🍫" },
-  { id: "adulte", name: "Articles adultes", color: "from-purple-600 to-pink-600", emoji: "🔒" },
+  { id: "all", name: "Tous", color: "from-green-600 to-yellow-500", emoji: "🏪", image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=300&h=300&fit=crop" },
+  { id: "mode", name: "Mode & Vêtements", color: "from-pink-500 to-rose-500", emoji: "👗", image: "https://images.unsplash.com/photo-1489987707025-afc232f7ea0f?w=300&h=300&fit=crop" },
+  { id: "electronique", name: "Électronique", color: "from-blue-500 to-cyan-500", emoji: "📱", image: "https://images.unsplash.com/photo-1498049794561-7780e7231661?w=300&h=300&fit=crop" },
+  { id: "sante", name: "Santé & Beauté", color: "from-green-500 to-emerald-500", emoji: "💄", image: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?w=300&h=300&fit=crop" },
+  { id: "maison", name: "Maison & Décoration", color: "from-amber-500 to-orange-500", emoji: "🏠", image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=300&h=300&fit=crop" },
+  { id: "alimentation", name: "Alimentation", color: "from-yellow-500 to-green-500", emoji: "🍫", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=300&h=300&fit=crop" },
+  { id: "adulte", name: "Articles adultes", color: "from-purple-600 to-pink-600", emoji: "🔞", image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=300&h=300&fit=crop" },
 ]
 
 export const regions = [
