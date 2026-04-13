@@ -35,6 +35,7 @@ import Suppliers from './pages/admin/Suppliers'
 import CustomersMali from './pages/admin/CustomersMali'
 import Analytics from './pages/admin/Analytics'
 import SettingsPage from './pages/admin/SettingsPage'
+import ContentManager from './pages/admin/ContentManager'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -90,6 +91,7 @@ export default function App() {
                             <Route path="finances" element={<Finances />} />
                             <Route path="suppliers" element={<Suppliers />} />
                             <Route path="customers" element={<CustomersMali />} />
+                            <Route path="content" element={<ContentManager />} />
                             <Route path="users" element={<UserManagement />} />
                             <Route path="russian-orders" element={<RussianOrders />} />
                             <Route path="russian-products" element={<RussianProducts />} />
