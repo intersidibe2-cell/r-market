@@ -1,6 +1,6 @@
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { useCart } from '../context/CartContext'
-import { CheckCircle, ArrowLeft, MapPin, CreditCard, Phone, User, Building } from 'lucide-react'
+import { CheckCircle, ArrowLeft, MapPin, CreditCard, Phone, User, Building, Download, Printer } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 export default function Checkout() {
@@ -10,6 +10,10 @@ export default function Checkout() {
   const [formData, setFormData] = useState({
     fullName: '', phone: '', address: '', region: '', commune: '', payment: 'orange', notes: ''
   })
+
+  // Generate order number once
+  const orderNumber = useMemo(() => `CMD-${Math.floor(100000 + Math.random() * 900000)}`, [])
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(JSON.stringify({orderNumber, type: 'mali'}))}&bgcolor=ffffff&color=166534&margin=4`
 
   const shipping = totalPrice >= 5000 ? 0 : 400
   const grandTotal = totalPrice + shipping
@@ -26,17 +30,74 @@ export default function Checkout() {
 
   if (orderPlaced) {
     return (
-      <div className="bg-gray-50 min-h-screen flex items-center justify-center">
-        <div className="text-center py-16 max-w-md mx-auto px-4">
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10 text-green-500" />
+      <div className="bg-gray-50 min-h-screen py-8">
+        <div className="max-w-lg mx-auto px-4">
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            {/* Header */}
+            <div className="bg-gradient-to-r from-green-600 to-emerald-600 p-6 text-center text-white">
+              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="w-10 h-10" />
+              </div>
+              <h1 className="text-2xl font-bold mb-1">Commande confirmée !</h1>
+              <p className="text-white/80 text-sm">Merci pour votre commande</p>
+            </div>
+
+            {/* QR Code */}
+            <div className="p-6 text-center">
+              <div className="bg-gray-50 rounded-2xl p-4 inline-block mb-4">
+                <img 
+                  src={qrCodeUrl}
+                  alt="QR Code Commande"
+                  className="w-48 h-48 mx-auto"
+                />
+              </div>
+              
+              <div className="bg-green-50 rounded-xl p-4 mb-4">
+                <p className="text-green-600 text-sm mb-1">Votre numéro de commande</p>
+                <p className="text-3xl font-bold text-green-700 font-mono">{orderNumber}</p>
+              </div>
+
+              <p className="text-gray-500 text-sm mb-6">
+                Vous recevrez un SMS de confirmation sur votre téléphone.
+              </p>
+
+              {/* Instructions */}
+              <div className="bg-gray-50 rounded-xl p-4 text-left mb-6">
+                <p className="font-semibold text-gray-900 mb-2">📱 Instructions</p>
+                <ul className="text-sm text-gray-600 space-y-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500">✓</span>
+                    <span>Faites une capture d'écran de ce QR code</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500">✓</span>
+                    <span>Le livreur vous contactera sur WhatsApp</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-green-500">✓</span>
+                    <span>Présentez le QR code ou le numéro à la réception</span>
+                  </li>
+                </ul>
+              </div>
+
+              {/* Actions */}
+              <div className="flex gap-3">
+                <button 
+                  onClick={() => window.print()}
+                  className="flex-1 flex items-center justify-center gap-2 py-3 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50"
+                >
+                  <Printer className="w-4 h-4" />
+                  Imprimer
+                </button>
+                <Link 
+                  to="/shop"
+                  className="flex-1 flex items-center justify-center gap-2 bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 transition-all"
+                >
+                  Continuer
+                </Link>
+              </div>
+            </div>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900 mb-3">Commande confirmée !</h1>
-          <p className="text-gray-500 mb-2">Votre commande #{Math.floor(Math.random() * 900000 + 100000)} a été enregistrée avec succès.</p>
-          <p className="text-gray-500 mb-8">Vous recevrez un SMS de confirmation sur votre téléphone.</p>
-          <Link to="/shop" className="inline-flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 text-white px-8 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all">
-            Continuer vos achats
-          </Link>
         </div>
       </div>
     )

@@ -620,21 +620,31 @@ export default function RussianShop() {
               </h2>
               <p className="text-gray-400 mb-6">
                 {lang === 'ru' 
-                  ? 'Ваш заказ принят. Используйте код для получения.' 
-                  : 'Votre commande est acceptée. Utilisez le code pour la réception.'}
+                  ? 'Ваш заказ принят. Сохраните QR-код для получения.' 
+                  : 'Votre commande est acceptée. Gardez le QR-code pour la réception.'}
               </p>
               
+              {/* QR Code */}
+              <div className="bg-white rounded-2xl p-4 mb-6 inline-block">
+                <img 
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(JSON.stringify({orderCode, type: 'russian'}))}&bgcolor=ffffff&color=1a1a2e&margin=4`}
+                  alt="QR Code Commande"
+                  className="w-48 h-48 mx-auto"
+                />
+              </div>
+
               <div className="bg-gradient-to-r from-blue-600 to-red-600 rounded-xl p-6 mb-6">
-                <p className="text-white/80 text-sm mb-2">{lang === 'ru' ? 'Ваш код заказа' : 'Votre code de commande'}</p>
+                <p className="text-white/80 text-sm mb-2">{lang === 'ru' ? 'Ваш номер заказа' : 'Votre numéro de commande'}</p>
                 <p className="text-4xl font-bold text-white font-mono">{orderCode}</p>
               </div>
 
               <div className="bg-gray-700 rounded-lg p-4 mb-6 text-left">
                 <p className="text-gray-400 text-sm mb-2">{lang === 'ru' ? 'Что делать:' : 'Que faire:'}</p>
                 <ul className="text-sm text-white space-y-1">
-                  <li>📝 {lang === 'ru' ? 'Запомните или запишите ваш код' : 'Mémorisez ou notez votre code'}</li>
+                  <li>📸 {lang === 'ru' ? 'Сделайте скриншот этого экрана' : 'Faites une capture d\'écran'}</li>
+                  <li>🖨️ {lang === 'ru' ? 'Или распечатайте QR-код' : 'Ou imprimez le QR-code'}</li>
                   <li>📱 {lang === 'ru' ? 'Ливрёр свяжется с вами по WhatsApp' : 'Le livreur vous contactera sur WhatsApp'}</li>
-                  <li>🎁 {lang === 'ru' ? 'Предъявите код при получении' : 'Présentez le code à la réception'}</li>
+                  <li>🎁 {lang === 'ru' ? 'Предъявите QR-код или номер при получении' : 'Présentez le QR-code ou le numéro à la réception'}</li>
                 </ul>
               </div>
 
