@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, ArrowRightLeft,
   TrendingUp, Truck, Search, Plus, Trash2, Edit, Eye, Download,
-  Bell, Calendar, Package2, X, DollarSign, Wine, Gift, Globe, Menu, ArrowLeft, Home
+  Bell, Calendar, Package2, X, DollarSign, Wine, Gift, Globe, Menu, ArrowLeft, Home, RefreshCw
 } from 'lucide-react'
 import { russianProducts, russianCategories, initialRussianOrders, type RussianProduct } from '../data/russianProducts'
 
@@ -25,6 +25,15 @@ export default function RussianAdmin() {
   const [orders, setOrders] = useState(initialRussianOrders)
   const [products, setProducts] = useState(russianProducts)
   const [customers] = useState(initialCustomers)
+  const [receivingItems, setReceivingItems] = useState([
+    { id: 'REC-001', product: 'Водка «Столичная»', quantity: 50, status: 'pending', date: '13/04/2026', supplier: 'Moscow Spirits' },
+    { id: 'REC-002', product: 'Конфеты «Красный Октябрь»', quantity: 200, status: 'received', date: '12/04/2026', supplier: 'Red October' },
+    { id: 'REC-003', product: 'Икра красная', quantity: 30, status: 'pending', date: '13/04/2026', supplier: 'Saint-Petersburg Foods' },
+  ])
+  const [defectiveItems, setDefectiveItems] = useState([
+    { id: 'DEF-001', product: 'Матрёшка 5 фигур', reason: 'Повреждена краска', status: 'pending', date: '12/04/2026', amount: 15000 },
+    { id: 'DEF-002', product: 'Шоколад «Алёнка»', reason: 'Срок годности', status: 'resolved', date: '10/04/2026', amount: 5000 },
+  ])
 
   const [newProduct, setNewProduct] = useState({ 
     name: '', nameRu: '', price: '', originalPrice: '', stock: '', image: '', 
@@ -81,6 +90,8 @@ export default function RussianAdmin() {
     { id: 'dashboard', labelRu: 'Панель', labelFr: 'Tableau de bord', icon: LayoutDashboard },
     { id: 'orders', labelRu: 'Заказы', labelFr: 'Commandes', icon: ShoppingCart },
     { id: 'products', labelRu: 'Товары', labelFr: 'Produits', icon: Package },
+    { id: 'receiving', labelRu: 'Приём товара', labelFr: 'Réception', icon: Package2 },
+    { id: 'defective', labelRu: 'Брак', labelFr: 'Défectueux', icon: RefreshCw },
     { id: 'exchange', labelRu: 'Обмен', labelFr: 'Échanges', icon: ArrowRightLeft },
     { id: 'customers', labelRu: 'Клиенты', labelFr: 'Clients', icon: Users },
     { id: 'settings', labelRu: 'Настройки', labelFr: 'Paramètres', icon: Settings },
@@ -485,6 +496,144 @@ export default function RussianAdmin() {
                   </div>
                 </div>
               )}
+            </div>
+          )}
+
+          {/* Receiving Tab */}
+          {activeTab === 'receiving' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">{t('Приём товара', 'Réception de marchandise')}</h2>
+                <button className="bg-gradient-to-r from-blue-600 to-red-600 text-white px-4 py-2 rounded-xl text-sm font-medium">
+                  {t('Новая приёмка', 'Nouvelle réception')}
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <p className="text-sm text-gray-500">{t('Ожидает', 'En attente')}</p>
+                  <p className="text-3xl font-bold text-yellow-600">{receivingItems.filter(r => r.status === 'pending').length}</p>
+                </div>
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <p className="text-sm text-gray-500">{t('Получено', 'Reçu')}</p>
+                  <p className="text-3xl font-bold text-green-600">{receivingItems.filter(r => r.status === 'received').length}</p>
+                </div>
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <p className="text-sm text-gray-500">{t('Всего', 'Total')}</p>
+                  <p className="text-3xl font-bold text-gray-900">{receivingItems.length}</p>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase bg-gray-50">
+                        <th className="px-6 py-4">ID</th>
+                        <th className="px-6 py-4">{t('Товар', 'Produit')}</th>
+                        <th className="px-6 py-4">{t('Кол-во', 'Qté')}</th>
+                        <th className="px-6 py-4">{t('Поставщик', 'Fournisseur')}</th>
+                        <th className="px-6 py-4">{t('Дата', 'Date')}</th>
+                        <th className="px-6 py-4">{t('Статус', 'Statut')}</th>
+                        <th className="px-6 py-4">{t('Действия', 'Actions')}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {receivingItems.map(item => (
+                        <tr key={item.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 font-semibold">{item.id}</td>
+                          <td className="px-6 py-4">{item.product}</td>
+                          <td className="px-6 py-4 font-bold">{item.quantity}</td>
+                          <td className="px-6 py-4 text-gray-600">{item.supplier}</td>
+                          <td className="px-6 py-4 text-gray-500">{item.date}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
+                              item.status === 'received' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {item.status === 'received' ? t('Получено', 'Reçu') : t('Ожидает', 'En attente')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {item.status === 'pending' && (
+                              <button onClick={() => setReceivingItems(prev => prev.map(r => r.id === item.id ? {...r, status: 'received'} : r))}
+                                className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-200">
+                                {t('Подтвердить', 'Confirmer')}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Defective Tab */}
+          {activeTab === 'defective' && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="text-2xl font-bold">{t('Брак / Возврат', 'Défectueux / Retours')}</h2>
+                <button className="bg-gradient-to-r from-red-600 to-orange-600 text-white px-4 py-2 rounded-xl text-sm font-medium">
+                  {t('Сообщить о браке', 'Signaler un défaut')}
+                </button>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <p className="text-sm text-gray-500">{t('Ожидает', 'En attente')}</p>
+                  <p className="text-3xl font-bold text-yellow-600">{defectiveItems.filter(d => d.status === 'pending').length}</p>
+                </div>
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <p className="text-sm text-gray-500">{t('Решено', 'Résolu')}</p>
+                  <p className="text-3xl font-bold text-green-600">{defectiveItems.filter(d => d.status === 'resolved').length}</p>
+                </div>
+                <div className="bg-white rounded-2xl p-6 border border-gray-100">
+                  <p className="text-sm text-gray-500">{t('Сумма убытков', 'Pertes totales')}</p>
+                  <p className="text-3xl font-bold text-red-600">{defectiveItems.reduce((s, d) => s + d.amount, 0).toLocaleString()} F</p>
+                </div>
+              </div>
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase bg-gray-50">
+                        <th className="px-6 py-4">ID</th>
+                        <th className="px-6 py-4">{t('Товар', 'Produit')}</th>
+                        <th className="px-6 py-4">{t('Причина', 'Raison')}</th>
+                        <th className="px-6 py-4">{t('Сумма', 'Montant')}</th>
+                        <th className="px-6 py-4">{t('Дата', 'Date')}</th>
+                        <th className="px-6 py-4">{t('Статус', 'Statut')}</th>
+                        <th className="px-6 py-4">{t('Действия', 'Actions')}</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      {defectiveItems.map(item => (
+                        <tr key={item.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 font-semibold">{item.id}</td>
+                          <td className="px-6 py-4">{item.product}</td>
+                          <td className="px-6 py-4 text-red-600">{item.reason}</td>
+                          <td className="px-6 py-4 font-bold">{item.amount.toLocaleString()} F</td>
+                          <td className="px-6 py-4 text-gray-500">{item.date}</td>
+                          <td className="px-6 py-4">
+                            <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${
+                              item.status === 'resolved' ? 'bg-green-100 text-green-700' : 'bg-yellow-100 text-yellow-700'
+                            }`}>
+                              {item.status === 'resolved' ? t('Решено', 'Résolu') : t('Ожидает', 'En attente')}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            {item.status === 'pending' && (
+                              <button onClick={() => setDefectiveItems(prev => prev.map(d => d.id === item.id ? {...d, status: 'resolved'} : d))}
+                                className="text-xs bg-green-100 text-green-700 px-3 py-1.5 rounded-lg hover:bg-green-200">
+                                {t('Решить', 'Résoudre')}
+                              </button>
+                            )}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           )}
 
