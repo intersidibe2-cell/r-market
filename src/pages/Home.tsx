@@ -172,49 +172,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* International Section */}
-      <section className="py-12 bg-gray-900">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between mb-8">
-            <div>
-              <h2 className="text-2xl font-bold text-white flex items-center gap-2">
-                <Globe className="w-6 h-6 text-green-400" />
-                R-Market International
-              </h2>
-              <p className="text-gray-400 text-sm mt-1">Produits du monde entier</p>
-            </div>
-            <Link to="/international" className="text-green-400 hover:text-green-300 text-sm font-medium flex items-center gap-1">
-              Voir tout <ArrowRight className="w-4 h-4" />
-            </Link>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { flag: '🇷🇺', name: 'Russie', status: 'Actif', gradient: 'from-blue-600 to-red-600', link: '/russian' },
-              { flag: '🇨🇳', name: 'Chine', status: 'Bientôt', gradient: 'from-red-600 to-yellow-500', link: '/international' },
-              { flag: '🇹🇷', name: 'Turquie', status: 'Bientôt', gradient: 'from-red-600 to-red-700', link: '/international' },
-              { flag: '🇦🇪', name: 'Dubaï', status: 'Planifié', gradient: 'from-green-600 to-black', link: '/international' },
-            ].map((shop, i) => (
-              <Link
-                key={i}
-                to={shop.link}
-                className="bg-gray-800 rounded-xl overflow-hidden hover:scale-105 transition-all group"
-              >
-                <div className={`bg-gradient-to-r ${shop.gradient} p-4 text-center`}>
-                  <span className="text-4xl">{shop.flag}</span>
-                </div>
-                <div className="p-3 text-center">
-                  <p className="text-white font-semibold">{shop.name}</p>
-                  <p className={`text-xs ${shop.status === 'Actif' ? 'text-green-400' : 'text-yellow-400'}`}>
-                    {shop.status}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* Newsletter */}
       <section className="py-12 bg-gray-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">

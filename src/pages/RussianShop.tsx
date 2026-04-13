@@ -111,8 +111,8 @@ export default function RussianShop() {
         <div className="bg-blue-900">
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-2xl">🇷🇺</span>
-              <span className="text-sm font-medium text-blue-200">Служба для русских военных в Мали</span>
+              <span className="text-2xl">🇲🇱</span>
+              <span className="text-sm font-medium text-blue-200">{t('Товары Мали для русских', 'Produits Mali pour Russes')}</span>
             </div>
             <div className="flex items-center gap-4">
               <button onClick={() => setLang(lang === 'ru' ? 'fr' : 'ru')} className="text-sm text-blue-200 hover:text-white flex items-center gap-1">
@@ -129,14 +129,14 @@ export default function RussianShop() {
 
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-red-600 rounded-xl flex items-center justify-center">
-              <span className="text-2xl font-bold">🇷🇺</span>
+            <div className="w-12 h-12 bg-gradient-to-br from-green-600 to-yellow-500 rounded-xl flex items-center justify-center">
+              <span className="text-2xl font-bold">🇲🇱</span>
             </div>
             <div>
               <h1 className="text-xl font-bold">
-                {lang === 'ru' ? 'Русский магазин' : 'Boutique Russe'}
+                {t('Магазин для Русских в Мали', 'Boutique Mali pour Russes')}
               </h1>
-              <p className="text-sm text-gray-400">Mali • Bamako</p>
+              <p className="text-sm text-gray-400">{t('Товары Мали для военных', 'Produits Mali pour militaires')}</p>
             </div>
           </div>
 
@@ -683,13 +683,13 @@ export default function RussianShop() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <span className="text-3xl">🇷🇺</span>
-                <span className="font-bold">Русский магазин</span>
+                <span className="text-3xl">🇲🇱</span>
+                <span className="font-bold">{t('Магазин для Русских в Мали', 'Boutique Mali pour Russes')}</span>
               </div>
               <p className="text-sm text-gray-400">
                 {lang === 'ru' 
-                  ? 'Служба для русских военных и экспатов в Мали' 
-                  : 'Service pour les Russes vivant au Mali'}
+                  ? 'Товары Мали для русских военных и гостей' 
+                  : 'Produits maliens pour les militaires et visiteurs russes'}
               </p>
             </div>
             <div>

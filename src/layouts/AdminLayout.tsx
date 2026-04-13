@@ -15,7 +15,6 @@ const tabs = [
   { id: 'customers', label: 'Clients Mali', icon: Users, section: 'main' },
   { id: 'russian-orders', label: 'Commandes Russes', icon: Flag, section: 'russian' },
   { id: 'russian-products', label: 'Produits Russes', icon: PackageCheck, section: 'russian' },
-  { id: 'international', label: 'International', icon: Globe, section: 'russian' },
   { id: 'content', label: 'Images & Slider', icon: Image, section: 'settings' },
   { id: 'users', label: 'Comptes & Accès', icon: UserCog, section: 'settings' },
   { id: 'analytics', label: 'Statistiques', icon: BarChart3, section: 'settings' },
