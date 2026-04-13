@@ -21,7 +21,7 @@ export const categories = [
   { id: "sante", name: "Santé & Beauté", color: "from-green-500 to-emerald-500", emoji: "💄" },
   { id: "maison", name: "Maison & Décoration", color: "from-amber-500 to-orange-500", emoji: "🏠" },
   { id: "alimentation", name: "Alimentation", color: "from-yellow-500 to-green-500", emoji: "🍫" },
-  { id: "adulte", name: "Articles Intimes", color: "from-purple-600 to-pink-600", emoji: "🔒" },
+  { id: "adulte", name: "Articles adultes", color: "from-purple-600 to-pink-600", emoji: "🔒" },
 ]
 
 export const regions = [

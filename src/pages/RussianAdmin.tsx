@@ -111,7 +111,7 @@ export default function RussianAdmin() {
                 <span className="text-2xl">🇷🇺</span>
               </div>
               <div>
-                <h1 className="font-bold text-lg">Русский магазин</h1>
+                <h1 className="font-bold text-lg">Магазин для Русских в Мали</h1>
                 <p className="text-xs text-gray-400">Administration</p>
               </div>
             </div>
@@ -155,7 +155,7 @@ export default function RussianAdmin() {
                 </div>
                 <div>
                   <p className="text-sm font-medium">{t('Администратор', 'Administrateur')}</p>
-                  <p className="text-xs text-gray-400">{t('Русский магазин', 'Boutique Russe')} 🇲🇱</p>
+                  <p className="text-xs text-gray-400">{t('Магазин для Русских в Мали', 'Boutique Russe')} 🇲🇱</p>
                 </div>
               </div>
             </div>
@@ -749,7 +749,7 @@ export default function RussianAdmin() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">{t('Название', 'Nom')}</label>
-                    <input type="text" defaultValue="Русский магазин / Boutique Russe" className="w-full px-4 py-3 border border-gray-200 rounded-xl" />
+                    <input type="text" defaultValue="Магазин для Русских в Мали / Boutique Russe" className="w-full px-4 py-3 border border-gray-200 rounded-xl" />
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">Телефон / WhatsApp</label>

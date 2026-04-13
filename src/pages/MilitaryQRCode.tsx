@@ -103,7 +103,7 @@ export default function MilitaryQRCode() {
           </h1>
           
           <p className="text-white/80 text-lg italic">
-            Магазин сувениров в Мали
+            Магазин для Русских в Мали
           </p>
           <p className="text-white/60 text-sm mt-1">
             Boutique de souvenirs au Mali

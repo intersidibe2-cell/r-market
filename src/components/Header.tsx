@@ -26,7 +26,6 @@ export default function Header() {
   const navLinks = [
     { label: 'Accueil', path: '/', icon: House },
     { label: 'Boutique', path: '/shop', icon: ShoppingBag },
-    { label: 'Articles Intimes', path: '/adult', icon: Lock, adult: true },
     { label: 'Suivi', path: '/order-tracking', icon: Truck },
     { label: 'Fidélité', path: '/loyalty', icon: Star },
     { label: 'Mon Profil', path: '/account', icon: User },
@@ -234,28 +233,16 @@ export default function Header() {
             <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map(link => {
                 const isActive = location.pathname === link.path
-                const isAdult = link.adult
                 return (
                   <Link
                     key={link.path}
                     to={link.path}
                     className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
-                      isActive
-                        ? isAdult
-                          ? 'bg-purple-100 text-purple-700'
-                          : 'bg-green-50 text-green-700'
-                        : isAdult
-                          ? hasAccess
-                            ? 'bg-purple-50 text-purple-700'
-                            : 'bg-gray-50 text-gray-600'
-                          : 'text-gray-700 hover:bg-green-50'
+                      isActive ? 'bg-green-50 text-green-700' : 'text-gray-700 hover:bg-green-50'
                     }`}
                   >
                     <link.icon className="w-4 h-4" />
                     {link.label}
-                    {isAdult && !hasAccess && (
-                      <span className="text-[10px] bg-purple-200 text-purple-800 px-1.5 py-0.5 rounded-full">18+</span>
-                    )}
                   </Link>
                 )
               })}
@@ -297,17 +284,6 @@ export default function Header() {
                   <span className="font-medium text-gray-700">{cat.name}</span>
                 </Link>
               ))}
-              <Link
-                to="/adult"
-                onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-sm ${
-                  hasAccess ? 'bg-purple-50 text-purple-700' : 'bg-gray-50 text-gray-600'
-                }`}
-              >
-                <Lock className="w-4 h-4" />
-                <span className="font-medium">Articles Intimes</span>
-                {!hasAccess && <span className="text-xs bg-purple-200 text-purple-800 px-2 py-0.5 rounded-full">18+</span>}
-              </Link>
             </div>
 
             <div className="border-t pt-2 mt-2">

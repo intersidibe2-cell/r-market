@@ -118,7 +118,7 @@ export default function QRCodePage() {
               <h1 className="text-4xl font-black text-white tracking-tight">
                 R-<span className="bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 bg-clip-text text-transparent">Market</span>
               </h1>
-              <h2 className="text-lg text-gray-400 mt-1 font-light italic">Магазин сувениров в Мали</h2>
+              <h2 className="text-lg text-gray-400 mt-1 font-light italic">Магазин для Русских в Мали</h2>
               <div className="mt-4 inline-flex items-center gap-2 text-white px-5 py-2 rounded-full text-sm font-bold shadow-lg" style={{ background: 'linear-gradient(90deg, #0039A6, #D52B1E)', boxShadow: '0 4px 15px rgba(0,57,166,0.4)' }}>
                 <span>🚚</span>
                 Доставка по всему Мали
