@@ -34,6 +34,8 @@ import Login from './pages/Login'
 import Compare from './pages/Compare'
 import OrderTracking from './pages/OrderTracking'
 import Loyalty from './pages/Loyalty'
+import DeliveryScan from './pages/DeliveryScan'
+import BarcodeScanner from './pages/BarcodeScanner'
 
 export default function App() {
   return (
@@ -69,6 +71,9 @@ export default function App() {
                           <Route path="/order-tracking" element={<OrderTracking />} />
                           <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
                           <Route path="/loyalty" element={<Loyalty />} />
+                          <Route path="/delivery-scan" element={<DeliveryScan />} />
+                          <Route path="/barcode-scanner" element={<BarcodeScanner />} />
+                          <Route path="/admin/barcode-scanner" element={<BarcodeScanner />} />
                           
                           {/* Routes principales avec Header/Footer */}
                           <Route path="/*" element={

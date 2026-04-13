@@ -5,7 +5,8 @@ import {
   TrendingUp, Truck, Search, Plus, Trash2, Edit, Eye, Download,
   Bell, Calendar, Package2, X, DollarSign, ArrowLeft, Home,
   Warehouse, RefreshCw, FileText, Wallet, Users2, ArrowDownCircle,
-  ArrowUpCircle, AlertTriangle, CheckCircle, Clock, Scale, Box
+  ArrowUpCircle, AlertTriangle, CheckCircle, Clock, Scale, Box,
+  QrCode, Barcode
 } from 'lucide-react'
 import { products as initialProducts, categories, paymentMethods } from '../data/products'
 
@@ -136,6 +137,7 @@ export default function Admin() {
     { id: 'orders', label: 'Commandes', icon: ShoppingCart },
     { id: 'products', label: 'Produits', icon: Package },
     { id: 'inventory', label: 'Inventaire', icon: Warehouse },
+    { id: 'delivery', label: 'Livraisons', icon: Truck },
     { id: 'returns', label: 'Retours', icon: RefreshCw },
     { id: 'reports', label: 'Rapports', icon: FileText },
     { id: 'finances', label: 'Finances', icon: Wallet },
@@ -1462,6 +1464,214 @@ export default function Admin() {
                     </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Delivery Tab */}
+          {activeTab === 'delivery' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div>
+                  <h3 className="text-2xl font-bold text-gray-900">🚚 Gestion des Livraisons</h3>
+                  <p className="text-sm text-gray-500">QR Codes, ТСД et suivi des livraisons</p>
+                </div>
+                <div className="flex gap-3">
+                  <a 
+                    href="/delivery-scan" 
+                    target="_blank"
+                    className="bg-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-green-700"
+                  >
+                    <QrCode className="w-4 h-4" />
+                    App Livreur
+                  </a>
+                  <a 
+                    href="/barcode-scanner" 
+                    target="_blank"
+                    className="bg-blue-600 text-white px-4 py-2.5 rounded-xl text-sm font-medium flex items-center gap-2 hover:bg-blue-700"
+                  >
+                    <Barcode className="w-4 h-4" />
+                    Scanner Code-barres
+                  </a>
+                </div>
+              </div>
+
+              {/* Delivery Stats */}
+              <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <p className="text-sm text-gray-500">Total</p>
+                  <p className="text-3xl font-bold text-gray-900">4</p>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <p className="text-sm text-gray-500">En attente</p>
+                  <p className="text-3xl font-bold text-yellow-600">1</p>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <p className="text-sm text-gray-500">En transit</p>
+                  <p className="text-3xl font-bold text-purple-600">2</p>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <p className="text-sm text-gray-500">Livrées</p>
+                  <p className="text-3xl font-bold text-green-600">1</p>
+                </div>
+                <div className="bg-white rounded-2xl p-5 border border-gray-100">
+                  <p className="text-sm text-gray-500">Problèmes</p>
+                  <p className="text-3xl font-bold text-red-600">0</p>
+                </div>
+              </div>
+
+              {/* Instructions */}
+              <div className="bg-gradient-to-r from-green-500 to-emerald-600 rounded-2xl p-6 text-white">
+                <h4 className="font-bold text-lg mb-4">📱 Comment utiliser le système de scan</h4>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="bg-white/10 rounded-xl p-4">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                      <span className="text-xl font-bold">1</span>
+                    </div>
+                    <h5 className="font-semibold mb-2">Génération QR</h5>
+                    <p className="text-sm text-green-100">Les QR codes sont générés automatiquement pour chaque commande</p>
+                  </div>
+                  <div className="bg-white/10 rounded-xl p-4">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                      <span className="text-xl font-bold">2</span>
+                    </div>
+                    <h5 className="font-semibold mb-2">Scan Livreur</h5>
+                    <p className="text-sm text-green-100">Le livreur scanne le QR avec son téléphone ou ТСД</p>
+                  </div>
+                  <div className="bg-white/10 rounded-xl p-4">
+                    <div className="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center mb-3">
+                      <span className="text-xl font-bold">3</span>
+                    </div>
+                    <h5 className="font-semibold mb-2">Confirmation</h5>
+                    <p className="text-sm text-green-100">Le statut est mis à jour automatiquement dans le système</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Orders List */}
+              <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                <div className="p-6 border-b border-gray-100">
+                  <h4 className="font-bold text-lg text-gray-900">Commandes à livrer</h4>
+                  <p className="text-sm text-gray-500">QR codes disponibles pour scan</p>
+                </div>
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="text-left text-xs text-gray-500 uppercase bg-gray-50">
+                        <th className="px-6 py-4 font-medium">Commande</th>
+                        <th className="px-6 py-4 font-medium">Client</th>
+                        <th className="px-6 py-4 font-medium hidden md:table-cell">Adresse</th>
+                        <th className="px-6 py-4 font-medium">Statut</th>
+                        <th className="px-6 py-4 font-medium">QR Code</th>
+                        <th className="px-6 py-4 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-gray-100">
+                      <tr className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-gray-900">CMD-001</p>
+                          <p className="text-sm text-gray-500">2 article(s)</p>
+                          <p className="text-sm font-medium text-green-600">65,000 F</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-gray-900">Moussa Dembélé</p>
+                          <p className="text-sm text-gray-500">+223 70 12 34 56</p>
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell text-gray-600">
+                          Bamako, Quartier ACI
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-yellow-100 text-yellow-700">
+                            <Clock className="w-3 h-3" />
+                            En attente
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 text-gray-400 hover:text-green-600 transition-colors">
+                            <QrCode className="w-6 h-6" />
+                          </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1">
+                            <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg">
+                              <Download className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-gray-900">CMD-002</p>
+                          <p className="text-sm text-gray-500">3 article(s)</p>
+                          <p className="text-sm font-medium text-green-600">25,800 F</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-gray-900">Fatima Zohra</p>
+                          <p className="text-sm text-gray-500">+223 66 78 90 12</p>
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell text-gray-600">
+                          Kayes, Rue 12
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-purple-100 text-purple-700">
+                            <Truck className="w-3 h-3" />
+                            En transit
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center hover:bg-green-100 text-gray-400 hover:text-green-600 transition-colors">
+                            <QrCode className="w-6 h-6" />
+                          </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1">
+                            <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                              <Eye className="w-4 h-4" />
+                            </button>
+                            <button className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg">
+                              <Download className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr className="hover:bg-gray-50">
+                        <td className="px-6 py-4">
+                          <p className="font-bold text-gray-900">CMD-003</p>
+                          <p className="text-sm text-gray-500">1 article(s)</p>
+                          <p className="text-sm font-medium text-green-600">58,000 F</p>
+                        </td>
+                        <td className="px-6 py-4">
+                          <p className="font-medium text-gray-900">Alpha Oumar</p>
+                          <p className="text-sm text-gray-500">+223 77 34 56 78</p>
+                        </td>
+                        <td className="px-6 py-4 hidden md:table-cell text-gray-600">
+                          Kati, Hamdallaye
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-full bg-green-100 text-green-700">
+                            <CheckCircle className="w-3 h-3" />
+                            Livré
+                          </span>
+                        </td>
+                        <td className="px-6 py-4">
+                          <button className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                            <CheckCircle className="w-6 h-6 text-green-500" />
+                          </button>
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="flex items-center gap-1">
+                            <button className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg">
+                              <Eye className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </div>
           )}
