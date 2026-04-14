@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Image, Save, Plus, Trash2, Upload, RefreshCw } from 'lucide-react'
+import ImageUpload from '../../components/ImageUpload'
 
 interface SliderImage {
   id: number
@@ -154,16 +155,24 @@ export default function ContentManager() {
                   </button>
                 </div>
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div>
-                  <label className="block text-xs text-gray-500 mb-1">Image URL</label>
+                  <label className="block text-xs text-gray-500 mb-1">Image du slide</label>
+                  <ImageUpload
+                    onUpload={(url) => updateSlider(slider.id, 'image', url)}
+                    currentImage={slider.image}
+                    type="both"
+                    maxSizeMB={10}
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Ou URL :</p>
                   <input
                     type="text"
                     value={slider.image}
                     onChange={e => updateSlider(slider.id, 'image', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
+                    className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm mt-1"
                   />
                 </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-500 mb-1">Titre</label>
                   <input
@@ -191,6 +200,7 @@ export default function ContentManager() {
                     className="w-full px-3 py-2 border border-gray-200 rounded-lg text-sm"
                   />
                 </div>
+                </div>
               </div>
               <div className="mt-3">
                 <img src={slider.image} alt={slider.title} className="w-full h-24 object-cover rounded-lg" onError={(e) => { (e.target as HTMLImageElement).src = 'https://via.placeholder.com/800x200?text=Image' }} />
@@ -217,12 +227,11 @@ export default function ContentManager() {
                 </div>
               </div>
               <div className="p-3">
-                <label className="block text-xs text-gray-500 mb-1">Image URL</label>
-                <input
-                  type="text"
-                  value={cat.image}
-                  onChange={e => updateCategoryImage(cat.id, e.target.value)}
-                  className="w-full px-2 py-1.5 border border-gray-200 rounded-lg text-xs"
+                <ImageUpload
+                  onUpload={(url) => updateCategoryImage(cat.id, url)}
+                  currentImage={cat.image}
+                  type="image"
+                  maxSizeMB={5}
                 />
               </div>
             </div>

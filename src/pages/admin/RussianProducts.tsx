@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Search, Plus, Edit, Trash2, Package, Eye, X, Save } from 'lucide-react'
+import ImageUpload from '../../components/ImageUpload'
 
 interface RussianProduct {
   id: number
@@ -240,9 +241,16 @@ export default function RussianProducts() {
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Photo / Vidéo du produit</label>
+                <ImageUpload
+                  onUpload={(url) => setNewProduct({...newProduct, image: url})}
+                  currentImage={newProduct.image}
+                  type="both"
+                  maxSizeMB={10}
+                />
+                <p className="text-xs text-gray-500 mt-2">Ou collez une URL :</p>
                 <input type="text" value={newProduct.image} onChange={e => setNewProduct({...newProduct, image: e.target.value})}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl" placeholder="https://..." />
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl mt-2" placeholder="https://..." />
               </div>
             </div>
             <div className="p-6 border-t border-gray-100 flex gap-3">

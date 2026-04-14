@@ -9,6 +9,7 @@ import {
   QrCode, Barcode
 } from 'lucide-react'
 import { products as initialProducts, categories, paymentMethods } from '../data/products'
+import ImageUpload from '../components/ImageUpload'
 
 const initialOrders = [
   { id: 'CMD-001', customer: 'Moussa Dembélé', phone: '+223 70 12 34 56', total: 65000, status: 'pending', date: '02/04/2026', items: 2, payment: 'Orange Money', address: 'Bamako, Quartier ACI' },
@@ -583,9 +584,16 @@ export default function Admin() {
                           className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500 resize-none" placeholder="Description du produit..." />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">URL de l'image</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Photo / Vidéo du produit</label>
+                        <ImageUpload
+                          onUpload={(url) => setNewProduct({...newProduct, image: url})}
+                          currentImage={newProduct.image}
+                          type="both"
+                          maxSizeMB={10}
+                        />
+                        <p className="text-xs text-gray-500 mt-2">Ou collez une URL :</p>
                         <input type="text" value={newProduct.image} onChange={e => setNewProduct({...newProduct, image: e.target.value})}
-                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500" placeholder="https://..." />
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500 mt-2" placeholder="https://..." />
                       </div>
                     </div>
                     <div className="p-6 border-t border-gray-100 flex gap-3 bg-gray-50 rounded-b-3xl">
