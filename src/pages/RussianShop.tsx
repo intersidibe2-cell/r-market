@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check, Lock } from 'lucide-react'
+import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check } from 'lucide-react'
 import { russianProducts, russianCategories } from '../data/russianProducts'
 
 interface CartItem {
@@ -101,7 +101,6 @@ export default function RussianShop() {
     souvenirs: Gift,
     alcohol: Wine,
     food: ShoppingBag,
-    adult: Lock,
     exchange: ArrowRightLeft
   }
 
