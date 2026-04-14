@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Truck, Shield, RefreshCw, Star, Zap, TrendingUp, Clock, Globe } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
 import HeroSlider from '../components/HeroSlider'
+import SEO from '../components/SEO'
 import { products, categories } from '../data/products'
 
 export default function Home() {
@@ -11,6 +12,13 @@ export default function Home() {
 
   return (
     <div>
+      <SEO 
+        title="R-Market - E-commerce Mali"
+        description="Votre boutique en ligne au Mali. Mode, électronique, santé, maison et plus encore. Livraison rapide à Bamako et dans tout le Mali."
+        image="https://i.ibb.co/QnTr9zG/r-market-logo.png"
+        url="https://r-market.shop"
+      />
+      
       {/* Hero Slider - Wildberries style */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
         <HeroSlider />

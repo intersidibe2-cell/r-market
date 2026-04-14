@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
+import { HelmetProvider } from 'react-helmet-async'
 import { CartProvider } from './context/CartContext'
 import { FavoritesProvider } from './context/FavoritesContext'
 import { NotificationProvider } from './context/NotificationContext'
@@ -65,18 +66,19 @@ import AdminDashboard from './pages/admin/AdminDashboard'
 
 export default function App() {
   return (
-    <AdultAccessProvider>
-      <NotificationProvider>
-        <AuthProvider>
-          <AuditProvider>
-            <CurrencyProvider>
-              <PromoProvider>
-                <ReviewProvider>
-                  <LoyaltyProvider>
-                    <CompareProvider>
-                      <CartProvider>
-                        <FavoritesProvider>
-                          <ToastContainer />
+    <HelmetProvider>
+      <AdultAccessProvider>
+        <NotificationProvider>
+          <AuthProvider>
+            <AuditProvider>
+              <CurrencyProvider>
+                <PromoProvider>
+                  <ReviewProvider>
+                    <LoyaltyProvider>
+                      <CompareProvider>
+                        <CartProvider>
+                          <FavoritesProvider>
+                            <ToastContainer />
                         
                         <Routes>
                           {/* Routes sans layout */}
@@ -148,16 +150,17 @@ export default function App() {
                             </div>
                           } />
                         </Routes>
-                       </FavoritesProvider>
-                     </CartProvider>
-                   </CompareProvider>
-                 </LoyaltyProvider>
-               </ReviewProvider>
-             </PromoProvider>
-           </CurrencyProvider>
-         </AuditProvider>
-       </AuthProvider>
-     </NotificationProvider>
-    </AdultAccessProvider>
+                        </FavoritesProvider>
+                      </CartProvider>
+                    </CompareProvider>
+                  </LoyaltyProvider>
+                </ReviewProvider>
+              </PromoProvider>
+            </CurrencyProvider>
+          </AuditProvider>
+        </AuthProvider>
+      </NotificationProvider>
+     </AdultAccessProvider>
+    </HelmetProvider>
   )
 }

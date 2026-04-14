@@ -8,6 +8,7 @@ import { useNotification } from '../context/NotificationContext'
 import { products } from '../data/products'
 import ProductCard from '../components/ProductCard'
 import Reviews from '../components/Reviews'
+import SEO from '../components/SEO'
 
 export default function ProductDetail() {
   const { id } = useParams()
@@ -86,6 +87,15 @@ export default function ProductDetail() {
 
   return (
     <div className="bg-gray-50 min-h-screen">
+      <SEO 
+        title={product.name}
+        description={`${product.name} - ${product.price.toLocaleString()} FCFA. ${product.description.slice(0, 150)}...`}
+        image={product.image}
+        url={`https://r-market.shop/product/${product.id}`}
+        type="product"
+        price={product.price.toString()}
+      />
+      
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
         {/* Breadcrumb */}
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4">

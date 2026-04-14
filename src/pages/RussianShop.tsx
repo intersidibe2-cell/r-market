@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check } from 'lucide-react'
 import { russianProducts, russianCategories } from '../data/russianProducts'
+import SEO from '../components/SEO'
 
 interface CartItem {
   id: number
@@ -106,6 +107,13 @@ export default function RussianShop() {
 
   return (
     <div className="min-h-screen bg-gray-900 text-white">
+      <SEO 
+        title={t('Магазин для Русских в Мали', 'Boutique Mali pour Russes')}
+        description={t('Товары Мали для русских военных и гостей. Сувениры, алкоголь, еда.', 'Produits maliens pour les militaires et visiteurs russes. Souvenirs, alcool, alimentation.')}
+        image="https://i.ibb.co/QnTr9zG/r-market-logo.png"
+        url="https://r-market.shop/russian"
+      />
+      
       {/* Header */}
       <header className="bg-gray-800 border-b border-gray-700 sticky top-0 z-50">
         <div className="bg-blue-900">
