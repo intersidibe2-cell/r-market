@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe, Camera, QrCode } from 'lucide-react'
 
 const tabs = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, section: 'main' },
   { id: 'orders', label: 'Commandes Mali', icon: ShoppingCart, section: 'main' },
   { id: 'products', label: 'Produits Mali', icon: Package, section: 'main' },
+  { id: 'photos', label: '📸 Photos', icon: Camera, section: 'main' },
+  { id: 'qrcodes', label: '📱 QR Codes', icon: QrCode, section: 'main' },
   { id: 'inventory', label: 'Inventaire', icon: Warehouse, section: 'main' },
   { id: 'delivery', label: 'Livraisons', icon: Truck, section: 'main' },
   { id: 'returns', label: 'Retours', icon: RefreshCw, section: 'main' },
