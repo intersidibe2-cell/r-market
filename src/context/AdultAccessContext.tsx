@@ -48,9 +48,21 @@ export function AdultAccessProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const verifyAge = (pin?: string): boolean => {
-    const pinToCheck = pin || defaultPin
+    // Si pas de PIN fourni (client), accès direct
+    if (!pin || pin === '') {
+      setHasAccess(true)
+      setIsVerified(true)
+      
+      // Sauvegarder avec timestamp
+      localStorage.setItem(STORAGE_KEY, JSON.stringify({
+        timestamp: Date.now()
+      }))
+      
+      return true
+    }
     
-    // Vérifier le PIN
+    // Si PIN fourni, vérifier (pour admin)
+    const pinToCheck = pin || defaultPin
     if (pinToCheck === defaultPin || pinToCheck === DEFAULT_PIN) {
       setHasAccess(true)
       setIsVerified(true)

@@ -251,7 +251,11 @@ export default function RussianShop() {
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
               {searchedProducts.map(product => (
-                <div key={product.id} className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-all group">
+                <Link 
+                  key={product.id} 
+                  to={`/russian/product/${product.id}`}
+                  className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-all group block"
+                >
                   <div className="relative">
                     <img src={product.image} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform" />
                     {product.badge && (
@@ -272,14 +276,18 @@ export default function RussianShop() {
                       {product.rating}
                     </div>
                     <button 
-                      onClick={() => addToCart(product)}
+                      onClick={(e) => {
+                        e.preventDefault()
+                        e.stopPropagation()
+                        addToCart(product)
+                      }}
                       className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
                     >
                       <ShoppingCart className="w-4 h-4" />
                       {lang === 'ru' ? 'В корзину' : 'Ajouter'}
                     </button>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           </div>

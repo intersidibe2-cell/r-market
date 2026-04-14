@@ -38,6 +38,7 @@ import SettingsPage from './pages/admin/SettingsPage'
 import ContentManager from './pages/admin/ContentManager'
 import PhotoManagement from './pages/admin/PhotoManagement'
 import QRCodeGenerator from './pages/admin/QRCodeGenerator'
+import PhotoPlanning from './pages/admin/PhotoPlanning'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -45,6 +46,7 @@ import Checkout from './pages/Checkout'
 import Favorites from './pages/Favorites'
 import Admin from './pages/Admin'
 import RussianShop from './pages/RussianShop'
+import RussianProductDetail from './pages/RussianProductDetail'
 import RussianAdmin from './pages/RussianAdmin'
 import RussianLanding from './pages/RussianLanding'
 import BambaraCourse from './pages/BambaraCourse'
@@ -55,6 +57,7 @@ import Compare from './pages/Compare'
 import OrderTracking from './pages/OrderTracking'
 import Loyalty from './pages/Loyalty'
 import DeliveryScan from './pages/DeliveryScan'
+import AdminDeliveryScan from './pages/admin/DeliveryScan'
 import BarcodeScanner from './pages/BarcodeScanner'
 import AdultShop from './pages/AdultShop'
 import MilitaryQRCode from './pages/MilitaryQRCode'
@@ -96,11 +99,13 @@ export default function App() {
                             <Route path="content" element={<ContentManager />} />
                             <Route path="photos" element={<PhotoManagement />} />
                             <Route path="qrcodes" element={<QRCodeGenerator />} />
+                            <Route path="photo-planning" element={<PhotoPlanning />} />
                             <Route path="users" element={<UserManagement />} />
                             <Route path="russian-orders" element={<RussianOrders />} />
                             <Route path="russian-products" element={<RussianProducts />} />
                             <Route path="analytics" element={<Analytics />} />
                             <Route path="settings" element={<SettingsPage />} />
+                            <Route path="delivery-scan" element={<AdminDeliveryScan />} />
                           </Route>
                           
                           {/* QR Code militaire */}
@@ -109,6 +114,7 @@ export default function App() {
                           {/* Routes avec layout */}
                           <Route path="/ru" element={<RussianLanding />} />
                           <Route path="/russian" element={<RussianShop />} />
+                          <Route path="/russian/product/:id" element={<RussianProductDetail />} />
                           <Route path="/bambara-course" element={<BambaraCourse />} />
                           <Route path="/qr-code" element={<QRCodePage />} />
                           <Route path="/account" element={<AccountPage />} />

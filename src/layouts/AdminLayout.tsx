@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe, Camera, QrCode } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe, Camera, QrCode, Calendar, ScanLine } from 'lucide-react'
 
 const tabs = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, section: 'main' },
@@ -8,8 +8,10 @@ const tabs = [
   { id: 'products', label: 'Produits Mali', icon: Package, section: 'main' },
   { id: 'photos', label: '📸 Photos', icon: Camera, section: 'main' },
   { id: 'qrcodes', label: '📱 QR Codes', icon: QrCode, section: 'main' },
+  { id: 'photo-planning', label: '📅 Planning Photos', icon: Calendar, section: 'main' },
   { id: 'inventory', label: 'Inventaire', icon: Warehouse, section: 'main' },
   { id: 'delivery', label: 'Livraisons', icon: Truck, section: 'main' },
+  { id: 'delivery-scan', label: '📱 Scan Livraison', icon: ScanLine, section: 'main' },
   { id: 'returns', label: 'Retours', icon: RefreshCw, section: 'main' },
   { id: 'reports', label: 'Rapports', icon: FileText, section: 'main' },
   { id: 'finances', label: 'Finances', icon: Wallet, section: 'main' },
