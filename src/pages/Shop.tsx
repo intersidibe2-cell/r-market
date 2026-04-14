@@ -1,17 +1,28 @@
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams, useNavigate } from 'react-router-dom'
 import { SlidersHorizontal, X, Grid2X2, List } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
 import { products, categories } from '../data/products'
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState('default')
   const [priceMax, setPriceMax] = useState(200000)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
 
   const categoryParam = searchParams.get('category') || 'all'
+
+  const handleCategoryClick = (categoryId: string) => {
+    // Si c'est la catégorie adulte, rediriger vers /adult (avec popup)
+    if (categoryId === 'adulte') {
+      navigate('/adult')
+    } else {
+      setSearchParams({ category: categoryId })
+    }
+    setShowFilters(false)
+  }
 
   const filteredProducts = products
     .filter(p => categoryParam === 'all' || p.category === categoryParam)
@@ -76,10 +87,7 @@ export default function Shop() {
                   {categories.filter(c => c.id !== 'all').map(cat => (
                     <button
                       key={cat.id}
-                      onClick={() => {
-                        setSearchParams({ category: cat.id })
-                        setShowFilters(false)
-                      }}
+                      onClick={() => handleCategoryClick(cat.id)}
                       className={`relative overflow-hidden rounded-xl transition-all ${
                         categoryParam === cat.id
                           ? 'ring-2 ring-green-500'

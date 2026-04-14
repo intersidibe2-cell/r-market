@@ -56,7 +56,7 @@ export default function Home() {
             {categories.filter(c => c.id !== 'all').map(cat => (
               <Link
                 key={cat.id}
-                to={`/shop?category=${cat.id}`}
+                to={cat.id === 'adulte' ? '/adult' : `/shop?category=${cat.id}`}
                 className="bg-gray-800 rounded-2xl overflow-hidden hover:shadow-xl transition-all group"
               >
                 <div className="aspect-square relative overflow-hidden">
