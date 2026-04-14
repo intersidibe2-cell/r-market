@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, CheckCircle } from 'lucide-react'
+import { Shield, CheckCircle } from 'lucide-react'
 import { useAdultAccess } from '../context/AdultAccessContext'
 
 interface AgeGateProps {
@@ -42,19 +42,6 @@ export default function AgeGate({ onVerified, onCancel }: AgeGateProps) {
 
         {/* Content */}
         <div className="p-6 space-y-5">
-          {/* Warning message */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-6 h-6 text-yellow-600 shrink-0 mt-0.5" />
-              <div>
-                <h4 className="font-semibold text-yellow-800">Avertissement important</h4>
-                <p className="text-sm text-yellow-700 mt-1">
-                  Au Mali, pays musulman, ces produits sont destinés à un usage marital légitime dans le cadre du mariage.
-                </p>
-              </div>
-            </div>
-          </div>
-
           {/* Info */}
           <div className="text-center text-gray-600 text-sm">
             <p>L'accès à cette section nécessite la confirmation de votre majorité.</p>
