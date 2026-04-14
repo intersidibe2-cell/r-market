@@ -20,6 +20,7 @@ export const russianCategories = [
   { id: "souvenirs", name: "Сувениры", nameFr: "Souvenirs", emoji: "🎁" },
   { id: "alcohol", name: "Алкоголь", nameFr: "Alcool", emoji: "🍷" },
   { id: "food", name: "Продукты", nameFr: "Alimentation", emoji: "🛒" },
+  { id: "adult", name: "Товары для взрослых", nameFr: "Articles adultes", emoji: "🔞" },
   { id: "exchange", name: "Обмен валюты", nameFr: "Échange de devises", emoji: "💱" },
 ]
 
@@ -47,6 +48,12 @@ export const russianProducts: RussianProduct[] = [
   { id: 3004, name: "Conserve russe (shproti)", nameRu: "Шпроты в масле", price: 3000, originalPrice: 4500, image: "https://images.unsplash.com/photo-1544943910-4c1dc44aab44?w=500&h=500&fit=crop", category: "food", description: "Sproti russe en conserve", descriptionRu: "Шпроты в масле. Русская классика.", rating: 4.8, reviews: 156, stock: 300, sold: 678 },
   { id: 3005, name: "Conserves variées", nameRu: "Консервы ассорти", price: 4000, originalPrice: 5500, image: "https://images.unsplash.com/photo-1583947215259-38e31be8751f?w=500&h=500&fit=crop", category: "food", description: "Assortiment de conserves", descriptionRu: "Ассорти консервов.", rating: 4.4, reviews: 234, stock: 250, sold: 890 },
   { id: 3006, name: "Pack sodas importés", nameRu: "Импортные напитки", price: 3500, originalPrice: 4500, image: "https://images.unsplash.com/photo-1527960471264-932f39eb5846?w=500&h=500&fit=crop", category: "food", description: "Pack sodas importés (Coca, Fanta, Sprite)", descriptionRu: "Набор импортных напитков (Coca, Fanta, Sprite).", rating: 4.2, reviews: 145, stock: 150, sold: 567 },
+
+  // Articles adultes (pour Russes)
+  { id: 4001, name: "Parfum oriental luxe", nameRu: "Восточный парфюм люкс", price: 45000, originalPrice: 65000, image: "https://images.unsplash.com/photo-1541643600914-78b084683601?w=500&h=500&fit=crop", category: "adult", description: "Parfum oriental de luxe pour homme", descriptionRu: "Роскошный восточный парфюм для мужчин.", badge: "Premium", rating: 4.8, reviews: 67, stock: 20, sold: 45 },
+  { id: 4002, name: "Lingerie fine", nameRu: "Изящное белье", price: 25000, originalPrice: 35000, image: "https://images.unsplash.com/photo-1617391943748-ccf6c6a7a3d7?w=500&h=500&fit=crop", category: "adult", description: "Lingerie fine et élégante", descriptionRu: "Изящное и элегантное белье.", rating: 4.6, reviews: 89, stock: 30, sold: 56 },
+  { id: 4003, name: "Set cadeau romantique", nameRu: "Романтический подарочный набор", price: 35000, originalPrice: 50000, image: "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=500&h=500&fit=crop", category: "adult", description: "Set cadeau romantique avec parfum et accessoires", descriptionRu: "Романтический подарочный набор с парфюмом и аксессуарами.", rating: 4.7, reviews: 45, stock: 15, sold: 23 },
+  { id: 4004, name: "Huile de massage", nameRu: "Массажное масло", price: 15000, originalPrice: 22000, image: "https://images.unsplash.com/photo-1600428877878-1a0fd85beda8?w=500&h=500&fit=crop", category: "adult", description: "Huile de massage parfumée", descriptionRu: "Ароматизированное массажное масло.", rating: 4.5, reviews: 78, stock: 40, sold: 67 },
 ]
 
 export interface ExchangeRate {
