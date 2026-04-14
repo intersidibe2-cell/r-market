@@ -8,9 +8,9 @@ interface ImageUploadProps {
   maxSizeMB?: number
 }
 
-// Cloudinary config - Remplace avec tes propres identifiants
-const CLOUDINARY_CLOUD_NAME = 'demo' // Remplace par ton cloud name
-const CLOUDINARY_UPLOAD_PRESET = 'ml_default' // Remplace par ton upload preset
+// Cloudinary config - R-Market
+const CLOUDINARY_CLOUD_NAME = 'dkzxmcjxo'
+const CLOUDINARY_UPLOAD_PRESET = 'rmarket_preset'
 
 export default function ImageUpload({ 
   onUpload, 
