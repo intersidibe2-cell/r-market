@@ -1,14 +1,36 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAdultAccess } from '../context/AdultAccessContext'
 import AgeGate from '../components/AgeGate'
 
 export default function AdultShop() {
-  const { hasAccess } = useAdultAccess()
-  const [showGate, setShowGate] = useState(!hasAccess)
+  const { hasAccess, verifyAge } = useAdultAccess()
+  const [showGate, setShowGate] = useState(true)
+  const [accessGranted, setAccessGranted] = useState(false)
 
-  if (showGate) {
-    return <AgeGate onVerified={() => setShowGate(false)} onCancel={() => window.history.back()} />
+  // Vérifier si l'utilisateur a déjà accédé dans cette session
+  useEffect(() => {
+    const sessionAccess = sessionStorage.getItem('adult_access_granted')
+    if (sessionAccess === 'true') {
+      setAccessGranted(true)
+      setShowGate(false)
+    }
+  }, [])
+
+  const handleVerified = () => {
+    verifyAge('') // Accès sans PIN pour les clients
+    sessionStorage.setItem('adult_access_granted', 'true')
+    setAccessGranted(true)
+    setShowGate(false)
+  }
+
+  const handleCancel = () => {
+    window.history.back()
+  }
+
+  // Afficher le popup si pas encore vérifié
+  if (showGate && !accessGranted) {
+    return <AgeGate onVerified={handleVerified} onCancel={handleCancel} />
   }
 
   return (
