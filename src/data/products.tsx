@@ -22,11 +22,8 @@ export const categories = [
   { id: "maison", name: "Maison & Décoration", color: "from-amber-500 to-orange-500", emoji: "🏠", image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop" },
   { id: "alimentation", name: "Alimentation", color: "from-yellow-500 to-green-500", emoji: "🍫", image: "https://images.unsplash.com/photo-1542838132-92c53300491e?w=400&h=400&fit=crop" },
   { id: "adulte", name: "Articles adultes", color: "from-purple-600 to-pink-600", emoji: "🔞", image: "https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=400&h=400&fit=crop" },
-  // Catégories internationales (projet futur - pas encore disponible)
-  { id: "chine", name: "Chine", color: "from-red-500 to-yellow-500", emoji: "🇨🇳", image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?w=400&h=400&fit=crop", comingSoon: true },
-  { id: "turquie", name: "Turquie", color: "from-red-600 to-white", emoji: "🇹🇷", image: "https://images.unsplash.com/photo-1541432901042-2d8bd64b4a9b?w=400&h=400&fit=crop", comingSoon: true },
-  { id: "dubai", name: "Dubai", color: "from-green-600 to-white", emoji: "🇦🇪", image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?w=400&h=400&fit=crop", comingSoon: true },
-  { id: "russie", name: "Russie", color: "from-blue-600 to-red-600", emoji: "🇷🇺", image: "https://images.unsplash.com/photo-1513326738677-b964603b136d?w=400&h=400&fit=crop", comingSoon: true },
+  // Catégorie internationale (regroupe Chine, Turquie, Dubai, Russie)
+  { id: "internationale", name: "Internationale", color: "from-indigo-600 to-purple-600", emoji: "🌍", image: "https://images.unsplash.com/photo-1526778548025-fa2f459cd5c1?w=400&h=400&fit=crop" },
 ]
 
 export const regions = [

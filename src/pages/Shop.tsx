@@ -88,24 +88,14 @@ export default function Shop() {
                     <button
                       key={cat.id}
                       onClick={() => handleCategoryClick(cat.id)}
-                      disabled={cat.comingSoon}
                       className={`relative overflow-hidden rounded-xl transition-all ${
-                        cat.comingSoon
-                          ? 'opacity-50 cursor-not-allowed'
-                          : categoryParam === cat.id
-                            ? 'ring-2 ring-green-500'
-                            : 'hover:ring-2 hover:ring-gray-200'
+                        categoryParam === cat.id
+                          ? 'ring-2 ring-green-500'
+                          : 'hover:ring-2 hover:ring-gray-200'
                       }`}
                     >
-                      <img src={cat.image} alt={cat.name} className={`w-full h-20 object-cover ${cat.comingSoon ? 'grayscale' : ''}`} />
+                      <img src={cat.image} alt={cat.name} className="w-full h-20 object-cover" />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
-                      {cat.comingSoon && (
-                        <div className="absolute top-1 right-1">
-                          <span className="bg-yellow-500 text-black text-[10px] font-bold px-1.5 py-0.5 rounded-full">
-                            Bientôt
-                          </span>
-                        </div>
-                      )}
                       <span className="absolute bottom-1 left-0 right-0 text-center text-xs text-white font-medium">{cat.emoji} {cat.name}</span>
                     </button>
                   ))}

@@ -57,52 +57,32 @@ export default function Home() {
               Voir tout <ArrowRight className="w-4 h-4" />
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-4">
             {categories.filter(c => c.id !== 'all').map(cat => (
-              cat.comingSoon ? (
-                <div
-                  key={cat.id}
-                  className="bg-gray-800 rounded-2xl overflow-hidden opacity-60 cursor-not-allowed"
-                >
-                  <div className="aspect-square relative overflow-hidden">
-                    <img 
-                      src={cat.image} 
-                      alt={cat.name}
-                      className="w-full h-full object-cover grayscale"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/30" />
-                    <div className="absolute top-2 right-2">
-                      <span className="bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-full">
-                        Bientôt
-                      </span>
-                    </div>
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <span className="text-white text-sm font-semibold">{cat.emoji} {cat.name}</span>
+              <Link
+                key={cat.id}
+                to={
+                  cat.id === 'adulte' ? '/adult' : 
+                  cat.id === 'internationale' ? '/international' : 
+                  `/shop?category=${cat.id}`
+                }
+                className="bg-gray-800 rounded-2xl overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-green-500/50 transition-all group"
+              >
+                <div className="aspect-square relative overflow-hidden">
+                  <img 
+                    src={cat.image} 
+                    alt={cat.name}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-3">
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl">{cat.emoji}</span>
+                      <span className="text-white text-sm font-semibold">{cat.name}</span>
                     </div>
                   </div>
                 </div>
-              ) : (
-                <Link
-                  key={cat.id}
-                  to={cat.id === 'adulte' ? '/adult' : `/shop?category=${cat.id}`}
-                  className="bg-gray-800 rounded-2xl overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-green-500/50 transition-all group"
-                >
-                  <div className="aspect-square relative overflow-hidden">
-                    <img 
-                      src={cat.image} 
-                      alt={cat.name}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                    <div className="absolute bottom-0 left-0 right-0 p-3">
-                      <div className="flex items-center gap-2">
-                        <span className="text-2xl">{cat.emoji}</span>
-                        <span className="text-white text-sm font-semibold">{cat.name}</span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              )
+              </Link>
             ))}
           </div>
         </div>

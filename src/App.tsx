@@ -61,6 +61,7 @@ import DeliveryScan from './pages/DeliveryScan'
 import AdminDeliveryScan from './pages/admin/DeliveryScan'
 import BarcodeScanner from './pages/BarcodeScanner'
 import AdultShop from './pages/AdultShop'
+import International from './pages/International'
 import MilitaryQRCode from './pages/MilitaryQRCode'
 import AdminDashboard from './pages/admin/AdminDashboard'
 
@@ -142,6 +143,7 @@ export default function App() {
                                   <Route path="/checkout" element={<Checkout />} />
                                   <Route path="/favorites" element={<Favorites />} />
                                   <Route path="/adult" element={<AdultShop />} />
+                                  <Route path="/international" element={<International />} />
                                 </Routes>
                               </main>
                               <Footer />

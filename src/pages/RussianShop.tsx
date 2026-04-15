@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check } from 'lucide-react'
+import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check, Send } from 'lucide-react'
 import { russianProducts, russianCategories } from '../data/russianProducts'
 import SEO from '../components/SEO'
 
@@ -25,27 +25,27 @@ export default function RussianShop() {
 
   const t = (ru: string, fr: string) => lang === 'ru' ? ru : fr
 
-  const [exchangeFrom, setExchangeFrom] = useState('EUR')
+  const [exchangeFrom, setExchangeFrom] = useState('USD')
   const [exchangeAmount, setExchangeAmount] = useState('')
   const [exchangeResult, setExchangeResult] = useState('')
 
   const [orderForm, setOrderForm] = useState({
     code: '',
-    phone: '',
+    whatsapp: '',
+    telegram: '',
     address: '',
     payment: 'CFA'
   })
   const [orderConfirmed, setOrderConfirmed] = useState(false)
   const [orderCode, setOrderCode] = useState('')
 
+  // Exchange rates: CFA and USD only (no EUR)
   const exchangeRates: Record<string, Record<string, number>> = {
-    EUR: { CFA: 655.96, USD: 1.09 },
-    USD: { CFA: 600.00, EUR: 0.92 },
-    CFA: { EUR: 0.001524, USD: 0.001667 }
+    USD: { CFA: 600.00 },
+    CFA: { USD: 0.001667 }
   }
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const cartTotalEUR = (cartTotal / 655.96).toFixed(2)
   const cartTotalUSD = (cartTotal / 600).toFixed(2)
 
   const filteredProducts = activeCategory === 'all' 
@@ -92,7 +92,7 @@ export default function RussianShop() {
   const handleExchange = () => {
     const amount = parseFloat(exchangeAmount)
     if (!amount || amount <= 0) return
-    const to = exchangeFrom === 'EUR' ? 'CFA' : exchangeFrom === 'USD' ? 'CFA' : 'EUR'
+    const to = exchangeFrom === 'USD' ? 'CFA' : 'USD'
     const rate = exchangeRates[exchangeFrom][to]
     setExchangeResult((amount * rate).toLocaleString())
   }
@@ -233,7 +233,6 @@ export default function RussianShop() {
           <div className="flex items-center gap-4">
             <ArrowRightLeft className="w-5 h-5 text-green-300" />
             <div className="flex items-center gap-6 text-sm">
-              <span className="text-green-200">1 EUR = <strong className="text-white">656 CFA</strong></span>
               <span className="text-green-200">1 USD = <strong className="text-white">600 CFA</strong></span>
             </div>
           </div>
@@ -450,10 +449,6 @@ export default function RussianShop() {
                       <span className="text-gray-400">Total CFA:</span>
                       <span className="font-bold text-green-400">{cartTotal.toLocaleString()} F</span>
                     </div>
-                    <div className="flex justify-between mb-2">
-                      <span className="text-gray-400">Total EUR:</span>
-                      <span className="font-bold">{cartTotalEUR} €</span>
-                    </div>
                     <div className="flex justify-between">
                       <span className="text-gray-400">Total USD:</span>
                       <span className="font-bold">${cartTotalUSD}</span>
@@ -493,7 +488,6 @@ export default function RussianShop() {
                     onChange={e => setExchangeFrom(e.target.value)}
                     className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg"
                   >
-                    <option value="EUR">🇪🇺 EUR (Euro)</option>
                     <option value="USD">🇺🇸 USD (Dollar)</option>
                     <option value="CFA">🇲🇱 CFA (Franc)</option>
                   </select>
@@ -513,7 +507,7 @@ export default function RussianShop() {
                 </button>
                 {exchangeResult && (
                   <div className="bg-green-900/50 border border-green-700 rounded-lg p-4 text-center">
-                    <p className="text-2xl font-bold">{exchangeResult} {exchangeFrom === 'CFA' ? 'EUR' : 'CFA'}</p>
+                    <p className="text-2xl font-bold">{exchangeResult} {exchangeFrom === 'CFA' ? 'USD' : 'CFA'}</p>
                   </div>
                 )}
               </div>
@@ -558,12 +552,28 @@ export default function RussianShop() {
                 </p>
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Телефон (WhatsApp)' : 'Téléphone (WhatsApp)'} *</label>
+                <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-green-500" />
+                  {lang === 'ru' ? 'WhatsApp' : 'WhatsApp'} *
+                </label>
                 <input 
                   type="tel"
-                  value={orderForm.phone}
-                  onChange={e => setOrderForm({...orderForm, phone: e.target.value})}
+                  value={orderForm.whatsapp}
+                  onChange={e => setOrderForm({...orderForm, whatsapp: e.target.value})}
                   placeholder="+223 XX XX XX XX"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
+                  <Send className="w-4 h-4 text-blue-400" />
+                  {lang === 'ru' ? 'Telegram' : 'Telegram'} ({lang === 'ru' ? 'необязательно' : 'optionnel'})
+                </label>
+                <input 
+                  type="text"
+                  value={orderForm.telegram}
+                  onChange={e => setOrderForm({...orderForm, telegram: e.target.value})}
+                  placeholder="@username"
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
                 />
               </div>
@@ -595,7 +605,6 @@ export default function RussianShop() {
                   <span className="text-gray-400">Total:</span>
                   <span className="font-bold">
                     {orderForm.payment === 'CFA' ? `${cartTotal.toLocaleString()} F` :
-                     orderForm.payment === 'EUR' ? `${cartTotalEUR} €` :
                      `$${cartTotalUSD}`}
                   </span>
                 </div>
@@ -665,7 +674,7 @@ export default function RussianShop() {
               </div>
 
               <button 
-                onClick={() => { setShowOrderForm(false); setOrderConfirmed(false); setOrderForm({ code: '', phone: '', address: '', payment: 'CFA' }) }}
+                onClick={() => { setShowOrderForm(false); setOrderConfirmed(false); setOrderForm({ code: '', whatsapp: '', telegram: '', address: '', payment: 'CFA' }) }}
                 className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-bold"
               >
                 {lang === 'ru' ? 'Закрыть' : 'Fermer'}
