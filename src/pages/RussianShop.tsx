@@ -16,8 +16,8 @@ interface CartItem {
 type Lang = 'ru' | 'fr' | 'en'
 
 const translations: Record<string, Record<Lang, string>> = {
-  'site_title': { ru: 'Магазин для Русских в Мали', fr: 'Boutique Mali pour Russes', en: 'Shop for Russians in Mali' },
-  'site_subtitle': { ru: 'Товары Мали для военных', fr: 'Produits Mali pour militaires', en: 'Mali products for military' },
+  'site_title': { ru: 'Магазин R-Market', fr: 'Boutique Mali pour Russes', en: 'Shop for Russians in Mali' },
+  'site_subtitle': { ru: 'Товары и услуги', fr: 'Produits Mali pour militaires', en: 'Mali products for military' },
   'search': { ru: 'Поиск товаров...', fr: 'Rechercher...', en: 'Search products...' },
   'exchange': { ru: 'Обмен валюты', fr: 'Échange de devises', en: 'Currency exchange' },
   'cart': { ru: 'Корзина', fr: 'Panier', en: 'Cart' },
