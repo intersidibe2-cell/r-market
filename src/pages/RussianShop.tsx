@@ -370,6 +370,51 @@ export default function RussianShop() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
+        {/* Professional Banner */}
+        <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-red-900 rounded-2xl p-6 md:p-8 mb-8 text-white relative overflow-hidden">
+          <div className="absolute inset-0 opacity-10">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
+            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
+          </div>
+          <div className="relative z-10">
+            <div className="flex flex-col md:flex-row items-center gap-6">
+              <div className="flex-shrink-0">
+                <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
+                  <span className="text-5xl">🛍️</span>
+                </div>
+              </div>
+              <div className="flex-1 text-center md:text-left">
+                <h1 className="text-2xl md:text-3xl font-bold mb-2">
+                  {t('site_title')}
+                </h1>
+                <p className="text-blue-200 text-sm md:text-base mb-4">
+                  {t('site_subtitle')} • {t('delivery_info')}
+                </p>
+                <div className="flex flex-wrap justify-center md:justify-start gap-3">
+                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm">
+                    <span>🎁</span>
+                    <span>{t('souvenirs')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm">
+                    <span>🍷</span>
+                    <span>{t('alcohol')}</span>
+                  </div>
+                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm">
+                    <span>🛒</span>
+                    <span>{t('food')}</span>
+                  </div>
+                </div>
+              </div>
+              <div className="flex-shrink-0 hidden md:block">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
+                  <p className="text-xs text-blue-200 mb-1">{t('exchange')}</p>
+                  <p className="text-xl font-bold">1 USD = {exchangeRate.toLocaleString()} F</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Products Grid */}
         {activeCategory !== 'exchange' ? (
           <div className="space-y-6">
