@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
-import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check, Send } from 'lucide-react'
+import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, Check, Send, MessageCircle } from 'lucide-react'
 import { russianProducts, russianCategories } from '../data/russianProducts'
 import SEO from '../components/SEO'
 
@@ -19,7 +19,6 @@ const translations: Record<string, Record<Lang, string>> = {
   'site_title': { ru: 'Магазин для Русских в Мали', fr: 'Boutique Mali pour Russes', en: 'Shop for Russians in Mali' },
   'site_subtitle': { ru: 'Товары Мали для военных', fr: 'Produits Mali pour militaires', en: 'Mali products for military' },
   'search': { ru: 'Поиск товаров...', fr: 'Rechercher...', en: 'Search products...' },
-  'bambara': { ru: 'Изучить бамбара', fr: 'Apprendre Bambara', en: 'Learn Bambara' },
   'exchange': { ru: 'Обмен валюты', fr: 'Échange de devises', en: 'Currency exchange' },
   'cart': { ru: 'Корзина', fr: 'Panier', en: 'Cart' },
   'empty_cart': { ru: 'Корзина пуста', fr: 'Panier vide', en: 'Cart is empty' },
@@ -48,9 +47,6 @@ const translations: Record<string, Record<Lang, string>> = {
   'driver_contact': { ru: 'Ливрёр свяжется с вами по WhatsApp', fr: 'Le livreur vous contactera sur WhatsApp', en: 'The driver will contact you via WhatsApp' },
   'show_qr': { ru: 'Предъявите QR-код или номер при получении', fr: 'Présentez le QR-code ou le numéro à la réception', en: 'Show QR code or number at reception' },
   'anonymous_order': { ru: 'Анонимный заказ. Только код для доставки.', fr: 'Commande anonyme. Seul le code est utilisé pour la livraison.', en: 'Anonymous order. Only code for delivery.' },
-  'bambara_course_title': { ru: 'Изучите Бамбара!', fr: 'Apprenez le Bambara!', en: 'Learn Bambara!' },
-  'bambara_course_subtitle': { ru: 'Базовый язык Мали для общения с местными', fr: 'Langue de base du Mali pour communiquer', en: 'Basic Mali language to communicate with locals' },
-  'start_learning': { ru: 'Начать учить', fr: 'Commencer le cours', en: 'Start learning' },
   'services': { ru: 'Сервисы', fr: 'Services', en: 'Services' },
   'souvenirs': { ru: 'Сувениры', fr: 'Souvenirs', en: 'Souvenirs' },
   'alcohol': { ru: 'Алкоголь', fr: 'Alcool', en: 'Alcohol' },
@@ -60,6 +56,13 @@ const translations: Record<string, Record<Lang, string>> = {
   'delivery_info': { ru: 'Доставка по базам и отелям Бамако', fr: 'Livraison aux bases et hôtels de Bamako', en: 'Delivery to bases and hotels in Bamako' },
   'bamako_mali': { ru: 'Бамако, Мали', fr: 'Bamako, Mali', en: 'Bamako, Mali' },
   'footer_text': { ru: 'Товары Мали для русских военных и гостей', fr: 'Produits maliens pour les militaires et visiteurs russes', en: 'Mali products for Russian military and guests' },
+  // Product request
+  'request_products': { ru: 'Запросить продукты', fr: 'Demander des produits', en: 'Request products' },
+  'request_products_title': { ru: 'Что вам нужно?', fr: 'De quoi avez-vous besoin?', en: 'What do you need?' },
+  'request_products_placeholder': { ru: 'Например: молоко, хлеб, яйца, кофе...', fr: 'Ex: lait, pain, œufs, café...', en: 'Ex: milk, bread, eggs, coffee...' },
+  'request_products_help': { ru: 'Напишите список продуктов, которые вы хотите заказать', fr: 'Écrivez la liste des produits que vous souhaitez commander', en: 'Write the list of products you want to order' },
+  'send_request': { ru: 'Отправить запрос', fr: 'Envoyer la demande', en: 'Send request' },
+  'request_sent': { ru: 'Запрос отправлен!', fr: 'Demande envoyée!', en: 'Request sent!' },
 }
 
 export default function RussianShop() {
@@ -69,6 +72,7 @@ export default function RussianShop() {
   const [showCart, setShowCart] = useState(false)
   const [showExchange, setShowExchange] = useState(false)
   const [showOrderForm, setShowOrderForm] = useState(false)
+  const [showProductRequest, setShowProductRequest] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const [lang, setLang] = useState<Lang>('ru')
   const [showLangMenu, setShowLangMenu] = useState(false)
@@ -88,6 +92,9 @@ export default function RussianShop() {
   })
   const [orderConfirmed, setOrderConfirmed] = useState(false)
   const [orderCode, setOrderCode] = useState('')
+
+  const [productRequest, setProductRequest] = useState('')
+  const [productRequestSent, setProductRequestSent] = useState(false)
 
   // Exchange rates from localStorage (admin can change)
   const [exchangeRate, setExchangeRate] = useState(600)
@@ -242,10 +249,10 @@ export default function RussianShop() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <Link to="/bambara-course" className="flex items-center gap-2 px-4 py-2 bg-green-700 rounded-lg text-sm text-green-100 hover:bg-green-600 transition-colors">
-              <BookOpen className="w-4 h-4" />
-              📚 Bambara
-            </Link>
+            <button onClick={() => setShowProductRequest(true)} className="flex items-center gap-2 px-4 py-2 bg-green-700 rounded-lg text-sm text-green-100 hover:bg-green-600 transition-colors">
+              <MessageCircle className="w-4 h-4" />
+              {t('request_products')}
+            </button>
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
@@ -308,10 +315,10 @@ export default function RussianShop() {
               🇬🇧 EN
             </button>
           </div>
-          <Link to="/bambara-course" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-3 px-4 py-3 bg-green-700 rounded-lg">
-            <BookOpen className="w-5 h-5 text-green-200" />
-            <span>📚 {t('bambara')}</span>
-          </Link>
+          <button onClick={() => { setShowProductRequest(true); setMobileMenuOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3 bg-green-700 rounded-lg">
+            <MessageCircle className="w-5 h-5 text-green-200" />
+            <span>{t('request_products')}</span>
+          </button>
           <button onClick={() => { setShowExchange(true); setMobileMenuOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3 bg-gray-700 rounded-lg">
             <ArrowRightLeft className="w-5 h-5 text-green-400" />
             <span>{t('exchange')}</span>
@@ -714,23 +721,82 @@ export default function RussianShop() {
         </div>
       )}
 
-      {/* Bambara Course Banner */}
+      {/* Product Request Banner */}
       <div className="max-w-7xl mx-auto px-4 py-6">
         <div className="bg-gradient-to-r from-green-600 to-green-700 rounded-2xl p-6 md:p-8 text-white flex flex-col md:flex-row items-center gap-6">
           <div className="flex items-center gap-4 flex-shrink-0">
-            <span className="text-5xl">📚</span>
+            <span className="text-5xl">🛒</span>
             <div>
-              <h3 className="text-xl font-bold">{t('bambara_course_title')}</h3>
-              <p className="text-green-200 text-sm">{t('bambara_course_subtitle')}</p>
+              <h3 className="text-xl font-bold">{t('request_products_title')}</h3>
+              <p className="text-green-200 text-sm">{t('request_products_help')}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-3 md:ml-auto">
-            <Link to="/bambara-course" className="bg-white text-green-600 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-colors">
-              📖 {t('start_learning')}
-            </Link>
+            <button onClick={() => setShowProductRequest(true)} className="bg-white text-green-600 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-colors">
+              📝 {t('request_products')}
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Product Request Modal */}
+      {showProductRequest && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
+          <div className="bg-gray-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl">
+            <div className="p-6 border-b border-gray-700 flex items-center justify-between">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <MessageCircle className="w-6 h-6 text-green-400" />
+                {t('request_products_title')}
+              </h2>
+              <button onClick={() => setShowProductRequest(false)} className="p-2 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <p className="text-gray-400 text-sm">
+                {t('request_products_help')}
+              </p>
+              
+              <textarea
+                value={productRequest}
+                onChange={e => setProductRequest(e.target.value)}
+                placeholder={t('request_products_placeholder')}
+                rows={5}
+                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500 resize-none"
+              />
+              
+              <button 
+                onClick={() => {
+                  if (productRequest.trim()) {
+                    // Open WhatsApp with product request
+                    const message = `${t('request_products')}:\n\n${productRequest}`
+                    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
+                    setProductRequestSent(true)
+                    setTimeout(() => {
+                      setShowProductRequest(false)
+                      setProductRequestSent(false)
+                      setProductRequest('')
+                    }, 2000)
+                  }
+                }}
+                disabled={!productRequest.trim()}
+                className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
+              >
+                <Send className="w-5 h-5" />
+                {t('send_request')}
+              </button>
+
+              {productRequestSent && (
+                <div className="bg-green-900/50 border border-green-700 rounded-lg p-4 text-center">
+                  <Check className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                  <p className="text-green-300 font-medium">{t('request_sent')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Footer */}
       <footer className="bg-gray-800 border-t border-gray-700 mt-12">
