@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe, Camera, QrCode, Calendar, ScanLine } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe, Camera, QrCode, Calendar, ScanLine, ArrowRightLeft } from 'lucide-react'
 
 const tabs = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, section: 'main' },
@@ -19,6 +19,7 @@ const tabs = [
   { id: 'customers', label: 'Clients Mali', icon: Users, section: 'main' },
   { id: 'russian-orders', label: 'Commandes Russes', icon: Flag, section: 'russian' },
   { id: 'russian-products', label: 'Produits Russes', icon: PackageCheck, section: 'russian' },
+  { id: 'exchange-rates', label: '💱 Taux de Change', icon: ArrowRightLeft, section: 'russian' },
   { id: 'content', label: 'Images & Slider', icon: Image, section: 'settings' },
   { id: 'users', label: 'Comptes & Accès', icon: UserCog, section: 'settings' },
   { id: 'analytics', label: 'Statistiques', icon: BarChart3, section: 'settings' },

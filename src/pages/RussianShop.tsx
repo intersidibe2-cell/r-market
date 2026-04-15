@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, BookOpen, Check, Send } from 'lucide-react'
 import { russianProducts, russianCategories } from '../data/russianProducts'
@@ -13,6 +13,55 @@ interface CartItem {
   quantity: number
 }
 
+type Lang = 'ru' | 'fr' | 'en'
+
+const translations: Record<string, Record<Lang, string>> = {
+  'site_title': { ru: 'Магазин для Русских в Мали', fr: 'Boutique Mali pour Russes', en: 'Shop for Russians in Mali' },
+  'site_subtitle': { ru: 'Товары Мали для военных', fr: 'Produits Mali pour militaires', en: 'Mali products for military' },
+  'search': { ru: 'Поиск товаров...', fr: 'Rechercher...', en: 'Search products...' },
+  'bambara': { ru: 'Изучить бамбара', fr: 'Apprendre Bambara', en: 'Learn Bambara' },
+  'exchange': { ru: 'Обмен валюты', fr: 'Échange de devises', en: 'Currency exchange' },
+  'cart': { ru: 'Корзина', fr: 'Panier', en: 'Cart' },
+  'empty_cart': { ru: 'Корзина пуста', fr: 'Panier vide', en: 'Cart is empty' },
+  'add_to_cart': { ru: 'В корзину', fr: 'Ajouter', en: 'Add to cart' },
+  'order': { ru: 'Оформить заказ', fr: 'Commander', en: 'Place order' },
+  'confirm_order': { ru: 'Подтвердить заказ', fr: 'Confirmer la commande', en: 'Confirm order' },
+  'order_confirmed': { ru: 'Заказ подтверждён!', fr: 'Commande confirmée!', en: 'Order confirmed!' },
+  'products_count': { ru: 'товаров', fr: 'produits', en: 'products' },
+  'delivery': { ru: 'Доставка', fr: 'Livraison', en: 'Delivery' },
+  'location': { ru: 'Локация', fr: 'Localisation', en: 'Location' },
+  'contact': { ru: 'Контакт', fr: 'Contact', en: 'Contact' },
+  'your_code': { ru: 'Ваш код (для доставки)', fr: 'Votre code (pour livraison)', en: 'Your code (for delivery)' },
+  'whatsapp': { ru: 'WhatsApp', fr: 'WhatsApp', en: 'WhatsApp' },
+  'telegram': { ru: 'Telegram', fr: 'Telegram', en: 'Telegram' },
+  'optional': { ru: 'необязательно', fr: 'optionnel', en: 'optional' },
+  'address': { ru: 'Адрес доставки', fr: 'Adresse de livraison', en: 'Delivery address' },
+  'payment_currency': { ru: 'Валюта оплаты', fr: 'Devise de paiement', en: 'Payment currency' },
+  'total': { ru: 'Итого', fr: 'Total', en: 'Total' },
+  'close': { ru: 'Закрыть', fr: 'Fermer', en: 'Close' },
+  'calculate': { ru: 'Рассчитать', fr: 'Calculer', en: 'Calculate' },
+  'result': { ru: 'Результат', fr: 'Résultat', en: 'Result' },
+  'exchange_note': { ru: 'Обмен наличных: Свяжитесь с нами для физического обмена', fr: 'Échange en espèces: Contactez-nous pour un échange physique', en: 'Cash exchange: Contact us for physical exchange' },
+  'what_to_do': { ru: 'Что делать:', fr: 'Que faire:', en: 'What to do:' },
+  'screenshot': { ru: 'Сделайте скриншот этого экрана', fr: 'Faites une capture d\'écran', en: 'Take a screenshot' },
+  'print_qr': { ru: 'Или распечатайте QR-код', fr: 'Ou imprimez le QR-code', en: 'Or print the QR code' },
+  'driver_contact': { ru: 'Ливрёр свяжется с вами по WhatsApp', fr: 'Le livreur vous contactera sur WhatsApp', en: 'The driver will contact you via WhatsApp' },
+  'show_qr': { ru: 'Предъявите QR-код или номер при получении', fr: 'Présentez le QR-code ou le numéro à la réception', en: 'Show QR code or number at reception' },
+  'anonymous_order': { ru: 'Анонимный заказ. Только код для доставки.', fr: 'Commande anonyme. Seul le code est utilisé pour la livraison.', en: 'Anonymous order. Only code for delivery.' },
+  'bambara_course_title': { ru: 'Изучите Бамбара!', fr: 'Apprenez le Bambara!', en: 'Learn Bambara!' },
+  'bambara_course_subtitle': { ru: 'Базовый язык Мали для общения с местными', fr: 'Langue de base du Mali pour communiquer', en: 'Basic Mali language to communicate with locals' },
+  'start_learning': { ru: 'Начать учить', fr: 'Commencer le cours', en: 'Start learning' },
+  'services': { ru: 'Сервисы', fr: 'Services', en: 'Services' },
+  'souvenirs': { ru: 'Сувениры', fr: 'Souvenirs', en: 'Souvenirs' },
+  'alcohol': { ru: 'Алкоголь', fr: 'Alcool', en: 'Alcohol' },
+  'food': { ru: 'Продукты', fr: 'Alimentation', en: 'Food' },
+  'malian_products': { ru: 'Товары Мали для русских', fr: 'Produits Mali pour Russes', en: 'Mali Products for Russians' },
+  'back_to_rmarket': { ru: 'R-Market', fr: 'R-Market', en: 'R-Market' },
+  'delivery_info': { ru: 'Доставка по базам и отелям Бамако', fr: 'Livraison aux bases et hôtels de Bamako', en: 'Delivery to bases and hotels in Bamako' },
+  'bamako_mali': { ru: 'Бамако, Мали', fr: 'Bamako, Mali', en: 'Bamako, Mali' },
+  'footer_text': { ru: 'Товары Мали для русских военных и гостей', fr: 'Produits maliens pour les militaires et visiteurs russes', en: 'Mali products for Russian military and guests' },
+}
+
 export default function RussianShop() {
   const [activeCategory, setActiveCategory] = useState('all')
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -21,9 +70,10 @@ export default function RussianShop() {
   const [showExchange, setShowExchange] = useState(false)
   const [showOrderForm, setShowOrderForm] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [lang, setLang] = useState<'ru' | 'fr'>('ru')
+  const [lang, setLang] = useState<Lang>('ru')
+  const [showLangMenu, setShowLangMenu] = useState(false)
 
-  const t = (ru: string, fr: string) => lang === 'ru' ? ru : fr
+  const t = (key: string) => translations[key]?.[lang] || key
 
   const [exchangeFrom, setExchangeFrom] = useState('USD')
   const [exchangeAmount, setExchangeAmount] = useState('')
@@ -39,14 +89,18 @@ export default function RussianShop() {
   const [orderConfirmed, setOrderConfirmed] = useState(false)
   const [orderCode, setOrderCode] = useState('')
 
-  // Exchange rates: CFA and USD only (no EUR)
-  const exchangeRates: Record<string, Record<string, number>> = {
-    USD: { CFA: 600.00 },
-    CFA: { USD: 0.001667 }
-  }
+  // Exchange rates from localStorage (admin can change)
+  const [exchangeRate, setExchangeRate] = useState(600)
+
+  useEffect(() => {
+    const savedRate = localStorage.getItem('rmarket_usd_rate')
+    if (savedRate) {
+      setExchangeRate(parseFloat(savedRate))
+    }
+  }, [])
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const cartTotalUSD = (cartTotal / 600).toFixed(2)
+  const cartTotalUSD = (cartTotal / exchangeRate).toFixed(2)
 
   const filteredProducts = activeCategory === 'all' 
     ? russianProducts 
@@ -92,9 +146,11 @@ export default function RussianShop() {
   const handleExchange = () => {
     const amount = parseFloat(exchangeAmount)
     if (!amount || amount <= 0) return
-    const to = exchangeFrom === 'USD' ? 'CFA' : 'USD'
-    const rate = exchangeRates[exchangeFrom][to]
-    setExchangeResult((amount * rate).toLocaleString())
+    if (exchangeFrom === 'USD') {
+      setExchangeResult((amount * exchangeRate).toLocaleString())
+    } else {
+      setExchangeResult((amount / exchangeRate).toFixed(2))
+    }
   }
 
   const categoryIcons: Record<string, any> = {
@@ -105,11 +161,20 @@ export default function RussianShop() {
     exchange: ArrowRightLeft
   }
 
+  const getProductDisplay = (product: typeof russianProducts[0]) => {
+    switch(lang) {
+      case 'ru': return { name: product.nameRu, desc: product.descriptionRu }
+      case 'fr': return { name: product.name, desc: product.description }
+      case 'en': return { name: product.nameRu, desc: product.descriptionRu }
+      default: return { name: product.nameRu, desc: product.descriptionRu }
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       <SEO 
-        title={t('Магазин для Русских в Мали', 'Boutique Mali pour Russes')}
-        description={t('Товары Мали для русских военных и гостей. Сувениры, алкоголь, еда.', 'Produits maliens pour les militaires et visiteurs russes. Souvenirs, alcool, alimentation.')}
+        title={t('site_title')}
+        description={t('site_subtitle')}
         image="https://i.ibb.co/QnTr9zG/r-market-logo.png"
         url="https://r-market.shop/russian"
       />
@@ -120,16 +185,44 @@ export default function RussianShop() {
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🇲🇱</span>
-              <span className="text-sm font-medium text-blue-200">{t('Товары Мали для русских', 'Produits Mali pour Russes')}</span>
+              <span className="text-sm font-medium text-blue-200">{t('malian_products')}</span>
             </div>
             <div className="flex items-center gap-4">
-              <button onClick={() => setLang(lang === 'ru' ? 'fr' : 'ru')} className="text-sm text-blue-200 hover:text-white flex items-center gap-1">
-                <Globe className="w-4 h-4" />
-                {lang === 'ru' ? 'FR' : 'RU'}
-              </button>
+              {/* Language Selector */}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowLangMenu(!showLangMenu)} 
+                  className="text-sm text-blue-200 hover:text-white flex items-center gap-1 px-2 py-1 rounded hover:bg-blue-800"
+                >
+                  <Globe className="w-4 h-4" />
+                  {lang === 'ru' ? '🇷🇺 RU' : lang === 'fr' ? '🇫🇷 FR' : '🇬🇧 EN'}
+                </button>
+                {showLangMenu && (
+                  <div className="absolute right-0 top-full mt-1 bg-gray-800 rounded-lg shadow-xl border border-gray-700 overflow-hidden z-50">
+                    <button 
+                      onClick={() => { setLang('ru'); setShowLangMenu(false) }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2"
+                    >
+                      🇷🇺 Русский
+                    </button>
+                    <button 
+                      onClick={() => { setLang('fr'); setShowLangMenu(false) }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2"
+                    >
+                      🇫🇷 Français
+                    </button>
+                    <button 
+                      onClick={() => { setLang('en'); setShowLangMenu(false) }}
+                      className="w-full px-4 py-2 text-left hover:bg-gray-700 flex items-center gap-2"
+                    >
+                      🇬🇧 English
+                    </button>
+                  </div>
+                )}
+              </div>
               <Link to="/" className="text-sm text-blue-200 hover:text-white flex items-center gap-1">
                 <Home className="w-4 h-4" />
-                R-Market
+                {t('back_to_rmarket')}
               </Link>
             </div>
           </div>
@@ -142,9 +235,9 @@ export default function RussianShop() {
             </div>
             <div>
               <h1 className="text-xl font-bold">
-                {t('Магазин для Русских в Мали', 'Boutique Mali pour Russes')}
+                {t('site_title')}
               </h1>
-              <p className="text-sm text-gray-400">{t('Товары Мали для военных', 'Produits Mali pour militaires')}</p>
+              <p className="text-sm text-gray-400">{t('site_subtitle')}</p>
             </div>
           </div>
 
@@ -159,7 +252,7 @@ export default function RussianShop() {
                 type="text" 
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                placeholder={lang === 'ru' ? 'Поиск товаров...' : 'Rechercher...'}
+                placeholder={t('search')}
                 className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-sm focus:outline-none focus:border-blue-500 w-64"
               />
             </div>
@@ -187,19 +280,45 @@ export default function RussianShop() {
         <div className="md:hidden bg-gray-800 border-b border-gray-700 p-4 space-y-3">
           <div className="relative">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input type="text" placeholder="Поиск..." className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg text-sm" />
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder={t('search')} 
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg text-sm" 
+            />
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => { setLang('ru'); setMobileMenuOpen(false) }}
+              className={`flex-1 py-2 rounded-lg text-sm ${lang === 'ru' ? 'bg-blue-600' : 'bg-gray-700'}`}
+            >
+              🇷🇺 RU
+            </button>
+            <button 
+              onClick={() => { setLang('fr'); setMobileMenuOpen(false) }}
+              className={`flex-1 py-2 rounded-lg text-sm ${lang === 'fr' ? 'bg-blue-600' : 'bg-gray-700'}`}
+            >
+              🇫🇷 FR
+            </button>
+            <button 
+              onClick={() => { setLang('en'); setMobileMenuOpen(false) }}
+              className={`flex-1 py-2 rounded-lg text-sm ${lang === 'en' ? 'bg-blue-600' : 'bg-gray-700'}`}
+            >
+              🇬🇧 EN
+            </button>
           </div>
           <Link to="/bambara-course" onClick={() => setMobileMenuOpen(false)} className="w-full flex items-center gap-3 px-4 py-3 bg-green-700 rounded-lg">
             <BookOpen className="w-5 h-5 text-green-200" />
-            <span>📚 {lang === 'ru' ? 'Изучить бамбара' : 'Apprendre Bambara'}</span>
+            <span>📚 {t('bambara')}</span>
           </Link>
           <button onClick={() => { setShowExchange(true); setMobileMenuOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3 bg-gray-700 rounded-lg">
             <ArrowRightLeft className="w-5 h-5 text-green-400" />
-            <span>Обмен валюты</span>
+            <span>{t('exchange')}</span>
           </button>
           <button onClick={() => { setShowCart(true); setMobileMenuOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3 bg-gray-700 rounded-lg">
             <ShoppingCart className="w-5 h-5" />
-            <span>Корзина ({cart.length})</span>
+            <span>{t('cart')} ({cart.length})</span>
           </button>
         </div>
       )}
@@ -233,11 +352,11 @@ export default function RussianShop() {
           <div className="flex items-center gap-4">
             <ArrowRightLeft className="w-5 h-5 text-green-300" />
             <div className="flex items-center gap-6 text-sm">
-              <span className="text-green-200">1 USD = <strong className="text-white">600 CFA</strong></span>
+              <span className="text-green-200">1 USD = <strong className="text-white">{exchangeRate.toLocaleString()} CFA</strong></span>
             </div>
           </div>
           <button onClick={() => setShowExchange(true)} className="text-sm text-green-300 hover:text-white flex items-center gap-1">
-            {lang === 'ru' ? 'Обменять' : 'Échanger'} <ArrowRightLeft className="w-3 h-3" />
+            {t('exchange')} <ArrowRightLeft className="w-3 h-3" />
           </button>
         </div>
       </div>
@@ -253,155 +372,71 @@ export default function RussianShop() {
                   ? russianCategories.find(c => c.id === activeCategory)?.name 
                   : russianCategories.find(c => c.id === activeCategory)?.nameFr}
               </h2>
-              <span className="text-sm text-gray-400">{searchedProducts.length} товаров</span>
+              <span className="text-sm text-gray-400">{searchedProducts.length} {t('products_count')}</span>
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
-              {searchedProducts.map(product => (
-                <Link 
-                  key={product.id} 
-                  to={`/russian/product/${product.id}`}
-                  className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-all group block"
-                >
-                  <div className="relative">
-                    <img src={product.image} alt={product.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform" />
-                    {product.badge && (
-                      <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
-                        {product.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className="p-4">
-                    <h3 className="font-medium text-white truncate">{lang === 'ru' ? product.nameRu : product.name}</h3>
-                    <p className="text-sm text-gray-400 mt-1 line-clamp-2">{lang === 'ru' ? product.descriptionRu : product.description}</p>
-                    <div className="flex items-center gap-2 mt-2">
-                      <span className="text-lg font-bold text-green-400">{product.price.toLocaleString()} F</span>
-                      <span className="text-xs text-gray-500">({(product.price / 655.96).toFixed(2)}€)</span>
+              {searchedProducts.map(product => {
+                const display = getProductDisplay(product)
+                return (
+                  <Link 
+                    key={product.id} 
+                    to={`/russian/product/${product.id}`}
+                    className="bg-gray-800 rounded-xl overflow-hidden border border-gray-700 hover:border-blue-500 transition-all group block"
+                  >
+                    <div className="relative">
+                      <img src={product.image} alt={display.name} className="w-full h-40 object-cover group-hover:scale-105 transition-transform" />
+                      {product.badge && (
+                        <span className="absolute top-2 left-2 bg-blue-600 text-white text-xs px-2 py-1 rounded-full">
+                          {product.badge}
+                        </span>
+                      )}
                     </div>
-                    <div className="flex items-center gap-1 mt-1 text-yellow-400 text-xs">
-                      <Star className="w-3 h-3 fill-yellow-400" />
-                      {product.rating}
+                    <div className="p-4">
+                      <h3 className="font-medium text-white truncate">{display.name}</h3>
+                      <p className="text-sm text-gray-400 mt-1 line-clamp-2">{display.desc}</p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <span className="text-lg font-bold text-green-400">{product.price.toLocaleString()} F</span>
+                        <span className="text-xs text-gray-500">(${(product.price / exchangeRate).toFixed(2)})</span>
+                      </div>
+                      <div className="flex items-center gap-1 mt-1 text-yellow-400 text-xs">
+                        <Star className="w-3 h-3 fill-yellow-400" />
+                        {product.rating}
+                      </div>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          addToCart(product)
+                        }}
+                        className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
+                      >
+                        <ShoppingCart className="w-4 h-4" />
+                        {t('add_to_cart')}
+                      </button>
                     </div>
-                    <button 
-                      onClick={(e) => {
-                        e.preventDefault()
-                        e.stopPropagation()
-                        addToCart(product)
-                      }}
-                      className="w-full mt-3 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ShoppingCart className="w-4 h-4" />
-                      {lang === 'ru' ? 'В корзину' : 'Ajouter'}
-                    </button>
-                  </div>
-                </Link>
-              ))}
+                  </Link>
+                )
+              })}
             </div>
           </div>
-        ) : (
-          /* Exchange Section */
-          <div className="max-w-2xl mx-auto space-y-6">
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <ArrowRightLeft className="w-6 h-6 text-green-400" />
-                {lang === 'ru' ? 'Обмен валюты' : 'Échange de devises'}
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                {['EUR', 'USD', 'CFA'].map(cur => (
-                  <div key={cur} className="bg-gray-700 rounded-lg p-4 text-center">
-                    <div className="text-2xl mb-2">{cur === 'EUR' ? '🇪🇺' : cur === 'USD' ? '🇺🇸' : '🇲🇱'}</div>
-                    <p className="font-bold">{cur}</p>
-                    <p className="text-sm text-gray-400">
-                      {cur === 'EUR' ? 'Euro' : cur === 'USD' ? 'Dollar' : 'Franc CFA'}
-                    </p>
-                  </div>
-                ))}
-              </div>
-
-              <div className="bg-gray-700 rounded-lg p-4 space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-2">De</label>
-                    <select 
-                      value={exchangeFrom}
-                      onChange={e => setExchangeFrom(e.target.value)}
-                      className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:border-green-500"
-                    >
-                      <option value="EUR">🇪🇺 EUR</option>
-                      <option value="USD">🇺🇸 USD</option>
-                      <option value="CFA">🇲🇱 CFA</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm text-gray-400 mb-2">Vers</label>
-                    <div className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg">
-                      {exchangeFrom === 'EUR' ? '🇲🇱 CFA' : exchangeFrom === 'USD' ? '🇲🇱 CFA' : '🇪🇺 EUR'}
-                    </div>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-sm text-gray-400 mb-2">Montant</label>
-                  <input 
-                    type="number"
-                    value={exchangeAmount}
-                    onChange={e => setExchangeAmount(e.target.value)}
-                    placeholder="0"
-                    className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg focus:outline-none focus:border-green-500"
-                  />
-                </div>
-                <button onClick={handleExchange} className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium transition-colors">
-                  {lang === 'ru' ? 'Рассчитать' : 'Calculer'}
-                </button>
-                {exchangeResult && (
-                  <div className="bg-green-900/50 border border-green-700 rounded-lg p-4 text-center">
-                    <p className="text-sm text-green-300">{lang === 'ru' ? 'Результат' : 'Résultat'}</p>
-                    <p className="text-2xl font-bold text-white">{exchangeResult} {exchangeFrom === 'CFA' ? 'EUR' : 'CFA'}</p>
-                    <p className="text-xs text-gray-400 mt-2">
-                      {lang === 'ru' ? 'Точность курса: 1.00. Для фактического обмена свяжитесь с нами.' : 'Taux indicatif. Pour un échange réel, contactez-nous.'}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-gray-800 rounded-xl p-6 border border-gray-700">
-              <h3 className="font-bold mb-4">{lang === 'ru' ? 'Часы работы обмена' : 'Horaires d\'échange'}</h3>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="font-medium">Lundi - Vendredi</p>
-                    <p className="text-sm text-gray-400">08:00 - 18:00</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-gray-400" />
-                  <div>
-                    <p className="font-medium">Samedi</p>
-                    <p className="text-sm text-gray-400">09:00 - 14:00</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        ) : null}
 
         {/* Info Section */}
         <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 text-center">
             <Truck className="w-10 h-10 text-blue-400 mx-auto mb-3" />
-            <h3 className="font-bold mb-2">{lang === 'ru' ? 'Доставка' : 'Livraison'}</h3>
-            <p className="text-sm text-gray-400">{lang === 'ru' ? 'Доставка по базам и отелям Бамако' : 'Livraison aux bases et hôtels de Bamako'}</p>
+            <h3 className="font-bold mb-2">{t('delivery')}</h3>
+            <p className="text-sm text-gray-400">{t('delivery_info')}</p>
           </div>
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 text-center">
             <MapPin className="w-10 h-10 text-red-400 mx-auto mb-3" />
-            <h3 className="font-bold mb-2">{lang === 'ru' ? 'Локация' : 'Localisation'}</h3>
-            <p className="text-sm text-gray-400">{lang === 'ru' ? 'Бамако, Мали' : 'Bamako, Mali'}</p>
+            <h3 className="font-bold mb-2">{t('location')}</h3>
+            <p className="text-sm text-gray-400">{t('bamako_mali')}</p>
           </div>
           <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 text-center">
             <Phone className="w-10 h-10 text-green-400 mx-auto mb-3" />
-            <h3 className="font-bold mb-2">{lang === 'ru' ? 'Контакт' : 'Contact'}</h3>
+            <h3 className="font-bold mb-2">{t('contact')}</h3>
             <p className="text-sm text-gray-400">+223 XX XX XX XX</p>
           </div>
         </div>
@@ -414,7 +449,7 @@ export default function RussianShop() {
             <div className="p-6 border-b border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <ShoppingCart className="w-6 h-6" />
-                {lang === 'ru' ? 'Корзина' : 'Panier'}
+                {t('cart')}
               </h2>
               <button onClick={() => setShowCart(false)} className="p-2 text-gray-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -424,7 +459,7 @@ export default function RussianShop() {
             <div className="p-6 space-y-4">
               {cart.length === 0 ? (
                 <p className="text-gray-400 text-center py-8">
-                  {lang === 'ru' ? 'Корзина пуста' : 'Panier vide'}
+                  {t('empty_cart')}
                 </p>
               ) : (
                 <>
@@ -438,7 +473,7 @@ export default function RussianShop() {
                           <button onClick={() => updateQuantity(item.id, -1)} className="w-6 h-6 bg-gray-600 rounded flex items-center justify-center">-</button>
                           <span className="text-sm">{item.quantity}</span>
                           <button onClick={() => updateQuantity(item.id, 1)} className="w-6 h-6 bg-gray-600 rounded flex items-center justify-center">+</button>
-                          <button onClick={() => removeFromCart(item.id)} className="ml-auto text-red-400 text-xs">Supprimer</button>
+                          <button onClick={() => removeFromCart(item.id)} className="ml-auto text-red-400 text-xs">{lang === 'ru' ? 'Удалить' : lang === 'fr' ? 'Supprimer' : 'Remove'}</button>
                         </div>
                       </div>
                     </div>
@@ -446,17 +481,17 @@ export default function RussianShop() {
                   
                   <div className="bg-gray-700 rounded-lg p-4">
                     <div className="flex justify-between mb-2">
-                      <span className="text-gray-400">Total CFA:</span>
+                      <span className="text-gray-400">{t('total')} CFA:</span>
                       <span className="font-bold text-green-400">{cartTotal.toLocaleString()} F</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-gray-400">Total USD:</span>
+                      <span className="text-gray-400">{t('total')} USD:</span>
                       <span className="font-bold">${cartTotalUSD}</span>
                     </div>
                   </div>
 
                   <button onClick={() => { setShowCart(false); setShowOrderForm(true) }} className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold transition-colors">
-                    {lang === 'ru' ? 'Оформить заказ' : 'Commander'}
+                    {t('order')}
                   </button>
                 </>
               )}
@@ -472,7 +507,7 @@ export default function RussianShop() {
             <div className="p-6 border-b border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <ArrowRightLeft className="w-6 h-6 text-green-400" />
-                {lang === 'ru' ? 'Обмен валюты' : 'Échange de devises'}
+                {t('exchange')}
               </h2>
               <button onClick={() => setShowExchange(false)} className="p-2 text-gray-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -482,7 +517,7 @@ export default function RussianShop() {
             <div className="p-6 space-y-4">
               <div className="bg-gray-700 rounded-lg p-4 space-y-4">
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'От' : 'De'}</label>
+                  <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'От' : lang === 'fr' ? 'De' : 'From'}</label>
                   <select 
                     value={exchangeFrom}
                     onChange={e => setExchangeFrom(e.target.value)}
@@ -493,7 +528,7 @@ export default function RussianShop() {
                   </select>
                 </div>
                 <div>
-                  <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Сумма' : 'Montant'}</label>
+                  <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Сумма' : lang === 'fr' ? 'Montant' : 'Amount'}</label>
                   <input 
                     type="number"
                     value={exchangeAmount}
@@ -503,7 +538,7 @@ export default function RussianShop() {
                   />
                 </div>
                 <button onClick={handleExchange} className="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium">
-                  {lang === 'ru' ? 'Рассчитать' : 'Calculer'}
+                  {t('calculate')}
                 </button>
                 {exchangeResult && (
                   <div className="bg-green-900/50 border border-green-700 rounded-lg p-4 text-center">
@@ -514,9 +549,7 @@ export default function RussianShop() {
 
               <div className="bg-blue-900/50 border border-blue-700 rounded-lg p-4">
                 <p className="text-sm text-blue-300">
-                  {lang === 'ru' 
-                    ? 'Обмен наличных: Свяжитесь с нами для физического обмена' 
-                    : 'Échange en espèces: Contactez-nous pour un échange physique'}
+                  {t('exchange_note')}
                 </p>
               </div>
             </div>
@@ -529,7 +562,7 @@ export default function RussianShop() {
         <div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
           <div className="bg-gray-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl">
             <div className="p-6 border-b border-gray-700 flex items-center justify-between">
-              <h2 className="text-xl font-bold">{lang === 'ru' ? 'Оформление заказа' : 'Commande'}</h2>
+              <h2 className="text-xl font-bold">{lang === 'ru' ? 'Оформление заказа' : lang === 'fr' ? 'Commande' : 'Order'}</h2>
               <button onClick={() => setShowOrderForm(false)} className="p-2 text-gray-400 hover:text-white">
                 <X className="w-5 h-5" />
               </button>
@@ -537,24 +570,24 @@ export default function RussianShop() {
             
             <div className="p-6 space-y-4">
               <div>
-                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Ваш код (для доставки)' : 'Votre code (pour livraison)'} *</label>
+                <label className="block text-sm text-gray-400 mb-2">{t('your_code')} *</label>
                 <input 
                   type="text"
                   value={orderForm.code}
                   onChange={e => setOrderForm({...orderForm, code: e.target.value.toUpperCase()})}
-                  placeholder={lang === 'ru' ? 'Например: RUS-7823' : 'Ex: RUS-7823'}
+                  placeholder={lang === 'ru' ? 'Например: RUS-7823' : lang === 'fr' ? 'Ex: RUS-7823' : 'Ex: RUS-7823'}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg font-mono"
                 />
                 <p className="text-xs text-gray-500 mt-1">
                   {lang === 'ru' 
                     ? 'Код для идентификации при доставке' 
-                    : 'Code pour identification à la livraison'}
+                    : lang === 'fr' ? 'Code pour identification à la livraison' : 'Code for delivery identification'}
                 </p>
               </div>
               <div>
                 <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
                   <Phone className="w-4 h-4 text-green-500" />
-                  {lang === 'ru' ? 'WhatsApp' : 'WhatsApp'} *
+                  {t('whatsapp')} *
                 </label>
                 <input 
                   type="tel"
@@ -567,7 +600,7 @@ export default function RussianShop() {
               <div>
                 <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
                   <Send className="w-4 h-4 text-blue-400" />
-                  {lang === 'ru' ? 'Telegram' : 'Telegram'} ({lang === 'ru' ? 'необязательно' : 'optionnel'})
+                  {t('telegram')} ({t('optional')})
                 </label>
                 <input 
                   type="text"
@@ -578,31 +611,30 @@ export default function RussianShop() {
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Адрес доставки' : 'Adresse de livraison'} *</label>
+                <label className="block text-sm text-gray-400 mb-2">{t('address')} *</label>
                 <input 
                   type="text"
                   value={orderForm.address}
                   onChange={e => setOrderForm({...orderForm, address: e.target.value})}
-                  placeholder={lang === 'ru' ? 'База / Отель / Район' : 'Base / Hôtel / Quartier'}
+                  placeholder={lang === 'ru' ? 'База / Отель / Район' : lang === 'fr' ? 'Base / Hôtel / Quartier' : 'Base / Hotel / Area'}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
                 />
               </div>
               <div>
-                <label className="block text-sm text-gray-400 mb-2">{lang === 'ru' ? 'Валюта оплаты' : 'Devise de paiement'}</label>
+                <label className="block text-sm text-gray-400 mb-2">{t('payment_currency')}</label>
                 <select 
                   value={orderForm.payment}
                   onChange={e => setOrderForm({...orderForm, payment: e.target.value})}
                   className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
                 >
                   <option value="CFA">🇲🇱 CFA</option>
-                  <option value="EUR">🇪🇺 EUR</option>
                   <option value="USD">🇺🇸 USD</option>
                 </select>
               </div>
 
               <div className="bg-gray-700 rounded-lg p-4">
                 <div className="flex justify-between mb-2">
-                  <span className="text-gray-400">Total:</span>
+                  <span className="text-gray-400">{t('total')}:</span>
                   <span className="font-bold">
                     {orderForm.payment === 'CFA' ? `${cartTotal.toLocaleString()} F` :
                      `$${cartTotalUSD}`}
@@ -619,13 +651,11 @@ export default function RussianShop() {
                 }}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-bold"
               >
-                {lang === 'ru' ? 'Подтвердить заказ' : 'Confirmer la commande'}
+                {t('confirm_order')}
               </button>
 
               <p className="text-xs text-gray-400 text-center">
-                {lang === 'ru' 
-                  ? 'Анонимный заказ. Только код для доставки.' 
-                  : 'Commande anonyme. Seul le code est utilisé pour la livraison.'}
+                {t('anonymous_order')}
               </p>
             </div>
           </div>
@@ -641,12 +671,12 @@ export default function RussianShop() {
                 <Check className="w-10 h-10 text-white" />
               </div>
               <h2 className="text-2xl font-bold text-white mb-2">
-                {lang === 'ru' ? 'Заказ подтверждён!' : 'Commande confirmée!'}
+                {t('order_confirmed')}
               </h2>
               <p className="text-gray-400 mb-6">
                 {lang === 'ru' 
                   ? 'Ваш заказ принят. Сохраните QR-код для получения.' 
-                  : 'Votre commande est acceptée. Gardez le QR-code pour la réception.'}
+                  : lang === 'fr' ? 'Votre commande est acceptée. Gardez le QR-code pour la réception.' : 'Your order is accepted. Keep the QR code for reception.'}
               </p>
               
               {/* QR Code */}
@@ -659,17 +689,17 @@ export default function RussianShop() {
               </div>
 
               <div className="bg-gradient-to-r from-blue-600 to-red-600 rounded-xl p-6 mb-6">
-                <p className="text-white/80 text-sm mb-2">{lang === 'ru' ? 'Ваш номер заказа' : 'Votre numéro de commande'}</p>
+                <p className="text-white/80 text-sm mb-2">{lang === 'ru' ? 'Ваш номер заказа' : lang === 'fr' ? 'Votre numéro de commande' : 'Your order number'}</p>
                 <p className="text-4xl font-bold text-white font-mono">{orderCode}</p>
               </div>
 
               <div className="bg-gray-700 rounded-lg p-4 mb-6 text-left">
-                <p className="text-gray-400 text-sm mb-2">{lang === 'ru' ? 'Что делать:' : 'Que faire:'}</p>
+                <p className="text-gray-400 text-sm mb-2">{t('what_to_do')}</p>
                 <ul className="text-sm text-white space-y-1">
-                  <li>📸 {lang === 'ru' ? 'Сделайте скриншот этого экрана' : 'Faites une capture d\'écran'}</li>
-                  <li>🖨️ {lang === 'ru' ? 'Или распечатайте QR-код' : 'Ou imprimez le QR-code'}</li>
-                  <li>📱 {lang === 'ru' ? 'Ливрёр свяжется с вами по WhatsApp' : 'Le livreur vous contactera sur WhatsApp'}</li>
-                  <li>🎁 {lang === 'ru' ? 'Предъявите QR-код или номер при получении' : 'Présentez le QR-code ou le numéro à la réception'}</li>
+                  <li>📸 {t('screenshot')}</li>
+                  <li>🖨️ {t('print_qr')}</li>
+                  <li>📱 {t('driver_contact')}</li>
+                  <li>🎁 {t('show_qr')}</li>
                 </ul>
               </div>
 
@@ -677,7 +707,7 @@ export default function RussianShop() {
                 onClick={() => { setShowOrderForm(false); setOrderConfirmed(false); setOrderForm({ code: '', whatsapp: '', telegram: '', address: '', payment: 'CFA' }) }}
                 className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-bold"
               >
-                {lang === 'ru' ? 'Закрыть' : 'Fermer'}
+                {t('close')}
               </button>
             </div>
           </div>
@@ -690,13 +720,13 @@ export default function RussianShop() {
           <div className="flex items-center gap-4 flex-shrink-0">
             <span className="text-5xl">📚</span>
             <div>
-              <h3 className="text-xl font-bold">{t('Изучите Бамбара!', 'Apprenez le Bambara!')}</h3>
-              <p className="text-green-200 text-sm">{t('Базовый язык Мали для общения с местными', 'Langue de base du Mali pour communiquer')}</p>
+              <h3 className="text-xl font-bold">{t('bambara_course_title')}</h3>
+              <p className="text-green-200 text-sm">{t('bambara_course_subtitle')}</p>
             </div>
           </div>
           <div className="flex flex-wrap gap-3 md:ml-auto">
             <Link to="/bambara-course" className="bg-white text-green-600 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-colors">
-              📖 {t('Начать учить', 'Commencer le cours')}
+              📖 {t('start_learning')}
             </Link>
           </div>
         </div>
@@ -709,16 +739,14 @@ export default function RussianShop() {
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <span className="text-3xl">🇲🇱</span>
-                <span className="font-bold">{t('Магазин для Русских в Мали', 'Boutique Mali pour Russes')}</span>
+                <span className="font-bold">{t('site_title')}</span>
               </div>
               <p className="text-sm text-gray-400">
-                {lang === 'ru' 
-                  ? 'Товары Мали для русских военных и гостей' 
-                  : 'Produits maliens pour les militaires et visiteurs russes'}
+                {t('footer_text')}
               </p>
             </div>
             <div>
-              <h3 className="font-bold mb-4">{lang === 'ru' ? 'Контакт' : 'Contact'}</h3>
+              <h3 className="font-bold mb-4">{t('contact')}</h3>
               <div className="space-y-2 text-sm text-gray-400">
                 <p className="flex items-center gap-2"><Phone className="w-4 h-4" /> +223 XX XX XX XX</p>
                 <p className="flex items-center gap-2"><MapPin className="w-4 h-4" /> Bamako, Mali</p>
@@ -726,12 +754,12 @@ export default function RussianShop() {
               </div>
             </div>
             <div>
-              <h3 className="font-bold mb-4">{lang === 'ru' ? 'Сервисы' : 'Services'}</h3>
+              <h3 className="font-bold mb-4">{t('services')}</h3>
               <ul className="space-y-2 text-sm text-gray-400">
-                <li>🎁 {lang === 'ru' ? 'Сувениры' : 'Souvenirs'}</li>
-                <li>🍷 {lang === 'ru' ? 'Алкоголь' : 'Alcool'}</li>
-                <li>🛒 {lang === 'ru' ? 'Продукты' : 'Alimentation'}</li>
-                <li>💱 {lang === 'ru' ? 'Обмен валюты' : 'Échange de devises'}</li>
+                <li>🎁 {t('souvenirs')}</li>
+                <li>🍷 {t('alcohol')}</li>
+                <li>🛒 {t('food')}</li>
+                <li>💱 {t('exchange')}</li>
               </ul>
             </div>
           </div>

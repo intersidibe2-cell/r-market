@@ -40,6 +40,7 @@ import ContentManager from './pages/admin/ContentManager'
 import PhotoManagement from './pages/admin/PhotoManagement'
 import QRCodeGenerator from './pages/admin/QRCodeGenerator'
 import PhotoPlanning from './pages/admin/PhotoPlanning'
+import ExchangeRates from './pages/admin/ExchangeRates'
 import Shop from './pages/Shop'
 import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
@@ -109,6 +110,7 @@ export default function App() {
                             <Route path="analytics" element={<Analytics />} />
                             <Route path="settings" element={<SettingsPage />} />
                             <Route path="delivery-scan" element={<AdminDeliveryScan />} />
+                            <Route path="exchange-rates" element={<ExchangeRates />} />
                           </Route>
                           
                           {/* QR Code militaire */}
