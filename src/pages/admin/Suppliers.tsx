@@ -38,15 +38,16 @@ export default function Suppliers() {
   }
 
   const openAdd = () => { setEditing(null); setForm(emptyForm); setShowModal(true) }
-  const openEdit = (s: Supplier) => { setEditing(s); setForm({ name: s.name, contact: s.contact, phone: s.phone, whatsapp: s.whatsapp || '', city: s.city, address: s.address, category: s.category, notes: s.notes || '' }); setShowModal(true) }
+  const openEdit = (s: Supplier) => { setEditing(s); setForm({ name: s.name, contact: s.contact || (s as any).contact_name || '', phone: s.phone, whatsapp: s.whatsapp || '', city: s.city, address: s.address, category: s.category, notes: s.notes || '' }); setShowModal(true) }
 
   const save = async () => {
     if (!form.name || !form.phone) return
     setSaving(true)
+    const saveData = { ...form, contact_name: form.contact }
     if (editing) {
-      await supabase.from('fournisseurs').update({ ...form, updated_at: new Date().toISOString() }).eq('id', editing.id)
+      await supabase.from('fournisseurs').update({ ...saveData, updated_at: new Date().toISOString() }).eq('id', editing.id)
     } else {
-      await supabase.from('fournisseurs').insert({ ...form, rating: 5, status: 'active' })
+      await supabase.from('fournisseurs').insert({ ...saveData, rating: 5, status: 'active' })
     }
     await loadSuppliers()
     setShowModal(false)

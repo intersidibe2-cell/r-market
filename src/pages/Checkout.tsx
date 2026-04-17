@@ -70,14 +70,17 @@ export default function Checkout() {
       client_name: formData.fullName,
       client_phone: formData.phone,
       client_address: `${formData.region}, ${formData.commune}, ${formData.address}`,
-      items: JSON.stringify(items.map(item => ({
+      items: items.map(item => ({
         name: item.name,
         price: item.price,
-        quantity: item.quantity
-      }))),
+        quantity: item.quantity,
+        image: item.image || ''
+      })),
       total: grandTotal,
       status: 'pending',
       type: 'mali',
+      payment_method: formData.payment,
+      notes: formData.notes || null,
       created_at: new Date().toISOString()
     }
 

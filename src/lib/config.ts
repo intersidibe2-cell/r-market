@@ -39,18 +39,26 @@ export const confirmClientOrder = (clientPhone: string, clientName: string, orde
   }, 1500)
 }
 
-// Notifier changement de statut commande
+// Notifier changement de statut commande (workflow complet)
 export const notifyStatusChange = (clientPhone: string, clientName: string, orderNumber: string, newStatus: string) => {
   const statusMessages: Record<string, string> = {
-    confirmed: `✅ Votre commande *${orderNumber}* a été confirmée !`,
-    picked_up: `📦 Votre commande *${orderNumber}* a été récupérée chez le fournisseur.`,
-    ready_for_delivery: `🚚 Votre commande *${orderNumber}* est prête pour la livraison !`,
+    sent_to_supplier: `✅ Votre commande *${orderNumber}* a été confirmée et envoyée au fournisseur pour préparation.`,
+    picked_up: `📦 Votre commande *${orderNumber}* a été récupérée et est en cours de préparation.`,
+    qr_labeled: `📋 Votre commande *${orderNumber}* est prête et en attente de livraison.`,
     in_delivery: `🛵 Votre commande *${orderNumber}* est en cours de livraison vers vous !`,
     delivered: `🎉 Votre commande *${orderNumber}* a été livrée ! Merci pour votre confiance.`,
     cancelled: `❌ Votre commande *${orderNumber}* a été annulée. Contactez-nous pour plus d'infos.`,
+    unavailable: `⚠️ Votre commande *${orderNumber}* : un produit est temporairement indisponible. Nous vous contacterons pour une solution.`,
   }
   const text = statusMessages[newStatus]
   if (!text) return
   const message = `Bonjour ${clientName},\n\n${text}\n\n— R-Market Mali\n📞 Contactez-nous: wa.me/${CONFIG.WHATSAPP_GERANT}`
   window.open(whatsappUrl(clientPhone, message), '_blank')
+}
+
+// Envoyer commande au fournisseur via WhatsApp
+export const notifySupplier = (supplierPhone: string, supplierName: string, orderNumber: string, items: any[], clientAddress: string) => {
+  const itemsList = items.map((item: any) => `• ${item.name} x${item.quantity || 1}`).join('\n')
+  const message = `Bonjour ${supplierName},\n\n🛒 COMMANDE R-MARKET à préparer\n\n📦 Commande: ${orderNumber}\n\n🛍️ Articles:\n${itemsList}\n\n📍 Livraison: ${clientAddress}\n\nMerci de préparer cette commande.\nNous viendrons la récupérer.\n\n— R-Market`
+  window.open(whatsappUrl(supplierPhone, message), '_blank')
 }
