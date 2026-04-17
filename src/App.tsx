@@ -127,20 +127,22 @@ export default function App() {
                           {/* QR Code militaire */}
                           <Route path="/military-qr" element={<MilitaryQRCode />} />
                           
-                          {/* Routes avec layout */}
-                          <Route path="/ru" element={<RussianLanding />} />
-                          <Route path="/russian" element={<RussianShop />} />
-                          <Route path="/russian/product/:id" element={<RussianProductDetail />} />
-                          <Route path="/bambara-course" element={<BambaraCourse />} />
-                          <Route path="/qr-code" element={<QRCodePage />} />
-                          <Route path="/account" element={<AccountPage />} />
-                          <Route path="/compare" element={<Compare />} />
-                          <Route path="/order-tracking" element={<OrderTracking />} />
-                          <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
-                          <Route path="/loyalty" element={<Loyalty />} />
-                          <Route path="/delivery-scan" element={<DeliveryScan />} />
-                          <Route path="/barcode-scanner" element={<BarcodeScanner />} />
-                          <Route path="/admin/barcode-scanner" element={<BarcodeScanner />} />
+                           {/* Routes avec layout */}
+                           <Route path="/ru" element={<RussianLanding />} />
+                           <Route path="/russian" element={<RussianShop />} />
+                           <Route path="/russian/product/:id" element={<RussianProductDetail />} />
+                           <Route path="/russian-login" element={<RussianLogin />} />
+                           <Route path="/russian-admin" element={<RussianAdmin />} />
+                           <Route path="/bambara-course" element={<BambaraCourse />} />
+                           <Route path="/qr-code" element={<QRCodePage />} />
+                           <Route path="/account" element={<AccountPage />} />
+                           <Route path="/compare" element={<Compare />} />
+                           <Route path="/order-tracking" element={<OrderTracking />} />
+                           <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
+                           <Route path="/loyalty" element={<Loyalty />} />
+                           <Route path="/delivery-scan" element={<DeliveryScan />} />
+                           <Route path="/barcode-scanner" element={<BarcodeScanner />} />
+                           <Route path="/admin/barcode-scanner" element={<BarcodeScanner />} />
                           
                           {/* Routes principales avec Header/Footer */}
                           <Route path="/*" element={
