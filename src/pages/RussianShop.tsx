@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { ShoppingCart, Search, Menu, X, ArrowRightLeft, Gift, Wine, ShoppingBag, Phone, MapPin, Clock, Star, Truck, Globe, Home, Check, Send, MessageCircle } from 'lucide-react'
 import { russianProducts, russianCategories } from '../data/russianProducts'
 import SEO from '../components/SEO'
+import CartAnimation from '../components/CartAnimation'
+import { supabase } from '../lib/supabase'
 
 interface CartItem {
   id: number
@@ -51,18 +53,35 @@ const translations: Record<string, Record<Lang, string>> = {
   'souvenirs': { ru: 'Сувениры', fr: 'Souvenirs', en: 'Souvenirs' },
   'alcohol': { ru: 'Алкоголь', fr: 'Alcool', en: 'Alcohol' },
   'food': { ru: 'Продукты', fr: 'Alimentation', en: 'Food' },
-  'malian_products': { ru: 'Товары Мали для русских', fr: 'Produits Mali pour Russes', en: 'Mali Products for Russians' },
+  'malian_products': { ru: 'Товары Мали', fr: 'Produits Mali', en: 'Mali Products' },
   'back_to_rmarket': { ru: 'R-Market', fr: 'R-Market', en: 'R-Market' },
   'delivery_info': { ru: 'Доставка по базам и отелям Бамако', fr: 'Livraison aux bases et hôtels de Bamako', en: 'Delivery to bases and hotels in Bamako' },
   'bamako_mali': { ru: 'Бамако, Мали', fr: 'Bamako, Mali', en: 'Bamako, Mali' },
-  'footer_text': { ru: 'Товары Мали для русских военных и гостей', fr: 'Produits maliens pour les militaires et visiteurs russes', en: 'Mali products for Russian military and guests' },
+  'footer_text': { ru: 'Товары из Мали', fr: 'Produits du Mali', en: 'Products from Mali' },
   // Product request
-  'request_products': { ru: 'Запросить продукты', fr: 'Demander des produits', en: 'Request products' },
+  'request_products': { ru: 'Заказать продукты питание из Бамако', fr: 'Commander produits alimentaires de Bamako', en: 'Order food products from Bamako' },
   'request_products_title': { ru: 'Что вам нужно?', fr: 'De quoi avez-vous besoin?', en: 'What do you need?' },
   'request_products_placeholder': { ru: 'Например: молоко, хлеб, яйца, кофе...', fr: 'Ex: lait, pain, œufs, café...', en: 'Ex: milk, bread, eggs, coffee...' },
   'request_products_help': { ru: 'Напишите список продуктов, которые вы хотите заказать', fr: 'Écrivez la liste des produits que vous souhaitez commander', en: 'Write the list of products you want to order' },
   'send_request': { ru: 'Отправить запрос', fr: 'Envoyer la demande', en: 'Send request' },
   'request_sent': { ru: 'Запрос отправлен!', fr: 'Demande envoyée!', en: 'Request sent!' },
+  'your_contact': { ru: 'Ваш контакт', fr: 'Votre contact', en: 'Your contact' },
+  'phone_required': { ru: 'Номер телефона *', fr: 'Numéro de téléphone *', en: 'Phone number *' },
+  'confirm_call': { ru: 'Nous vous appellerons pour confirmer', fr: 'Nous vous appellerons pour confirmer', en: 'We will call you to confirm' },
+  // Order from Russia
+  'order_from_russia': { ru: 'Заказать из России', fr: 'Commander depuis la Russie', en: 'Order from Russia' },
+  'order_from_russia_title': { ru: 'Заказ из России', fr: 'Commande depuis la Russie', en: 'Order from Russia' },
+  'order_from_russia_desc': { ru: 'Доставка из России в Bamako', fr: 'Livraison depuis la Russie vers Bamako', en: 'Delivery from Russia to Bamako' },
+  'order_from_russia_help': { ru: 'Опишите товары, которые вы хотите заказать из России. Мы купим и отправим их авиатранспортом.', fr: 'Décrivez les produits que vous souhaitez commander depuis la Russie. Nous les achèterons et enverrons par fret aérien.', en: 'Describe the products you want to order from Russia. We will purchase and send them by air freight.' },
+  'order_from_russia_placeholder': { ru: 'Например: лекарства, консервы, одежда, электроника...', fr: 'Ex: médicaments, conserves, vêtements, électronique...', en: 'Ex: medicines, canned goods, clothing, electronics...' },
+  'estimated_weight': { ru: 'Примерный вес (кг)', fr: 'Poids estimé (kg)', en: 'Estimated weight (kg)' },
+  'shipping_cost': { ru: 'Стоимость доставки', fr: 'Frais de livraison', en: 'Shipping cost' },
+  'per_kg': { ru: 'за кг', fr: 'par kg', en: 'per kg' },
+  'delivery_time': { ru: 'Срок доставки', fr: 'Délai de livraison', en: 'Delivery time' },
+  'days': { ru: 'дней', fr: 'jours', en: 'days' },
+  'send_order': { ru: 'Отправить заказ', fr: 'Envoyer la commande', en: 'Send order' },
+  'order_sent': { ru: 'Заказ отправлен!', fr: 'Commande envoyée!', en: 'Order sent!' },
+  'russia_shipping': { ru: 'Доставка из России', fr: 'Livraison depuis la Russie', en: 'Russia Delivery' },
 }
 
 export default function RussianShop() {
@@ -82,6 +101,8 @@ export default function RussianShop() {
   const [exchangeFrom, setExchangeFrom] = useState('USD')
   const [exchangeAmount, setExchangeAmount] = useState('')
   const [exchangeResult, setExchangeResult] = useState('')
+  const [exchangeContact, setExchangeContact] = useState('')
+  const [exchangeCode, setExchangeCode] = useState('')
 
   const [orderForm, setOrderForm] = useState({
     code: '',
@@ -92,9 +113,31 @@ export default function RussianShop() {
   })
   const [orderConfirmed, setOrderConfirmed] = useState(false)
   const [orderCode, setOrderCode] = useState('')
+  
+  // Cart animation
+  const [showCartAnimation, setShowCartAnimation] = useState(false)
+  const [animationProductImage, setAnimationProductImage] = useState('')
 
   const [productRequest, setProductRequest] = useState('')
   const [productRequestSent, setProductRequestSent] = useState(false)
+  const [productRequestForm, setProductRequestForm] = useState({
+    products: '',
+    code: '',
+    whatsapp: '',
+    telegram: ''
+  })
+
+  // Order from Russia
+  const [showOrderFromRussia, setShowOrderFromRussia] = useState(false)
+  const [orderFromRussiaForm, setOrderFromRussiaForm] = useState({
+    products: '',
+    weight: '',
+    code: '',
+    contact: '',
+    telegram: '',
+    address: ''
+  })
+  const [orderFromRussiaSent, setOrderFromRussiaSent] = useState(false)
 
   // Exchange rates from localStorage (admin can change)
   const [exchangeRate, setExchangeRate] = useState(600)
@@ -134,7 +177,15 @@ export default function RussianShop() {
         quantity: 1
       }])
     }
+    
+    // Trigger cart animation
+    setAnimationProductImage(product.image)
+    setShowCartAnimation(true)
   }
+
+  const handleAnimationComplete = useCallback(() => {
+    setShowCartAnimation(false)
+  }, [])
 
   const removeFromCart = (id: number) => {
     setCart(cart.filter(item => item.id !== id))
@@ -184,6 +235,13 @@ export default function RussianShop() {
         description={t('site_subtitle')}
         image="https://i.ibb.co/QnTr9zG/r-market-logo.png"
         url="https://r-market.shop/russian"
+      />
+      
+      {/* Cart Animation */}
+      <CartAnimation 
+        show={showCartAnimation} 
+        productImage={animationProductImage}
+        onComplete={handleAnimationComplete}
       />
       
       {/* Header */}
@@ -249,10 +307,14 @@ export default function RussianShop() {
           </div>
 
           <div className="hidden md:flex items-center gap-4">
-            <button onClick={() => setShowProductRequest(true)} className="flex items-center gap-2 px-4 py-2 bg-green-700 rounded-lg text-sm text-green-100 hover:bg-green-600 transition-colors">
-              <MessageCircle className="w-4 h-4" />
-              {t('request_products')}
-            </button>
+<button onClick={() => setShowProductRequest(true)} className="flex items-center gap-2 px-4 py-2 bg-green-700 rounded-lg text-sm text-green-100 hover:bg-green-600 transition-colors">
+                <MessageCircle className="w-4 h-4" />
+                {t('request_products')}
+              </button>
+              <button onClick={() => setShowOrderFromRussia(true)} className="flex items-center gap-2 px-4 py-2 bg-purple-700 rounded-lg text-sm text-purple-100 hover:bg-purple-600 transition-colors">
+                <Truck className="w-4 h-4" />
+                {t('order_from_russia')}
+              </button>
             <div className="relative">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
               <input 
@@ -278,6 +340,14 @@ export default function RussianShop() {
 
           <button className="md:hidden p-2 text-gray-400" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+          </button>
+          <button onClick={() => setShowCart(true)} className="md:hidden p-2 text-gray-400 relative">
+            <ShoppingCart className="w-5 h-5" />
+            {cart.length > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs w-4 h-4 rounded-full flex items-center justify-center font-bold">
+                {cart.reduce((sum, item) => sum + item.quantity, 0)}
+              </span>
+            )}
           </button>
         </div>
       </header>
@@ -319,6 +389,14 @@ export default function RussianShop() {
             <MessageCircle className="w-5 h-5 text-green-200" />
             <span>{t('request_products')}</span>
           </button>
+          <button onClick={() => { setShowOrderFromRussia(true); setMobileMenuOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3 bg-purple-700 rounded-lg">
+            <Truck className="w-5 h-5 text-purple-200" />
+            <span>{t('order_from_russia')}</span>
+          </button>
+          <button onClick={() => { setShowCart(true); setMobileMenuOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3 bg-gray-700 rounded-lg">
+            <ShoppingCart className="w-5 h-5" />
+            <span>{t('cart')} ({cart.length})</span>
+          </button>
           <button onClick={() => { setShowExchange(true); setMobileMenuOpen(false) }} className="w-full flex items-center gap-3 px-4 py-3 bg-gray-700 rounded-lg">
             <ArrowRightLeft className="w-5 h-5 text-green-400" />
             <span>{t('exchange')}</span>
@@ -354,15 +432,15 @@ export default function RussianShop() {
       </div>
 
       {/* Exchange Rate Banner */}
-      <div className="bg-gradient-to-r from-green-800 to-green-900 py-3">
+      <div className="bg-gradient-to-r from-green-800 to-green-900 py-2 md:py-3">
         <div className="max-w-7xl mx-auto px-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <ArrowRightLeft className="w-5 h-5 text-green-300" />
-            <div className="flex items-center gap-6 text-sm">
+          <div className="flex items-center gap-2 md:gap-4">
+            <ArrowRightLeft className="w-4 h-4 md:w-5 md:h-5 text-green-300" />
+            <div className="flex items-center gap-2 md:gap-6 text-xs md:text-sm">
               <span className="text-green-200">1 USD = <strong className="text-white">{exchangeRate.toLocaleString()} CFA</strong></span>
             </div>
           </div>
-          <button onClick={() => setShowExchange(true)} className="text-sm text-green-300 hover:text-white flex items-center gap-1">
+          <button onClick={() => setShowExchange(true)} className="text-xs md:text-sm text-green-300 hover:text-white flex items-center gap-1">
             {t('exchange')} <ArrowRightLeft className="w-3 h-3" />
           </button>
         </div>
@@ -370,48 +448,30 @@ export default function RussianShop() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* Professional Banner */}
-        <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-red-900 rounded-2xl p-6 md:p-8 mb-8 text-white relative overflow-hidden">
-          <div className="absolute inset-0 opacity-10">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white rounded-full translate-y-1/2 -translate-x-1/2" />
+        {/* Professional Banner - Services */}
+        <div className="bg-gradient-to-r from-blue-900 via-blue-800 to-red-900 rounded-2xl p-6 md:p-8 mb-8 text-white">
+          <div className="text-center mb-6">
+            <h1 className="text-2xl md:text-3xl font-bold mb-2">
+              {t('site_title')}
+            </h1>
+            <p className="text-blue-200 text-sm md:text-base">
+              {t('site_subtitle')} • {t('delivery_info')}
+            </p>
           </div>
-          <div className="relative z-10">
-            <div className="flex flex-col md:flex-row items-center gap-6">
-              <div className="flex-shrink-0">
-                <div className="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center backdrop-blur-sm">
-                  <span className="text-5xl">🛍️</span>
-                </div>
-              </div>
-              <div className="flex-1 text-center md:text-left">
-                <h1 className="text-2xl md:text-3xl font-bold mb-2">
-                  {t('site_title')}
-                </h1>
-                <p className="text-blue-200 text-sm md:text-base mb-4">
-                  {t('site_subtitle')} • {t('delivery_info')}
-                </p>
-                <div className="flex flex-wrap justify-center md:justify-start gap-3">
-                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm">
-                    <span>🎁</span>
-                    <span>{t('souvenirs')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm">
-                    <span>🍷</span>
-                    <span>{t('alcohol')}</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full text-sm">
-                    <span>🛒</span>
-                    <span>{t('food')}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex-shrink-0 hidden md:block">
-                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 text-center">
-                  <p className="text-xs text-blue-200 mb-1">{t('exchange')}</p>
-                  <p className="text-xl font-bold">1 USD = {exchangeRate.toLocaleString()} F</p>
-                </div>
-              </div>
-            </div>
+          
+          <div className="flex flex-wrap justify-center gap-4">
+            <button onClick={() => setShowExchange(true)} className="flex items-center gap-2 bg-gradient-to-r from-green-600 to-green-700 px-6 py-3 rounded-xl font-semibold hover:from-green-700 hover:to-green-800 transition-all">
+              <ArrowRightLeft className="w-5 h-5" />
+              {t('exchange')}
+            </button>
+            <button onClick={() => setShowProductRequest(true)} className="flex items-center gap-2 bg-gradient-to-r from-green-700 to-green-800 px-6 py-3 rounded-xl font-semibold hover:from-green-800 hover:to-green-900 transition-all">
+              <MessageCircle className="w-5 h-5" />
+              {t('request_products')}
+            </button>
+            <button onClick={() => setShowOrderFromRussia(true)} className="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-purple-700 px-6 py-3 rounded-xl font-semibold hover:from-purple-700 hover:to-purple-800 transition-all">
+              <Truck className="w-5 h-5" />
+              {t('order_from_russia')}
+            </button>
           </div>
         </div>
 
@@ -599,6 +659,45 @@ export default function RussianShop() {
                 )}
               </div>
 
+              <div className="bg-gray-700 rounded-lg p-4 space-y-4">
+                <h3 className="text-white font-medium">{t('your_contact')}</h3>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2">{t('your_code')} *</label>
+                  <input 
+                    type="text"
+                    value={exchangeCode}
+                    onChange={e => setExchangeCode(e.target.value.toUpperCase())}
+                    placeholder={lang === 'ru' ? 'Например: RUS-7823' : lang === 'fr' ? 'Ex: RUS-7823' : 'Ex: RUS-7823'}
+                    className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
+                    <Phone className="w-4 h-4 text-green-500" />
+                    {t('phone_required')}
+                  </label>
+                  <input 
+                    type="tel"
+                    value={exchangeContact}
+                    onChange={e => setExchangeContact(e.target.value)}
+                    placeholder="+223 XX XX XX XX"
+                    className="w-full px-4 py-3 bg-gray-600 border border-gray-500 rounded-lg"
+                  />
+                </div>
+                <button 
+                  onClick={() => {
+                    if (exchangeResult && exchangeCode && exchangeContact) {
+                      const message = `${t('exchange')}:\n\n${exchangeAmount} ${exchangeFrom} = ${exchangeResult} ${exchangeFrom === 'CFA' ? 'USD' : 'CFA'}\n\nКод: ${exchangeCode}\nWhatsApp: ${exchangeContact}`
+                      window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
+                    }
+                  }}
+                  disabled={!exchangeResult || !exchangeCode || !exchangeContact}
+                  className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-bold transition-colors"
+                >
+                  {t('send_request')}
+                </button>
+              </div>
+
               <div className="bg-blue-900/50 border border-blue-700 rounded-lg p-4">
                 <p className="text-sm text-blue-300">
                   {t('exchange_note')}
@@ -695,8 +794,37 @@ export default function RussianShop() {
               </div>
 
               <button 
-                onClick={() => {
+                onClick={async () => {
                   const code = orderForm.code || `RUS-${Math.floor(1000 + Math.random() * 9000)}`
+                  
+                  // Sauvegarder commande dans Supabase
+                  const orderData = {
+                    order_number: code,
+                    client_name: orderForm.whatsapp || 'Client Russe',
+                    client_phone: orderForm.whatsapp || '',
+                    client_address: orderForm.address,
+                    items: JSON.stringify(cart.map(item => ({
+                      name: item.nameRu || item.name,
+                      price: item.price,
+                      quantity: item.quantity
+                    }))),
+                    total: cartTotal,
+                    status: 'pending',
+                    type: 'russian',
+                    created_at: new Date().toISOString()
+                  }
+
+                  const { error } = await supabase.from('commandes').insert(orderData)
+
+                  if (error) {
+                    console.error('Erreur:', error)
+                  } else {
+                    // Envoyer notification WhatsApp
+                    const itemsList = cart.map(item => `• ${item.nameRu || item.name} x${item.quantity} = ${item.price} CFA`).join('%0A')
+                    const message = `🛒 R-MARKET - NOUVELLE COMMANDE:%0A%0A${code}%0AClient: ${orderForm.whatsapp}%0AAdresse: ${orderForm.address}%0A%0AArticles:%0A${itemsList}%0A%0ATotal: ${cartTotal} CFA`
+                    window.open(`https://wa.me/?text=${message}`, '_blank')
+                  }
+
                   setOrderCode(code)
                   setOrderConfirmed(true)
                   setCart([])
@@ -716,7 +844,7 @@ export default function RussianShop() {
 
       {/* Order Confirmation Modal */}
       {orderConfirmed && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
+<div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
           <div className="bg-gray-800 w-full max-w-md rounded-t-2xl md:rounded-2xl">
             <div className="p-8 text-center">
               <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -725,37 +853,30 @@ export default function RussianShop() {
               <h2 className="text-2xl font-bold text-white mb-2">
                 {t('order_confirmed')}
               </h2>
-              <p className="text-gray-400 mb-6">
-                {lang === 'ru' 
-                  ? 'Ваш заказ принят. Сохраните QR-код для получения.' 
-                  : lang === 'fr' ? 'Votre commande est acceptée. Gardez le QR-code pour la réception.' : 'Your order is accepted. Keep the QR code for reception.'}
+              <p className="text-gray-400 mb-4">
+                {lang === 'ru' ? 'Ваш заказ принят!' : lang === 'fr' ? 'Votre commande est acceptée!' : 'Your order is accepted!'}
               </p>
-              
+               
               {/* QR Code */}
-              <div className="bg-white rounded-2xl p-4 mb-6 inline-block">
+              <div className="bg-white rounded-2xl p-3 inline-block mb-4">
                 <img 
                   src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(JSON.stringify({orderCode, type: 'russian'}))}&bgcolor=ffffff&color=1a1a2e&margin=4`}
                   alt="QR Code Commande"
-                  className="w-48 h-48 mx-auto"
+                  className="w-40 h-40 mx-auto"
                 />
               </div>
 
-              <div className="bg-gradient-to-r from-blue-600 to-red-600 rounded-xl p-6 mb-6">
-                <p className="text-white/80 text-sm mb-2">{lang === 'ru' ? 'Ваш номер заказа' : lang === 'fr' ? 'Votre numéro de commande' : 'Your order number'}</p>
-                <p className="text-4xl font-bold text-white font-mono">{orderCode}</p>
+              {/* Numéro de commande */}
+              <div className="bg-gradient-to-r from-blue-600 to-red-600 rounded-xl p-4 mb-4">
+                <p className="text-white/80 text-xs mb-1">{lang === 'ru' ? 'Номер заказа' : lang === 'fr' ? 'Numéro de commande' : 'Order number'}</p>
+                <p className="text-3xl font-bold text-white font-mono tracking-wider">{orderCode}</p>
               </div>
 
-              <div className="bg-gray-700 rounded-lg p-4 mb-6 text-left">
-                <p className="text-gray-400 text-sm mb-2">{t('what_to_do')}</p>
-                <ul className="text-sm text-white space-y-1">
-                  <li>📸 {t('screenshot')}</li>
-                  <li>🖨️ {t('print_qr')}</li>
-                  <li>📱 {t('driver_contact')}</li>
-                  <li>🎁 {t('show_qr')}</li>
-                </ul>
-              </div>
+              <p className="text-gray-400 text-sm mb-6">
+                📸 {lang === 'ru' ? 'Сохраните скриншот' : lang === 'fr' ? 'Faites une capture d\'écran' : 'Take a screenshot'}
+              </p>
 
-              <button 
+              <button
                 onClick={() => { setShowOrderForm(false); setOrderConfirmed(false); setOrderForm({ code: '', whatsapp: '', telegram: '', address: '', payment: 'CFA' }) }}
                 className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg font-bold"
               >
@@ -784,6 +905,27 @@ export default function RussianShop() {
         </div>
       </div>
 
+      {/* Order from Russia Banner */}
+      <div className="max-w-7xl mx-auto px-4 pb-6">
+        <div className="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-2xl p-6 md:p-8 text-white flex flex-col md:flex-row items-center gap-6">
+          <div className="flex items-center gap-4 flex-shrink-0">
+            <span className="text-5xl">✈️</span>
+            <div>
+              <h3 className="text-xl font-bold">{t('order_from_russia_title')}</h3>
+              <p className="text-purple-200 text-sm">{t('order_from_russia_desc')}</p>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 md:ml-auto">
+            <div className="bg-white/20 px-4 py-2 rounded-lg text-sm">
+              <span className="font-bold">10$</span> {t('per_kg')} • 7-14 {t('days')}
+            </div>
+            <button onClick={() => setShowOrderFromRussia(true)} className="bg-white text-purple-600 px-6 py-3 rounded-lg font-semibold text-sm hover:bg-gray-100 transition-colors">
+              📦 {t('order_from_russia')}
+            </button>
+          </div>
+        </div>
+      </div>
+
       {/* Product Request Modal */}
       {showProductRequest && (
         <div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
@@ -791,7 +933,7 @@ export default function RussianShop() {
             <div className="p-6 border-b border-gray-700 flex items-center justify-between">
               <h2 className="text-xl font-bold flex items-center gap-2">
                 <MessageCircle className="w-6 h-6 text-green-400" />
-                {t('request_products_title')}
+                {t('request_products')}
               </h2>
               <button onClick={() => setShowProductRequest(false)} className="p-2 text-gray-400 hover:text-white">
                 <X className="w-5 h-5" />
@@ -804,28 +946,70 @@ export default function RussianShop() {
               </p>
               
               <textarea
-                value={productRequest}
-                onChange={e => setProductRequest(e.target.value)}
+                value={productRequestForm.products}
+                onChange={e => setProductRequestForm({...productRequestForm, products: e.target.value})}
                 placeholder={t('request_products_placeholder')}
-                rows={5}
+                rows={4}
                 className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-green-500 resize-none"
               />
               
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">{t('your_code')} *</label>
+                <input 
+                  type="text"
+                  value={productRequestForm.code}
+                  onChange={e => setProductRequestForm({...productRequestForm, code: e.target.value.toUpperCase()})}
+                  placeholder={lang === 'ru' ? 'Например: RUS-7823' : lang === 'fr' ? 'Ex: RUS-7823' : 'Ex: RUS-7823'}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg font-mono"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-green-500" />
+                  {t('phone_required')}
+                </label>
+                <input 
+                  type="tel"
+                  value={productRequestForm.whatsapp}
+                  onChange={e => setProductRequestForm({...productRequestForm, whatsapp: e.target.value})}
+                  placeholder="+223 XX XX XX XX"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
+                  <Send className="w-4 h-4 text-blue-400" />
+                  Telegram ({t('optional')})
+                </label>
+                <input 
+                  type="text"
+                  value={productRequestForm.telegram}
+                  onChange={e => setProductRequestForm({...productRequestForm, telegram: e.target.value})}
+                  placeholder="@username"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
+                />
+              </div>
+              
+              <p className="text-xs text-green-400 text-center">
+                📞 {t('confirm_call')}
+              </p>
+              
               <button 
                 onClick={() => {
-                  if (productRequest.trim()) {
-                    // Open WhatsApp with product request
-                    const message = `${t('request_products')}:\n\n${productRequest}`
+                  if (productRequestForm.products.trim() && productRequestForm.code && productRequestForm.whatsapp) {
+                    const message = `${t('request_products')}:\n\nПродукты: ${productRequestForm.products}\n\nКод: ${productRequestForm.code}\nWhatsApp: ${productRequestForm.whatsapp}\nTelegram: ${productRequestForm.telegram || 'N/A'}`
                     window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
                     setProductRequestSent(true)
                     setTimeout(() => {
                       setShowProductRequest(false)
                       setProductRequestSent(false)
-                      setProductRequest('')
+                      setProductRequestForm({ products: '', code: '', whatsapp: '', telegram: '' })
                     }, 2000)
                   }
                 }}
-                disabled={!productRequest.trim()}
+                disabled={!productRequestForm.products.trim() || !productRequestForm.code || !productRequestForm.whatsapp}
                 className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
               >
                 <Send className="w-5 h-5" />
@@ -836,6 +1020,147 @@ export default function RussianShop() {
                 <div className="bg-green-900/50 border border-green-700 rounded-lg p-4 text-center">
                   <Check className="w-8 h-8 text-green-400 mx-auto mb-2" />
                   <p className="text-green-300 font-medium">{t('request_sent')}</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Order from Russia Modal */}
+      {showOrderFromRussia && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-end md:items-center justify-center">
+          <div className="bg-gray-800 w-full max-w-md max-h-[90vh] overflow-y-auto rounded-t-2xl md:rounded-2xl">
+            <div className="p-6 border-b border-gray-700 flex items-center justify-between">
+              <h2 className="text-xl font-bold flex items-center gap-2">
+                <Truck className="w-6 h-6 text-purple-400" />
+                {t('order_from_russia_title')}
+              </h2>
+              <button onClick={() => setShowOrderFromRussia(false)} className="p-2 text-gray-400 hover:text-white">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 space-y-4">
+              <div className="bg-purple-900/50 border border-purple-700 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-purple-300 text-sm">{t('shipping_cost')}:</span>
+                  <span className="text-white font-bold">10$ / kg</span>
+                </div>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-purple-300 text-sm">{t('delivery_time')}:</span>
+                  <span className="text-white font-bold">7-14 {t('days')}</span>
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">
+                  {lang === 'ru' ? 'Товары' : lang === 'fr' ? 'Produits' : 'Products'} *
+                </label>
+                <textarea
+                  value={orderFromRussiaForm.products}
+                  onChange={e => setOrderFromRussiaForm({...orderFromRussiaForm, products: e.target.value})}
+                  placeholder={t('order_from_russia_placeholder')}
+                  rows={4}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500 resize-none"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">{t('estimated_weight')} *</label>
+                <input 
+                  type="number"
+                  value={orderFromRussiaForm.weight}
+                  onChange={e => setOrderFromRussiaForm({...orderFromRussiaForm, weight: e.target.value})}
+                  placeholder="1"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-purple-500"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">{t('your_code')} *</label>
+                <input 
+                  type="text"
+                  value={orderFromRussiaForm.code}
+                  onChange={e => setOrderFromRussiaForm({...orderFromRussiaForm, code: e.target.value.toUpperCase()})}
+                  placeholder={lang === 'ru' ? 'Например: RUS-7823' : lang === 'fr' ? 'Ex: RUS-7823' : 'Ex: RUS-7823'}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg font-mono"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
+                  <Phone className="w-4 h-4 text-green-500" />
+                  WhatsApp *
+                </label>
+                <input 
+                  type="tel"
+                  value={orderFromRussiaForm.contact}
+                  onChange={e => setOrderFromRussiaForm({...orderFromRussiaForm, contact: e.target.value})}
+                  placeholder="+223 XX XX XX XX"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2 flex items-center gap-2">
+                  <Send className="w-4 h-4 text-blue-400" />
+                  Telegram ({t('optional')})
+                </label>
+                <input 
+                  type="text"
+                  value={orderFromRussiaForm.telegram}
+                  onChange={e => setOrderFromRussiaForm({...orderFromRussiaForm, telegram: e.target.value})}
+                  placeholder="@username"
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-400 mb-2">{t('address')} *</label>
+                <input 
+                  type="text"
+                  value={orderFromRussiaForm.address}
+                  onChange={e => setOrderFromRussiaForm({...orderFromRussiaForm, address: e.target.value})}
+                  placeholder={lang === 'ru' ? 'База / Отель / Район' : lang === 'fr' ? 'Base / Hôtel / Quartier' : 'Base / Hotel / Area'}
+                  className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg"
+                />
+              </div>
+
+              {orderFromRussiaForm.weight && parseFloat(orderFromRussiaForm.weight) > 0 && (
+                <div className="bg-gray-700 rounded-lg p-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-gray-400">{t('shipping_cost')}:</span>
+                    <span className="text-xl font-bold text-purple-400">${(parseFloat(orderFromRussiaForm.weight) * 10).toFixed(0)}</span>
+                  </div>
+                </div>
+              )}
+
+              <button 
+                onClick={() => {
+                  if (orderFromRussiaForm.products.trim() && orderFromRussiaForm.weight && orderFromRussiaForm.contact && orderFromRussiaForm.address) {
+                    const shippingCost = (parseFloat(orderFromRussiaForm.weight) * 10).toFixed(0)
+                    const message = `${t('russia_shipping')}:\n\n${t('order_from_russia_title')}\n\nТовары / Produits: ${orderFromRussiaForm.products}\nВес / Poids: ${orderFromRussiaForm.weight} kg\nСтоимость доставки / Frais de livraison: ${shippingCost}$\n\nКод: ${orderFromRussiaForm.code}\nWhatsApp: ${orderFromRussiaForm.contact}\nTelegram: ${orderFromRussiaForm.telegram || 'N/A'}\nАдрес / Adresse: ${orderFromRussiaForm.address}`
+                    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, '_blank')
+                    setOrderFromRussiaSent(true)
+                    setTimeout(() => {
+                      setShowOrderFromRussia(false)
+                      setOrderFromRussiaSent(false)
+                      setOrderFromRussiaForm({ products: '', weight: '', code: '', contact: '', telegram: '', address: '' })
+                    }, 3000)
+                  }
+                }}
+                disabled={!orderFromRussiaForm.products.trim() || !orderFromRussiaForm.weight || !orderFromRussiaForm.code || !orderFromRussiaForm.contact || !orderFromRussiaForm.address}
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white py-3 rounded-lg font-bold transition-colors flex items-center justify-center gap-2"
+              >
+                <Send className="w-5 h-5" />
+                {t('send_order')}
+              </button>
+
+              {orderFromRussiaSent && (
+                <div className="bg-purple-900/50 border border-purple-700 rounded-lg p-4 text-center">
+                  <Check className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                  <p className="text-purple-300 font-medium">{t('order_sent')}</p>
                 </div>
               )}
             </div>
@@ -876,6 +1201,9 @@ export default function RussianShop() {
           </div>
           <div className="border-t border-gray-700 mt-8 pt-6 text-center text-xs text-gray-500">
             <p>🇷🇺 R-Market Russian • Bamako, Mali 🇲🇱 • {new Date().getFullYear()}</p>
+            <Link to="/russian-login" className="text-gray-600 hover:text-gray-400 mt-2 inline-block">
+              •••
+            </Link>
           </div>
         </div>
       </footer>

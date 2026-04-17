@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useLocation, Outlet } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe, Camera, QrCode, Calendar, ScanLine, ArrowRightLeft } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, Truck, RefreshCw, FileText, Wallet, Users2, Warehouse, Menu, X, Home, LogOut, UserCog, Flag, PackageCheck, Image, Globe, Camera, QrCode, Calendar, ScanLine, ArrowRightLeft, Brain, Map, TrendingUp } from 'lucide-react'
 
 const tabs = [
   { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard, section: 'main' },
@@ -10,7 +10,7 @@ const tabs = [
   { id: 'qrcodes', label: '📱 QR Codes', icon: QrCode, section: 'main' },
   { id: 'photo-planning', label: '📅 Planning Photos', icon: Calendar, section: 'main' },
   { id: 'inventory', label: 'Inventaire', icon: Warehouse, section: 'main' },
-  { id: 'delivery', label: 'Livraisons', icon: Truck, section: 'main' },
+  { id: 'delivery-management', label: '🚚 Gestion Livraisons', icon: Truck, section: 'main' },
   { id: 'delivery-scan', label: '📱 Scan Livraison', icon: ScanLine, section: 'main' },
   { id: 'returns', label: 'Retours', icon: RefreshCw, section: 'main' },
   { id: 'reports', label: 'Rapports', icon: FileText, section: 'main' },
@@ -23,6 +23,10 @@ const tabs = [
   { id: 'content', label: 'Images & Slider', icon: Image, section: 'settings' },
   { id: 'users', label: 'Comptes & Accès', icon: UserCog, section: 'settings' },
   { id: 'analytics', label: 'Statistiques', icon: BarChart3, section: 'settings' },
+  { id: 'analytics/behavior', label: '🔍 Comportement', icon: Brain, section: 'settings' },
+  { id: 'analytics/heatmap', label: '🗺️ Carte Thermique', icon: Map, section: 'settings' },
+  { id: 'analytics/predictive', label: '🔮 Prédictions', icon: TrendingUp, section: 'settings' },
+  { id: 'international-shops', label: '🌍 Boutiques Intl', icon: Globe, section: 'settings' },
   { id: 'settings', label: 'Paramètres', icon: Settings, section: 'settings' },
 ]
 

@@ -1,6 +1,9 @@
-import { useState } from 'react'
-import { ShoppingCart, Search, Eye, Check, X, Truck, Phone, MapPin, Package, QrCode, Printer, AlertCircle, Clock, CheckCircle, MessageCircle } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { ShoppingCart, Search, Eye, Check, X, Truck, Phone, MapPin, Package, QrCode, Printer, AlertCircle, Clock, CheckCircle, MessageCircle, RefreshCw, TrendingUp, DollarSign, Users, PackageCheck, PackageX } from 'lucide-react'
 import { getSupplierWhatsapp, generateSupplierWhatsappMessage, generateWhatsappUrl } from '../../utils/supplierWhatsapp'
+import { supabase } from '../../lib/supabase'
+import { CONFIG, notifyStatusChange } from '../../lib/config'
 
 interface OrderItem {
   id: number
@@ -27,103 +30,7 @@ interface Order {
   notes?: string
 }
 
-const initialOrders: Order[] = [
-  { 
-    id: 'CMD-001', 
-    customer: 'Moussa Dembélé', 
-    phone: '+223 70 12 34 56', 
-    address: 'Bamako, Quartier ACI, Rue 123',
-    items: [
-      { id: 1, name: 'Robe bazin riche brodée', sku: 'MAL-MOD-01-0001', price: 35000, quantity: 1, image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=100&h=100&fit=crop' }
-    ],
-    total: 35000, 
-    status: 'pending', 
-    date: '14/04/2026',
-    supplierId: 1,
-    supplierName: 'Marché Médina',
-    supplierAddress: 'Marché Médina, Allée 5, Bamako'
-  },
-  { 
-    id: 'CMD-002', 
-    customer: 'Aminata Koné', 
-    phone: '+223 66 78 90 12', 
-    address: 'Bamako, Djélibougou, Avenue 200',
-    items: [
-      { id: 2, name: 'Parfum Oud', sku: 'MAL-SAN-07-0015', price: 25000, quantity: 1, image: 'https://images.unsplash.com/photo-1541643600914-78b084683601?w=100&h=100&fit=crop' },
-      { id: 3, name: 'Crème hydratante', sku: 'MAL-SAN-07-0016', price: 15000, quantity: 2, image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=100&h=100&fit=crop' }
-    ],
-    total: 55000, 
-    status: 'pickup_required', 
-    date: '14/04/2026',
-    supplierId: 7,
-    supplierName: 'Pharmacie Bamako',
-    supplierAddress: 'Bamako, Quartier Hippodrome'
-  },
-  { 
-    id: 'CMD-003', 
-    customer: 'Ibrahim Touré', 
-    phone: '+223 77 34 56 78', 
-    address: 'Bamako, Hamdallaye ACI',
-    items: [
-      { id: 4, name: 'Tissu Bogolan', sku: 'MAL-MOD-01-0002', price: 45000, quantity: 1, image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=100&h=100&fit=crop' }
-    ],
-    total: 45000, 
-    status: 'picked_up', 
-    date: '13/04/2026',
-    qrCode: 'CMD-003-PROD-001',
-    supplierId: 1,
-    supplierName: 'Marché Médina',
-    supplierAddress: 'Marché Médina, Allée 5, Bamako'
-  },
-  { 
-    id: 'CMD-004', 
-    customer: 'Fatou Sangaré', 
-    phone: '+223 65 90 12 34', 
-    address: 'Bamako, Badalabougou',
-    items: [
-      { id: 5, name: 'Sac en Cuir', sku: 'MAL-MOD-04-0008', price: 28000, quantity: 1, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop' }
-    ],
-    total: 28000, 
-    status: 'ready_for_delivery', 
-    date: '14/04/2026',
-    qrCode: 'CMD-004-PROD-001',
-    supplierId: 4,
-    supplierName: 'Cuir & Maroquinerie',
-    supplierAddress: 'Kayes, Rue principale'
-  },
-  { 
-    id: 'CMD-005', 
-    customer: 'Amadou Diallo', 
-    phone: '+223 78 45 67 89', 
-    address: 'Ségou, Centre ville',
-    items: [
-      { id: 6, name: 'Collier perles Bambara', sku: 'MAL-MOD-05-0012', price: 18000, quantity: 1, image: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?w=100&h=100&fit=crop' }
-    ],
-    total: 18000, 
-    status: 'delivered', 
-    date: '12/04/2026',
-    qrCode: 'CMD-005-PROD-001',
-    supplierId: 5,
-    supplierName: 'Marché de Ségou',
-    supplierAddress: 'Ségou, Marché central'
-  },
-  { 
-    id: 'CMD-006', 
-    customer: 'Khadija Maïga', 
-    phone: '+223 79 23 45 67', 
-    address: 'Bamako, Point G',
-    items: [
-      { id: 7, name: 'Masque Dogon sculpté', sku: 'MAL-SOU-03-0020', price: 85000, quantity: 1, image: 'https://images.unsplash.com/photo-1582555172866-f73bb12a2ab3?w=100&h=100&fit=crop' }
-    ],
-    total: 85000, 
-    status: 'unavailable', 
-    date: '14/04/2026',
-    supplierId: 3,
-    supplierName: 'Artisan Bandiagara',
-    supplierAddress: 'Bandiagara, Zone artisanale',
-    notes: 'Produit non disponible - Client appelé le 14/04'
-  },
-]
+const initialOrders: Order[] = []
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
   pending: { label: 'En attente', color: 'text-yellow-700', bg: 'bg-yellow-100', icon: Clock },
@@ -137,22 +44,68 @@ const statusConfig: Record<string, { label: string; color: string; bg: string; i
 }
 
 export default function OrdersMali() {
-  const [orders, setOrders] = useState<Order[]>(initialOrders)
+  const [orders, setOrders] = useState<Order[]>([])
+  const [loading, setLoading] = useState(true)
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null)
   const [filter, setFilter] = useState('all')
   const [showCallModal, setShowCallModal] = useState(false)
   const [callNotes, setCallNotes] = useState('')
+
+  // Load orders from Supabase
+  useEffect(() => {
+    loadOrders()
+  }, [])
+
+  const loadOrders = async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('commandes')
+      .select('*')
+      .eq('type', 'mali')
+      .order('created_at', { ascending: false })
+
+    if (data) {
+      setOrders(data.map((order: any) => ({
+        id: order.order_number,
+        customer: order.client_name,
+        phone: order.client_phone,
+        address: order.client_address || '',
+        items: (JSON.parse(order.items || '[]') as any[]).map((item, idx) => ({
+          id: idx + 1,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity,
+          sku: '',
+          image: ''
+        })),
+        total: order.total,
+        status: order.status,
+        date: new Date(order.created_at).toLocaleDateString('fr-FR')
+      })))
+    }
+    setLoading(false)
+  }
 
   // Filter orders
   const filteredOrders = filter === 'all' 
     ? orders 
     : orders.filter(o => o.status === filter)
 
-  // Update order status
-  const updateStatus = (orderId: string, newStatus: string) => {
+  // Mettre à jour le statut et sync avec Supabase + notifier le client
+  const updateStatus = async (orderId: string, newStatus: string) => {
+    await supabase
+      .from('commandes')
+      .update({ status: newStatus })
+      .eq('order_number', orderId)
+    
+    const order = orders.find(o => o.id === orderId)
     setOrders(orders.map(o => 
       o.id === orderId ? { ...o, status: newStatus } : o
     ))
+    // Notifier le client du changement de statut
+    if (order?.phone) {
+      notifyStatusChange(order.phone, order.customer, orderId, newStatus)
+    }
   }
 
   // Generate QR code when picking up product
@@ -250,47 +203,118 @@ export default function OrdersMali() {
     readyForDelivery: orders.filter(o => o.status === 'ready_for_delivery').length,
     delivered: orders.filter(o => o.status === 'delivered').length,
     unavailable: orders.filter(o => o.status === 'unavailable').length,
+    revenue: orders.reduce((sum, o) => sum + (o.total || 0), 0),
+    todayOrders: orders.filter(o => new Date(o.date).toDateString() === new Date().toDateString()).length,
+    todayRevenue: orders.filter(o => new Date(o.date).toDateString() === new Date().toDateString()).reduce((sum, o) => sum + (o.total || 0), 0),
   }
+
+  const quickActions = [
+    { label: 'Produits', icon: Package, link: '/admin-panel/products', color: 'bg-purple-600' },
+    { label: 'Fournisseurs', icon: Users, link: '/admin-panel/suppliers', color: 'bg-orange-600' },
+    { label: 'Livraisons', icon: Truck, link: '/admin-panel/delivery', color: 'bg-cyan-600' },
+    { label: 'Analytics', icon: TrendingUp, link: '/admin-panel/analytics', color: 'bg-indigo-600' },
+  ]
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
-            <ShoppingCart className="w-6 h-6" />
+            <ShoppingCart className="w-6 h-6 text-green-600" />
             Commandes Mali
           </h1>
-          <p className="text-gray-500 text-sm">{orders.length} commandes • Workflow: Fournisseur → Stock temporaire → Client</p>
+          <p className="text-gray-500 text-sm">{stats.total} commandes • Workflow: Fournisseur → Stock → Client</p>
+        </div>
+        <button 
+          onClick={loadOrders}
+          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-2"
+          title="Actualiser"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {quickActions.map((action, i) => (
+          <Link
+            key={i}
+            to={action.link}
+            className={`${action.color} text-white p-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity`}
+          >
+            <action.icon className="w-5 h-5" />
+            <span className="font-medium text-sm">{action.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <DollarSign className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Aujourd'hui</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.todayRevenue.toLocaleString()} F</p>
+          <p className="text-sm text-white/80">Revenus du jour</p>
+        </div>
+        <div className="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <ShoppingCart className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Aujourd'hui</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.todayOrders}</p>
+          <p className="text-sm text-white/80">Commandes aujourd'hui</p>
+        </div>
+        <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <Clock className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Action requise</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.pending}</p>
+          <p className="text-sm text-white/80">En attente</p>
+        </div>
+        <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <TrendingUp className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Total</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.revenue.toLocaleString()} F</p>
+          <p className="text-sm text-white/80">Revenus global</p>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Total</p>
-          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
+          <PackageCheck className="w-5 h-5 text-blue-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.total}</p>
+          <p className="text-xs text-gray-500">Total</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">En attente</p>
-          <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+          <Package className="w-5 h-5 text-orange-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.pickupRequired}</p>
+          <p className="text-xs text-gray-500">À récupérer</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">À récupérer</p>
-          <p className="text-2xl font-bold text-orange-600">{stats.pickupRequired}</p>
+          <PackageCheck className="w-5 h-5 text-green-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.delivered}</p>
+          <p className="text-xs text-gray-500">Livrées</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Prêts</p>
-          <p className="text-2xl font-bold text-purple-600">{stats.readyForDelivery}</p>
+          <Users className="w-5 h-5 text-purple-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.readyForDelivery}</p>
+          <p className="text-xs text-gray-500">Prêtes</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Livrés</p>
-          <p className="text-2xl font-bold text-green-600">{stats.delivered}</p>
+          <PackageX className="w-5 h-5 text-red-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.unavailable}</p>
+          <p className="text-xs text-gray-500">Indisponibles</p>
         </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Indisponibles</p>
-          <p className="text-2xl font-bold text-gray-600">{stats.unavailable}</p>
-        </div>
+        <Link to="/admin-panel/russian-orders" className="bg-white rounded-xl p-4 border border-gray-100 hover:bg-gray-50 transition-colors flex items-center justify-center">
+          <span className="text-2xl">🇷����</span>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -389,6 +413,47 @@ export default function OrdersMali() {
                       <Eye className="w-5 h-5" />
                     </button>
                     
+                    {/* Call client */}
+                    <button 
+                      onClick={() => window.open(`tel:${order.phone}`, '_blank')}
+                      className="flex items-center gap-1 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200"
+                      title="Appeler"
+                    >
+                      <Phone className="w-4 h-4" />
+                    </button>
+                    
+{/* WhatsApp client */}
+                    <button 
+                      onClick={() => window.open(`https://wa.me/${order.phone.replace(/\D/g, '')}`, '_blank')}
+                      className="flex items-center gap-1 px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200"
+                      title="WhatsApp client"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                    </button>
+                    
+                    {/* Partager commande (pour transmits au fournisseur) */}
+                    <button 
+                      onClick={() => {
+                        const itemsList = order.items.map(item => `• ${item.name} x${item.quantity} = ${item.price.toLocaleString()} Fcfa`).join('%0A')
+                        const message = `🛒 COMMANDE R-MARKET - ${order.id}\n\nClient: ${order.customer}\nTéléphone: ${order.phone}\nAdresse: ${order.address}\n\nArticles:\n${order.items.map(i => `• ${i.name} x${i.quantity} = ${i.price.toLocaleString()} FCFA`).join('\n')}\n\nTotal: ${order.total.toLocaleString()} FCFA\n\nVeuillez préparer cette commande.`
+                        window.open(`https://wa.me/${CONFIG.WHATSAPP_GERANT}?text=${encodeURIComponent(message)}`, '_blank')
+                      }}
+                      className="flex items-center gap-1 px-3 py-2 bg-orange-100 text-orange-700 rounded-lg text-sm font-medium hover:bg-orange-200"
+                      title="Transmettre au fournisseur"
+                    >
+                      <Truck className="w-4 h-4" /> Fournisseur
+                    </button>
+
+                    {/* Confirmer */}
+                    {order.status === 'pending' && (
+                      <button 
+                        onClick={() => updateStatus(order.id, 'confirmed')}
+                        className="flex items-center gap-1 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200"
+                      >
+                        <Check className="w-4 h-4" /> Confirmer
+                      </button>
+                    )}
+                    
                     {/* Pickup action */}
                     {order.status === 'pickup_required' && (
                       <button 
@@ -417,6 +482,16 @@ export default function OrdersMali() {
                         className="flex items-center gap-1 px-3 py-2 bg-purple-100 text-purple-700 rounded-lg text-sm font-medium hover:bg-purple-200"
                       >
                         <Truck className="w-4 h-4" /> Prêt
+                      </button>
+                    )}
+
+                    {/* Livré */}
+                    {(order.status === 'ready_for_delivery' || order.status === 'picked_up') && (
+                      <button 
+                        onClick={() => updateStatus(order.id, 'delivered')}
+                        className="flex items-center gap-1 px-3 py-2 bg-green-100 text-green-700 rounded-lg text-sm font-medium hover:bg-green-200"
+                      >
+                        <CheckCircle className="w-4 h-4" /> Livré
                       </button>
                     )}
 

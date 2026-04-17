@@ -1,11 +1,11 @@
 import { useParams, Link } from 'react-router-dom'
-import { ShoppingCart, Star, Truck, Shield, RefreshCw, ArrowLeft, Minus, Plus, Heart, Share2, Check, ChevronRight, GitCompare } from 'lucide-react'
-import { useState } from 'react'
+import { ShoppingCart, Star, Truck, Shield, RefreshCw, ArrowLeft, Minus, Plus, Heart, Share2, Check, ChevronRight, GitCompare, ZoomIn, X, ChevronLeft, ChevronRight as ChevronRightIcon } from 'lucide-react'
+import { useState, useEffect } from 'react'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
 import { useCompare } from '../context/CompareContext'
 import { useNotification } from '../context/NotificationContext'
-import { products } from '../data/products'
+import { loadProducts } from '../lib/products'
 import ProductCard from '../components/ProductCard'
 import Reviews from '../components/Reviews'
 import SEO from '../components/SEO'
@@ -19,12 +19,28 @@ export default function ProductDetail() {
   const [quantity, setQuantity] = useState(1)
   const [addedFeedback, setAddedFeedback] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
-
+  const [zoomOpen, setZoomOpen] = useState(false)
+  const [zoomPosition, setZoomPosition] = useState({ x: 50, y: 50 })
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  useEffect(() => {
+    loadProducts().then(data => {
+      setProducts(data)
+      setLoading(false)
+    })
+  }, [])
+  
   const product = products.find(p => p.id === Number(id))
-  const relatedProducts = products
-    .filter(p => p.category === product?.category && p.id !== product?.id)
-    .slice(0, 4)
-
+  
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+      </div>
+    )
+  }
+  
   if (!product) {
     return (
       <div className="max-w-7xl mx-auto px-4 py-16 text-center">
@@ -36,8 +52,14 @@ export default function ProductDetail() {
       </div>
     )
   }
+  
+  const productImages = [product.image, product.image, product.image, product.image]
+  const relatedProducts = products
+    .filter(p => p.category === product.category && p.id !== product.id)
+    .slice(0, 4)
 
-  const discount = Math.round((1 - product.price / product.originalPrice) * 100)
+  const originalPrice = product.original_price || product.originalPrice
+  const discount = originalPrice ? Math.round((1 - product.price / originalPrice) * 100) : 0
   const liked = isFavorite(product.id)
   const inCompare = isInCompare(product.id)
 
@@ -110,12 +132,19 @@ export default function ProductDetail() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
             {/* Image Section */}
             <div className="relative bg-gray-50 p-6">
-              <div className="relative">
+              <div 
+                className="relative cursor-zoom-in"
+                onClick={() => setZoomOpen(true)}
+              >
                 <img 
-                  src={product.image} 
+                  src={productImages[selectedImage]} 
                   alt={product.name} 
                   className="w-full h-80 lg:h-[500px] object-cover rounded-xl" 
                 />
+                <div className="absolute bottom-4 right-4 bg-black/50 text-white px-3 py-1.5 rounded-lg flex items-center gap-1 text-sm">
+                  <ZoomIn className="w-4 h-4" />
+                  Agrandir
+                </div>
                 
                 {product.badge && (
                   <span className="absolute top-4 left-4 bg-gradient-to-r from-green-600 to-green-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg uppercase">
@@ -140,23 +169,29 @@ export default function ProductDetail() {
                 >
                   <Heart className={`w-5 h-5 ${liked ? 'fill-white' : ''}`} />
                 </button>
+                <button 
+                  onClick={() => setZoomOpen(true)}
+                  className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors"
+                >
+                  <ZoomIn className="w-5 h-5 text-gray-400" />
+                </button>
                 <button className="w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center hover:bg-gray-100 transition-colors">
                   <Share2 className="w-5 h-5 text-gray-400" />
                 </button>
               </div>
 
-              {/* Thumbnail images (simulated) */}
-              <div className="flex gap-2 mt-4">
-                {[0, 1, 2, 3].map(i => (
-                  <div 
+              {/* Thumbnail images */}
+              <div className="flex gap-2 mt-4 overflow-x-auto pb-2">
+                {productImages.map((img, i) => (
+                  <button 
                     key={i}
                     onClick={() => setSelectedImage(i)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 transition-all ${
-                      selectedImage === i ? 'border-green-500' : 'border-transparent'
+                    className={`w-16 h-16 rounded-lg overflow-hidden cursor-pointer border-2 transition-all flex-shrink-0 ${
+                      selectedImage === i ? 'border-green-500 ring-2 ring-green-500/30' : 'border-transparent hover:border-gray-300'
                     }`}
                   >
-                    <img src={product.image} alt="" className="w-full h-full object-cover" />
-                  </div>
+                    <img src={img} alt="" className="w-full h-full object-cover" />
+                  </button>
                 ))}
               </div>
             </div>
@@ -330,6 +365,67 @@ export default function ProductDetail() {
           </div>
         )}
       </div>
+
+      {/* Zoom Modal */}
+      {zoomOpen && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/95 flex items-center justify-center"
+          onClick={() => setZoomOpen(false)}
+        >
+          <button 
+            className="absolute top-4 right-4 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            onClick={() => setZoomOpen(false)}
+          >
+            <X className="w-6 h-6" />
+          </button>
+          
+          <button 
+            className="absolute left-4 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelectedImage((selectedImage - 1 + productImages.length) % productImages.length)
+            }}
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+          
+          <button 
+            className="absolute right-4 w-12 h-12 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20 transition-colors"
+            onClick={(e) => {
+              e.stopPropagation()
+              setSelectedImage((selectedImage + 1) % productImages.length)
+            }}
+          >
+            <ChevronRightIcon className="w-6 h-6" />
+          </button>
+
+          <img 
+            src={productImages[selectedImage]} 
+            alt={product.name}
+            className="max-w-[90vw] max-h-[90vh] object-contain"
+            onClick={(e) => e.stopPropagation()}
+          />
+          
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
+            {productImages.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  setSelectedImage(i)
+                }}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  selectedImage === i ? 'bg-white w-6' : 'bg-white/50'
+                }`}
+              />
+            ))}
+          </div>
+          
+          <div className="absolute bottom-16 left-1/2 -translate-x-1/2 text-white text-sm">
+            {selectedImage + 1} / {productImages.length}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

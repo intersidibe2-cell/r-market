@@ -81,7 +81,7 @@ export default function RussianProductDetail() {
           <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-2xl">🇲🇱</span>
-              <span className="text-sm font-medium text-blue-200">{t('Товары Мали для русских', 'Produits Mali pour Russes')}</span>
+              <span className="text-sm font-medium text-blue-200">{t('Товары Мали', 'Produits Mali')}</span>
             </div>
             <div className="flex items-center gap-4">
               <button onClick={() => setLang(lang === 'ru' ? 'fr' : 'ru')} className="text-sm text-blue-200 hover:text-white flex items-center gap-1">

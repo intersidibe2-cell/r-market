@@ -1,16 +1,31 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useSearchParams, useNavigate } from 'react-router-dom'
-import { SlidersHorizontal, X, Grid2X2, List } from 'lucide-react'
+import { SlidersHorizontal, X, Grid2X2, List, Star, CheckCircle, Filter } from 'lucide-react'
 import ProductCard from '../components/ProductCard'
-import { products, categories } from '../data/products'
+import { categories } from '../data/products'
+import { loadProducts } from '../lib/products'
 
 export default function Shop() {
   const [searchParams, setSearchParams] = useSearchParams()
   const navigate = useNavigate()
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  
+  useEffect(() => {
+    loadProducts().then(data => {
+      setProducts(data)
+      setLoading(false)
+    })
+  }, [])
+  
   const [showFilters, setShowFilters] = useState(false)
   const [sortBy, setSortBy] = useState('default')
   const [priceMax, setPriceMax] = useState(200000)
+  const [priceMin, setPriceMin] = useState(0)
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [selectedRatings, setSelectedRatings] = useState<number[]>([])
+  const [inStockOnly, setInStockOnly] = useState(false)
+  const [freeShippingOnly, setFreeShippingOnly] = useState(false)
 
   const categoryParam = searchParams.get('category') || 'all'
 
@@ -26,7 +41,10 @@ export default function Shop() {
 
   const filteredProducts = products
     .filter(p => categoryParam === 'all' || p.category === categoryParam)
-    .filter(p => p.price <= priceMax)
+    .filter(p => p.price >= priceMin && p.price <= priceMax)
+    .filter(p => selectedRatings.length === 0 || selectedRatings.some(r => Math.floor(p.rating) === r))
+    .filter(p => !inStockOnly || p.stock > 0)
+    .filter(p => !freeShippingOnly || p.price >= 5000)
     .sort((a, b) => {
       if (sortBy === 'price-asc') return a.price - b.price
       if (sortBy === 'price-desc') return b.price - a.price
@@ -121,6 +139,71 @@ export default function Shop() {
                 </div>
               </div>
 
+              {/* Rating Filter */}
+              <div className="mb-5">
+                <h3 className="font-medium text-gray-900 mb-3 text-sm">Note minimum</h3>
+                <div className="space-y-2">
+                  {[4, 3, 2, 1].map(rating => (
+                    <button
+                      key={rating}
+                      onClick={() => setSelectedRatings(prev => 
+                        prev.includes(rating) 
+                          ? prev.filter(r => r !== rating)
+                          : [...prev, rating]
+                      )}
+                      className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg border transition-all ${
+                        selectedRatings.includes(rating)
+                          ? 'border-yellow-400 bg-yellow-50'
+                          : 'border-gray-200 hover:border-gray-300'
+                      }`}
+                    >
+                      <div className="flex">
+                        {[...Array(5)].map((_, i) => (
+                          <Star 
+                            key={i} 
+                            className={`w-3 h-3 ${
+                              i < rating 
+                                ? 'text-yellow-400 fill-yellow-400' 
+                                : 'text-gray-300'
+                            }`} 
+                          />
+                        ))}
+                      </div>
+                      <span className="text-xs text-gray-500">& plus</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Quick Filters */}
+              <div className="mb-5">
+                <h3 className="font-medium text-gray-900 mb-3 text-sm">Disponibilité</h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => setInStockOnly(!inStockOnly)}
+                    className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg border transition-all ${
+                      inStockOnly
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <CheckCircle className={`w-4 h-4 ${inStockOnly ? 'text-green-500' : 'text-gray-300'}`} />
+                    <span className="text-sm">En stock uniquement</span>
+                  </button>
+                  <button
+                    onClick={() => setFreeShippingOnly(!freeShippingOnly)}
+                    className={`flex items-center gap-2 w-full px-3 py-2 rounded-lg border transition-all ${
+                      freeShippingOnly
+                        ? 'border-green-500 bg-green-50'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <CheckCircle className={`w-4 h-4 ${freeShippingOnly ? 'text-green-500' : 'text-gray-300'}`} />
+                    <span className="text-sm">Livraison gratuite</span>
+                  </button>
+                </div>
+              </div>
+
               <div>
                 <h3 className="font-medium text-gray-900 mb-3 text-sm">Trier par</h3>
                 <select
@@ -168,7 +251,11 @@ export default function Shop() {
               </div>
             </div>
 
-            {filteredProducts.length > 0 ? (
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div>
+              </div>
+            ) : filteredProducts.length > 0 ? (
               <div className={`grid gap-4 ${
                 viewMode === 'grid'
                   ? 'grid-cols-2 sm:grid-cols-3 xl:grid-cols-4'
@@ -183,7 +270,15 @@ export default function Shop() {
                 <p className="text-4xl mb-3">🔍</p>
                 <p className="text-gray-500 text-lg">Aucun produit trouvé</p>
                 <button
-                  onClick={() => { setSearchParams({}); setPriceMax(200000) }}
+                  onClick={() => { 
+                  setSearchParams({}); 
+                  setPriceMax(200000)
+                  setPriceMin(0)
+                  setSelectedRatings([])
+                  setInStockOnly(false)
+                  setFreeShippingOnly(false)
+                  setSortBy('default')
+                }}
                   className="mt-4 text-green-600 font-medium hover:text-green-700"
                 >
                   Réinitialiser les filtres

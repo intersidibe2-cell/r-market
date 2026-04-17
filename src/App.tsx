@@ -20,6 +20,7 @@ import CompareBar from './components/CompareBar'
 import WhatsAppButton from './components/WhatsAppButton'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdminLayout from './layouts/AdminLayout'
+import BottomNav from './components/BottomNav'
 
 import Home from './pages/Home'
 import UserManagement from './pages/admin/UserManagement'
@@ -35,6 +36,11 @@ import Finances from './pages/admin/Finances'
 import Suppliers from './pages/admin/Suppliers'
 import CustomersMali from './pages/admin/CustomersMali'
 import Analytics from './pages/admin/Analytics'
+import BehaviorAnalytics from './pages/admin/BehaviorAnalytics'
+import HeatmapPage from './pages/admin/HeatmapPage'
+import PredictiveAnalytics from './pages/admin/PredictiveAnalytics'
+import DeliveryManagement from './pages/admin/DeliveryManagement'
+import InternationalShops from './pages/admin/InternationalShops'
 import SettingsPage from './pages/admin/SettingsPage'
 import ContentManager from './pages/admin/ContentManager'
 import PhotoManagement from './pages/admin/PhotoManagement'
@@ -108,6 +114,11 @@ export default function App() {
                             <Route path="russian-orders" element={<RussianOrders />} />
                             <Route path="russian-products" element={<RussianProducts />} />
                             <Route path="analytics" element={<Analytics />} />
+                            <Route path="analytics/behavior" element={<BehaviorAnalytics />} />
+                            <Route path="analytics/heatmap" element={<HeatmapPage />} />
+                            <Route path="analytics/predictive" element={<PredictiveAnalytics />} />
+                            <Route path="delivery-management" element={<DeliveryManagement />} />
+                            <Route path="international-shops" element={<InternationalShops />} />
                             <Route path="settings" element={<SettingsPage />} />
                             <Route path="delivery-scan" element={<AdminDeliveryScan />} />
                             <Route path="exchange-rates" element={<ExchangeRates />} />
@@ -149,6 +160,7 @@ export default function App() {
                                 </Routes>
                               </main>
                               <Footer />
+                              <BottomNav />
                               <CompareBar />
                               <WhatsAppButton />
                             </div>

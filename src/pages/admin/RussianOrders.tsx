@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import { Search, Eye, Check, X, Truck, Package, Clock, Filter } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
+import { Search, Eye, Check, X, Truck, Package, Clock, Filter, Phone, MessageCircle, RefreshCw, TrendingUp, DollarSign, PackageCheck, PackageX, ShoppingCart } from 'lucide-react'
+import { supabase } from '../../lib/supabase'
 
 interface RussianOrder {
   id: string
@@ -16,12 +18,7 @@ interface RussianOrder {
   orderCode: string
 }
 
-const initialOrders: RussianOrder[] = [
-  { id: 'RU-001', customer: 'Иванов И.И.', phone: '+223 70 12 34 56', items: [{ name: 'Водка Столичная', qty: 2, price: 15000 }, { name: 'Шоколад Алёнка', qty: 3, price: 5000 }], total: 45000, totalEUR: 68.60, status: 'pending', date: '14/04/2026', address: 'Camp Alpha, Bâtiment 3', base: 'Camp Alpha', paymentMethod: 'Espèces', orderCode: 'RUS-7823' },
-  { id: 'RU-002', customer: 'Петров А.В.', phone: '+223 66 78 90 12', items: [{ name: 'Икра красная', qty: 1, price: 35000 }], total: 35000, totalEUR: 53.36, status: 'confirmed', date: '14/04/2026', address: 'Hôtel Nord-Sud, Chambre 205', base: 'Hôtel Nord-Sud', paymentMethod: 'Carte', orderCode: 'RUS-4512' },
-  { id: 'RU-003', customer: 'Сидоров К.М.', phone: '+223 77 34 56 78', items: [{ name: 'Матрёшка 5 фигур', qty: 2, price: 12000 }, { name: 'Чай русский', qty: 5, price: 3000 }], total: 39000, totalEUR: 59.45, status: 'shipped', date: '13/04/2026', address: 'Camp Echo, Zone B', base: 'Camp Echo', paymentMethod: 'Espèces', orderCode: 'RUS-9841' },
-  { id: 'RU-004', customer: 'Козлов Д.С.', phone: '+223 65 90 12 34', items: [{ name: 'Set samovar', qty: 1, price: 85000 }], total: 85000, totalEUR: 129.58, status: 'delivered', date: '12/04/2026', address: 'Résidence Moderne, Villa 7', base: 'Résidence Moderne', paymentMethod: 'Virement', orderCode: 'RUS-2156' },
-]
+const initialOrders: RussianOrder[] = []
 
 const statusConfig: Record<string, { label: string; color: string; bg: string; icon: any }> = {
   pending: { label: 'En attente', color: 'text-yellow-700', bg: 'bg-yellow-100', icon: Clock },
@@ -32,10 +29,47 @@ const statusConfig: Record<string, { label: string; color: string; bg: string; i
 }
 
 export default function RussianOrders() {
-  const [orders, setOrders] = useState<RussianOrder[]>(initialOrders)
+  const [orders, setOrders] = useState<RussianOrder[]>([])
+  const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [selectedOrder, setSelectedOrder] = useState<RussianOrder | null>(null)
+
+  // Load orders from Supabase
+  useEffect(() => {
+    loadOrders()
+  }, [])
+
+  const loadOrders = async () => {
+    setLoading(true)
+    const { data } = await supabase
+      .from('commandes')
+      .select('*')
+      .eq('type', 'russian')
+      .order('created_at', { ascending: false })
+
+    if (data) {
+      setOrders(data.map((order: any) => ({
+        id: order.id,
+        orderCode: order.order_number,
+        customer: order.client_name,
+        phone: order.client_phone,
+        address: order.client_address || '',
+        items: (JSON.parse(order.items || '[]') as any[]).map(item => ({
+          name: item.name,
+          qty: item.quantity,
+          price: item.price
+        })),
+        total: order.total,
+        totalEUR: order.total / 650, // Approximate conversion
+        status: order.status || 'pending',
+        date: new Date(order.created_at).toLocaleDateString('fr-FR'),
+        base: order.client_address?.split(',')[0] || '',
+        paymentMethod: 'Espèces'
+      })))
+    }
+    setLoading(false)
+  }
 
   const filteredOrders = orders.filter(order => {
     const matchesSearch = order.customer.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -45,8 +79,24 @@ export default function RussianOrders() {
     return matchesSearch && matchesStatus
   })
 
-  const updateOrderStatus = (orderId: string, newStatus: RussianOrder['status']) => {
+  // Update status in Supabase
+  const updateOrderStatus = async (orderId: string, newStatus: RussianOrder['status']) => {
+    await supabase
+      .from('commandes')
+      .update({ status: newStatus })
+      .eq('order_number', orderId)
+    
     setOrders(orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o))
+  }
+
+  // Call client
+  const callClient = (order: RussianOrder) => {
+    window.open(`tel:${order.phone}`, '_blank')
+  }
+
+  // WhatsApp client
+  const whatsappClient = (order: RussianOrder) => {
+    window.open(`https://wa.me/${order.phone.replace(/\D/g, '')}`, '_blank')
   }
 
   const stats = {
@@ -56,47 +106,117 @@ export default function RussianOrders() {
     shipped: orders.filter(o => o.status === 'shipped').length,
     delivered: orders.filter(o => o.status === 'delivered').length,
     revenue: orders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0),
+    todayOrders: orders.filter(o => new Date(o.date).toDateString() === new Date().toDateString()).length,
+    todayRevenue: orders.filter(o => new Date(o.date).toDateString() === new Date().toDateString()).reduce((s, o) => s + o.total, 0),
   }
+
+  const quickActions = [
+    { label: 'Produits', icon: Package, link: '/admin-panel/russian-products', color: 'bg-purple-600' },
+    { label: 'Dashboard', icon: TrendingUp, link: '/admin-panel/dashboard', color: 'bg-blue-600' },
+    { label: 'Analytics', icon: TrendingUp, link: '/admin-panel/analytics', color: 'bg-indigo-600' },
+    { label: 'Mali Orders', icon: ShoppingCart, link: '/admin-panel/orders', color: 'bg-green-600' },
+  ]
 
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 flex items-center gap-2">
             <span className="text-2xl">🇷🇺</span>
             Commandes Boutique Russe
           </h1>
-          <p className="text-gray-500 text-sm mt-1">Gestion des commandes militaires</p>
+          <p className="text-gray-500 text-sm mt-1">{stats.total} commandes militaires</p>
+        </div>
+        <button 
+          onClick={loadOrders}
+          className="p-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors inline-flex items-center gap-2"
+          title="Actualiser"
+        >
+          <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
+        </button>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {quickActions.map((action, i) => (
+          <Link
+            key={i}
+            to={action.link}
+            className={`${action.color} text-white p-3 rounded-xl flex items-center justify-center gap-2 hover:opacity-90 transition-opacity`}
+          >
+            <action.icon className="w-5 h-5" />
+            <span className="font-medium text-sm">{action.label}</span>
+          </Link>
+        ))}
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <DollarSign className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Aujourd'hui</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.todayRevenue.toLocaleString()} F</p>
+          <p className="text-sm text-white/80">Revenus du jour</p>
+        </div>
+        <div className="bg-gradient-to-br from-cyan-500 to-blue-600 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <ShoppingCart className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Aujourd'hui</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.todayOrders}</p>
+          <p className="text-sm text-white/80">Commandes aujourd'hui</p>
+        </div>
+        <div className="bg-gradient-to-br from-yellow-500 to-orange-500 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <Clock className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Action requise</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.pending}</p>
+          <p className="text-sm text-white/80">En attente</p>
+        </div>
+        <div className="bg-gradient-to-br from-red-600 to-pink-600 rounded-2xl p-5 text-white">
+          <div className="flex items-center justify-between mb-3">
+            <TrendingUp className="w-8 h-8 opacity-80" />
+            <span className="text-xs bg-white/20 px-2 py-1 rounded-full">Total</span>
+          </div>
+          <p className="text-2xl font-bold">{stats.revenue.toLocaleString()} F</p>
+          <p className="text-sm text-white/80">Revenus global</p>
         </div>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
+      {/* Secondary Stats */}
+      <div className="grid grid-cols-3 md:grid-cols-6 gap-4">
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Total</p>
-          <p className="text-2xl font-bold text-gray-900">{stats.total}</p>
-        </div>
-        <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">En attente</p>
-          <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+          <PackageCheck className="w-5 h-5 text-blue-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.total}</p>
+          <p className="text-xs text-gray-500">Total</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Confirmées</p>
-          <p className="text-2xl font-bold text-blue-600">{stats.confirmed}</p>
+          <Check className="w-5 h-5 text-blue-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.confirmed}</p>
+          <p className="text-xs text-gray-500">Confirmées</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Expédiées</p>
-          <p className="text-2xl font-bold text-purple-600">{stats.shipped}</p>
+          <Truck className="w-5 h-5 text-purple-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.shipped}</p>
+          <p className="text-xs text-gray-500">Expédiées</p>
         </div>
         <div className="bg-white rounded-xl p-4 border border-gray-100">
-          <p className="text-sm text-gray-500">Livrées</p>
-          <p className="text-2xl font-bold text-green-600">{stats.delivered}</p>
+          <PackageCheck className="w-5 h-5 text-green-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{stats.delivered}</p>
+          <p className="text-xs text-gray-500">Livrées</p>
         </div>
-        <div className="bg-gradient-to-br from-blue-600 to-red-600 rounded-xl p-4 text-white">
-          <p className="text-sm opacity-80">Revenus</p>
-          <p className="text-xl font-bold">{stats.revenue.toLocaleString()} F</p>
+        <div className="bg-white rounded-xl p-4 border border-gray-100">
+          <PackageX className="w-5 h-5 text-red-500 mb-2" />
+          <p className="text-xl font-bold text-gray-900">{orders.filter(o => o.status === 'cancelled').length}</p>
+          <p className="text-xs text-gray-500">Annulées</p>
         </div>
+        <Link to="/admin-panel/orders" className="bg-white rounded-xl p-4 border border-gray-100 hover:bg-gray-50 transition-colors flex items-center justify-center">
+          <span className="text-2xl">🇲🇱</span>
+        </Link>
       </div>
 
       {/* Filters */}
@@ -180,6 +300,31 @@ export default function RussianOrders() {
                           title="Voir détails"
                         >
                           <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => callClient(order)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                          title="Appeler"
+                        >
+                          <Phone className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => whatsappClient(order)}
+                          className="p-2 text-green-600 hover:bg-green-50 rounded-lg"
+                          title="WhatsApp client"
+                        >
+                          <MessageCircle className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            const itemsList = order.items.map(item => `• ${item.name} x${item.qty} = ${item.price} CFA`).join('%0A')
+                            const message = `🛒 R-MARKET COMMANDE - ${order.orderCode}%0A%0AClient: ${order.customer}%0AAdresse: ${order.address}%0A%0AArticles:%0A${itemsList}%0A%0ATotal: ${order.total} CFA`
+                            window.open(`https://wa.me/?text=${message}`, '_blank')
+                          }}
+                          className="p-2 text-orange-600 hover:bg-orange-50 rounded-lg"
+                          title="Transmettre commande"
+                        >
+                          <Truck className="w-4 h-4" />
                         </button>
                         {order.status === 'pending' && (
                           <button

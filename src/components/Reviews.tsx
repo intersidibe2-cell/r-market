@@ -1,8 +1,8 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { useReview, Review } from '../context/ReviewContext'
 import { useAuth } from '../context/AuthContext'
 import { useNotification } from '../context/NotificationContext'
-import { Star, ThumbsUp, Flag, Check, User } from 'lucide-react'
+import { Star, ThumbsUp, Flag, Check, User, Camera, X, Image } from 'lucide-react'
 
 interface ReviewsProps {
   productId: number
@@ -18,6 +18,29 @@ export default function Reviews({ productId }: ReviewsProps) {
   const [title, setTitle] = useState('')
   const [comment, setComment] = useState('')
   const [hoveredRating, setHoveredRating] = useState(0)
+  const [photos, setPhotos] = useState<string[]>([])
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+
+  const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files
+    if (!files) return
+
+    Array.from(files).forEach(file => {
+      if (photos.length >= 3) return
+      
+      const reader = new FileReader()
+      reader.onload = (ev) => {
+        const result = ev.target?.result as string
+        setPhotos(prev => [...prev, result])
+      }
+      reader.readAsDataURL(file)
+    })
+  }
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index))
+  }
 
   const reviews = getProductReviews(productId)
   const stats = getProductStats(productId)
@@ -171,6 +194,43 @@ export default function Reviews({ productId }: ReviewsProps) {
             />
           </div>
 
+          {/* Photos Upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">Ajouter des photos (optionnel)</label>
+            <div className="flex flex-wrap gap-2">
+              {photos.map((photo, i) => (
+                <div key={i} className="relative w-20 h-20 rounded-lg overflow-hidden">
+                  <img src={photo} alt="" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => removePhoto(i)}
+                    className="absolute top-1 right-1 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+              {photos.length < 3 && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-20 h-20 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-green-500 hover:text-green-500 transition-colors"
+                >
+                  <Camera className="w-6 h-6" />
+                  <span className="text-xs">{photos.length}/3</span>
+                </button>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handlePhotoUpload}
+            />
+          </div>
+
           <div className="flex gap-3">
             <button
               type="button"
@@ -232,6 +292,21 @@ export default function Reviews({ productId }: ReviewsProps) {
               <h5 className="font-semibold text-gray-900 mb-2">{review.title}</h5>
               <p className="text-gray-600">{review.comment}</p>
 
+              {/* Review Photos */}
+              {(review as any).photos && (review as any).photos.length > 0 && (
+                <div className="flex gap-2 mt-3">
+                  {(review as any).photos.map((photo: string, i: number) => (
+                    <button
+                      key={i}
+                      onClick={() => setPhotoPreview(photo)}
+                      className="w-16 h-16 rounded-lg overflow-hidden"
+                    >
+                      <img src={photo} alt="" className="w-full h-full object-cover hover:opacity-80 transition-opacity" />
+                    </button>
+                  ))}
+                </div>
+              )}
+
               <div className="flex items-center gap-4 mt-4 pt-4 border-t border-gray-100">
                 <button
                   onClick={() => handleHelpful(review.id)}
@@ -252,6 +327,27 @@ export default function Reviews({ productId }: ReviewsProps) {
           ))
         )}
       </div>
+
+      {/* Photo Preview Modal */}
+      {photoPreview && (
+        <div 
+          className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4"
+          onClick={() => setPhotoPreview(null)}
+        >
+          <button 
+            className="absolute top-4 right-4 w-10 h-10 bg-white/10 rounded-full flex items-center justify-center text-white hover:bg-white/20"
+            onClick={() => setPhotoPreview(null)}
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <img 
+            src={photoPreview} 
+            alt="Preview" 
+            className="max-w-full max-h-full object-contain rounded-lg"
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </div>
   )
 }

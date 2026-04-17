@@ -4,10 +4,9 @@ import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
 import { useCompare } from '../context/CompareContext'
 import { useNotification } from '../context/NotificationContext'
-import { Product } from '../data/products'
 
 interface ProductCardProps {
-  product: Product
+  product: any
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
@@ -16,7 +15,8 @@ export default function ProductCard({ product }: ProductCardProps) {
   const { addToCompare, isInCompare, canAddMore } = useCompare()
   const { success, warning } = useNotification()
   
-  const discount = Math.round((1 - product.price / product.originalPrice) * 100)
+  const originalPrice = product.original_price || product.originalPrice
+  const discount = originalPrice ? Math.round((1 - product.price / originalPrice) * 100) : 0
   const liked = isFavorite(product.id)
   const inCompare = isInCompare(product.id)
 

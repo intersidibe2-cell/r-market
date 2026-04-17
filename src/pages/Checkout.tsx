@@ -1,7 +1,9 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useCart } from '../context/CartContext'
-import { CheckCircle, ArrowLeft, MapPin, CreditCard, Phone, User, Building, Download, Printer } from 'lucide-react'
+import { CheckCircle, ArrowLeft, MapPin, CreditCard, Phone, User, Building, Printer, Zap, Loader } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { supabase } from '../lib/supabase'
+import { CONFIG, notifyGerant, confirmClientOrder } from '../lib/config'
 
 export default function Checkout() {
   const { items, totalPrice, clearCart } = useCart()
@@ -10,6 +12,9 @@ export default function Checkout() {
   const [formData, setFormData] = useState({
     fullName: '', phone: '', address: '', region: '', commune: '', payment: 'orange', notes: ''
   })
+  const [quickCheckout, setQuickCheckout] = useState(false)
+  const [savedClient, setSavedClient] = useState<any>(null)
+  const [loadingQuick, setLoadingQuick] = useState(false)
 
   // Generate order number once
   const orderNumber = useMemo(() => `CMD-${Math.floor(100000 + Math.random() * 900000)}`, [])
@@ -22,10 +27,108 @@ export default function Checkout() {
     'Bamako', 'Kayes', 'Koulikoro', 'Sikasso', 'Ségou', 'Mopti', 'Tombouctou', 'Gao', 'Kidal', 'Ménaka', 'Taoudénit'
   ]
 
-  const handleSubmit = (e: React.FormEvent) => {
+  // Check for saved client data on mount
+  useEffect(() => {
+    const checkSavedClient = async () => {
+      const savedPhone = localStorage.getItem('rmarket_last_phone')
+      if (savedPhone) {
+        const { data: client } = await supabase
+          .from('clients')
+          .select('*')
+          .eq('phone', savedPhone)
+          .single()
+        
+        if (client && client.total_orders > 0) {
+          setSavedClient(client)
+          setQuickCheckout(true)
+        }
+      }
+    }
+    checkSavedClient()
+  }, [])
+
+  // Quick checkout - fill form with saved client data
+  const handleQuickCheckout = () => {
+    if (savedClient) {
+      setFormData(prev => ({
+        ...prev,
+        fullName: savedClient.name || '',
+        phone: savedClient.phone || localStorage.getItem('rmarket_last_phone') || '',
+        address: savedClient.address || '',
+        region: (savedClient.address || '').split(',')[0] || '',
+        commune: (savedClient.address || '').split(',')[1] || '',
+      }))
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    
+    // Sauvegarder commande dans Supabase
+    const orderData = {
+      order_number: orderNumber,
+      client_name: formData.fullName,
+      client_phone: formData.phone,
+      client_address: `${formData.region}, ${formData.commune}, ${formData.address}`,
+      items: JSON.stringify(items.map(item => ({
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity
+      }))),
+      total: grandTotal,
+      status: 'pending',
+      type: 'mali',
+      created_at: new Date().toISOString()
+    }
+
+    const { data: orderResult, error } = await supabase.from('commandes').insert(orderData).select()
+
+    if (error) {
+      alert('Erreur: ' + error.message)
+    } else {
+      // Envoyer notification WhatsApp au gérant avec le bon numéro
+      notifyGerant(
+        orderNumber,
+        formData.fullName,
+        formData.phone,
+        `${formData.region}, ${formData.commune}, ${formData.address}`,
+        items,
+        grandTotal
+      )
+      // Confirmation au client
+      confirmClientOrder(formData.phone, formData.fullName, orderNumber, grandTotal)
+    }
+
+    // Sauvegarder client aussi
+    if (formData.fullName && formData.phone) {
+      const { data: existingClient } = await supabase
+        .from('clients')
+        .select('*')
+        .eq('phone', formData.phone)
+        .single()
+
+      if (existingClient) {
+        // Mettre à jour client existant
+        await supabase.from('clients').update({
+          total_orders: existingClient.total_orders + 1,
+          total_spent: existingClient.total_spent + grandTotal
+        }).eq('phone', formData.phone)
+      } else {
+        // Créer nouveau client
+        await supabase.from('clients').insert({
+          name: formData.fullName,
+          phone: formData.phone,
+          total_orders: 1,
+          total_spent: grandTotal
+        })
+      }
+    }
+
     setOrderPlaced(true)
     clearCart()
+    // Save client info for quick checkout
+    localStorage.setItem('rmarket_last_phone', formData.phone)
+    localStorage.setItem('rmarket_last_name', formData.fullName)
   }
 
   if (orderPlaced) {
@@ -42,43 +145,24 @@ export default function Checkout() {
               <p className="text-white/80 text-sm">Merci pour votre commande</p>
             </div>
 
-            {/* QR Code */}
+            {/* QR Code et Numéro */}
             <div className="p-6 text-center">
-              <div className="bg-gray-50 rounded-2xl p-4 inline-block mb-4">
+              <div className="bg-white rounded-2xl p-4 inline-block mb-4 border-2 border-green-100">
                 <img 
                   src={qrCodeUrl}
                   alt="QR Code Commande"
-                  className="w-48 h-48 mx-auto"
+                  className="w-56 h-56 mx-auto"
                 />
               </div>
               
               <div className="bg-green-50 rounded-xl p-4 mb-4">
-                <p className="text-green-600 text-sm mb-1">Votre numéro de commande</p>
-                <p className="text-3xl font-bold text-green-700 font-mono">{orderNumber}</p>
+                <p className="text-green-600 text-sm mb-1">Numéro de commande</p>
+                <p className="text-4xl font-bold text-green-700 font-mono tracking-wider">{orderNumber}</p>
               </div>
 
               <p className="text-gray-500 text-sm mb-6">
-                Vous recevrez un SMS de confirmation sur votre téléphone.
+                📸 Faites une capture d'écran de ce QR code
               </p>
-
-              {/* Instructions */}
-              <div className="bg-gray-50 rounded-xl p-4 text-left mb-6">
-                <p className="font-semibold text-gray-900 mb-2">📱 Instructions</p>
-                <ul className="text-sm text-gray-600 space-y-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>Faites une capture d'écran de ce QR code</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>Le livreur vous contactera sur WhatsApp</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-green-500">✓</span>
-                    <span>Présentez le QR code ou le numéro à la réception</span>
-                  </li>
-                </ul>
-              </div>
 
               {/* Actions */}
               <div className="flex gap-3">
@@ -142,6 +226,30 @@ export default function Checkout() {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <div className="lg:col-span-3">
             <form onSubmit={handleSubmit}>
+              {/* Quick Checkout - For returning customers */}
+              {quickCheckout && step === 1 && savedClient && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl border border-green-200 p-6 mb-6">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                        <Zap className="w-6 h-6 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-gray-900">Commande rapide</p>
+                        <p className="text-sm text-gray-500">Bienvenue {savedClient.name} • {savedClient.total_orders} commandes</p>
+                      </div>
+                    </div>
+                    <button 
+                      type="button" 
+                      onClick={handleQuickCheckout}
+                      className="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 transition-colors"
+                    >
+                      Utiliser mes infos
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {step === 1 && (
                 <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
                   <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">

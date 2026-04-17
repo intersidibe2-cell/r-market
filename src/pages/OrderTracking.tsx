@@ -1,265 +1,212 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Search, Package, Truck, CheckCircle, Clock, MapPin, Phone, ArrowLeft } from 'lucide-react'
+import { Search, Package, Truck, CheckCircle, Clock, MapPin, Phone, ArrowLeft, Loader, MessageCircle, RefreshCw } from 'lucide-react'
+import { supabase } from '../lib/supabase'
 
-// Mock data pour les commandes
-const mockOrders: Record<string, {
-  id: string
-  status: 'pending' | 'processing' | 'shipped' | 'delivered'
-  customer: string
-  phone: string
-  address: string
-  items: { name: string; quantity: number; image: string }[]
-  total: number
-  createdAt: string
-  estimatedDelivery: string
-  timeline: { status: string; date: string; description: string; completed: boolean }[]
-}> = {
-  'CMD-001': {
-    id: 'CMD-001',
-    status: 'shipped',
-    customer: 'Moussa Dembélé',
-    phone: '+223 70 12 34 56',
-    address: 'Bamako, Quartier ACI',
-    items: [
-      { name: 'Boubou Homme Bazin', quantity: 1, image: 'https://images.unsplash.com/photo-1594938298603-c8148c4dae35?w=100&h=100&fit=crop' },
-      { name: 'Sac en Cuir', quantity: 1, image: 'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=100&h=100&fit=crop' }
-    ],
-    total: 65000,
-    createdAt: '2026-04-02T10:30:00',
-    estimatedDelivery: '2026-04-15',
-    timeline: [
-      { status: 'Commande confirmée', date: '02/04 10:30', description: 'Votre commande a été reçue', completed: true },
-      { status: 'Paiement validé', date: '02/04 10:35', description: 'Paiement Orange Money confirmé', completed: true },
-      { status: 'Préparation', date: '03/04 09:00', description: 'Commande en préparation', completed: true },
-      { status: 'Expédiée', date: '04/04 14:00', description: 'Commande envoyée via transporteur', completed: true },
-      { status: 'En transit', date: '05/04 08:00', description: 'Colis en route vers Bamako', completed: false },
-      { status: 'Livraison', date: 'Prévu: 15/04', description: 'Livraison à votre adresse', completed: false }
-    ]
-  },
-  'CMD-002': {
-    id: 'CMD-002',
-    status: 'delivered',
-    customer: 'Fatima Zohra',
-    phone: '+223 66 78 90 12',
-    address: 'Kayes, Rue 12',
-    items: [
-      { name: 'iPhone 15 Pro Max', quantity: 1, image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=100&h=100&fit=crop' }
-    ],
-    total: 580000,
-    createdAt: '2026-03-28T16:00:00',
-    estimatedDelivery: '2026-04-05',
-    timeline: [
-      { status: 'Commande confirmée', date: '28/03 16:00', description: 'Votre commande a été reçue', completed: true },
-      { status: 'Paiement validé', date: '28/03 16:05', description: 'Paiement Wave confirmé', completed: true },
-      { status: 'Préparation', date: '29/03 10:00', description: 'Commande en préparation', completed: true },
-      { status: 'Expédiée', date: '30/03 09:00', description: 'Commande envoyée', completed: true },
-      { status: 'En transit', date: '31/03 14:00', description: 'Colis en route', completed: true },
-      { status: 'Livrée', date: '05/04 11:30', description: 'Commande livrée avec succès', completed: true }
-    ]
-  }
-}
+const statusSteps = [
+  { key: 'pending', label: 'Commande reçue', desc: 'Votre commande a été reçue', icon: Package },
+  { key: 'confirmed', label: 'Confirmée', desc: 'Commande confirmée par notre équipe', icon: CheckCircle },
+  { key: 'picked_up', label: 'Récupérée', desc: 'Produit récupéré chez le fournisseur', icon: Package },
+  { key: 'ready_for_delivery', label: 'Prête', desc: 'Commande prête pour la livraison', icon: Truck },
+  { key: 'in_delivery', label: 'En livraison', desc: 'En cours de livraison vers vous', icon: Truck },
+  { key: 'delivered', label: 'Livrée', desc: 'Commande livrée avec succès !', icon: CheckCircle },
+]
+
+const statusOrder = ['pending', 'confirmed', 'picked_up', 'ready_for_delivery', 'in_delivery', 'delivered']
 
 export default function OrderTracking() {
-  const { orderId } = useParams()
-  const [searchId, setSearchId] = useState(orderId || '')
-  const [order, setOrder] = useState<typeof mockOrders[string] | null>(null)
+  const { orderId: paramOrderId } = useParams()
+  const [searchTerm, setSearchTerm] = useState(paramOrderId || '')
+  const [order, setOrder] = useState<any>(null)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+  useEffect(() => {
+    if (paramOrderId) searchOrder(paramOrderId)
+  }, [paramOrderId])
+
+  const searchOrder = async (term: string) => {
+    const cleaned = term.trim().toUpperCase()
+    if (!cleaned) return
+    setLoading(true)
     setError('')
-    
-    const found = mockOrders[searchId.toUpperCase()]
-    if (found) {
-      setOrder(found)
+    setOrder(null)
+
+    const { data, error: err } = await supabase
+      .from('commandes')
+      .select('*')
+      .ilike('order_number', `%${cleaned}%`)
+      .single()
+
+    if (err || !data) {
+      setError(`Commande "${cleaned}" introuvable. Vérifiez le numéro et réessayez.`)
     } else {
-      setOrder(null)
-      setError('Commande non trouvée. Vérifiez le numéro de commande.')
+      setOrder(data)
     }
+    setLoading(false)
   }
 
-  const statusIcons: Record<string, React.ReactNode> = {
-    pending: <Clock className="w-5 h-5" />,
-    processing: <Package className="w-5 h-5" />,
-    shipped: <Truck className="w-5 h-5" />,
-    delivered: <CheckCircle className="w-5 h-5" />
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    searchOrder(searchTerm)
   }
 
-  const statusColors: Record<string, string> = {
-    pending: 'bg-yellow-100 text-yellow-700',
-    processing: 'bg-blue-100 text-blue-700',
-    shipped: 'bg-purple-100 text-purple-700',
-    delivered: 'bg-green-100 text-green-700'
-  }
+  const currentStepIndex = order ? statusOrder.indexOf(order.status) : -1
+  const parsedItems = order ? (() => { try { return JSON.parse(order.items) } catch { return [] } })() : []
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-3xl mx-auto px-4">
+    <div className="bg-gray-50 min-h-screen py-8">
+      <div className="max-w-2xl mx-auto px-4">
         {/* Header */}
         <div className="mb-8">
-          <Link to="/" className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-4">
-            <ArrowLeft className="w-4 h-4" />
-            Retour à l'accueil
+          <Link to="/" className="inline-flex items-center gap-2 text-gray-500 hover:text-green-600 mb-4 transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Accueil
           </Link>
           <h1 className="text-3xl font-bold text-gray-900">Suivi de commande</h1>
-          <p className="text-gray-600 mt-2">Entrez votre numéro de commande pour suivre sa livraison</p>
+          <p className="text-gray-500 mt-1">Entrez votre numéro de commande pour suivre votre livraison</p>
         </div>
 
-        {/* Search Form */}
-        <form onSubmit={handleSearch} className="mb-8">
+        {/* Search */}
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-gray-100 p-6 mb-6 shadow-sm">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">Numéro de commande</label>
           <div className="flex gap-3">
-            <div className="flex-1 relative">
-              <Search className="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchId}
-                onChange={(e) => setSearchId(e.target.value)}
-                placeholder="Ex: CMD-001"
-                className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500"
-              />
-            </div>
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={e => setSearchTerm(e.target.value.toUpperCase())}
+              placeholder="Ex: CMD-123456"
+              className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:border-green-500 focus:ring-2 focus:ring-green-500/20 font-mono text-gray-900"
+            />
             <button
               type="submit"
-              className="bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-xl font-medium transition-colors"
+              disabled={loading}
+              className="px-6 py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl font-semibold hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 flex items-center gap-2"
             >
-              Suivre
+              {loading ? <Loader className="w-4 h-4 animate-spin" /> : <Search className="w-4 h-4" />}
+              Rechercher
             </button>
           </div>
-          <p className="text-sm text-gray-500 mt-2">
-            Commandes de test: CMD-001, CMD-002
-          </p>
+          <p className="text-xs text-gray-400 mt-2">Le numéro de commande vous a été envoyé par WhatsApp lors de la commande</p>
         </form>
 
         {/* Error */}
         {error && (
-          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-8">
-            <p className="text-red-700">{error}</p>
+          <div className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 text-red-700 text-sm">
+            {error}
           </div>
         )}
 
-        {/* Order Details */}
+        {/* Order Result */}
         {order && (
-          <div className="space-y-6">
-            {/* Status Card */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <div className="flex items-center justify-between mb-6">
+          <div className="space-y-5">
+            {/* Status Banner */}
+            <div className={`rounded-2xl p-5 text-white ${
+              order.status === 'delivered' ? 'bg-gradient-to-r from-green-600 to-emerald-600' :
+              order.status === 'cancelled' ? 'bg-gradient-to-r from-red-500 to-red-600' :
+              'bg-gradient-to-r from-blue-600 to-indigo-600'
+            }`}>
+              <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-gray-900">{order.id}</h2>
-                  <p className="text-sm text-gray-500">Commandé le {new Date(order.createdAt).toLocaleDateString('fr-FR')}</p>
+                  <p className="text-white/80 text-sm font-medium">Commande</p>
+                  <p className="text-2xl font-bold">{order.order_number}</p>
                 </div>
-                <span className={`px-4 py-2 rounded-full font-medium ${statusColors[order.status]}`}>
-                  {order.status === 'pending' && 'En attente'}
-                  {order.status === 'processing' && 'En préparation'}
-                  {order.status === 'shipped' && 'En transit'}
-                  {order.status === 'delivered' && 'Livrée'}
-                </span>
-              </div>
-
-              {/* Customer Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                    <span className="text-green-600 font-bold">{order.customer[0]}</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">{order.customer}</p>
-                    <p className="text-sm text-gray-500">{order.phone}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <MapPin className="w-5 h-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <p className="font-medium text-gray-900">Adresse de livraison</p>
-                    <p className="text-sm text-gray-500">{order.address}</p>
-                  </div>
-                </div>
+                <button onClick={() => searchOrder(order.order_number)} className="p-2 bg-white/20 rounded-lg hover:bg-white/30">
+                  <RefreshCw className="w-5 h-5" />
+                </button>
               </div>
             </div>
 
             {/* Timeline */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-bold text-lg text-gray-900 mb-6">Suivi de livraison</h3>
-              <div className="relative">
-                {/* Ligne verticale */}
-                <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-200" />
-                
-                <div className="space-y-6">
-                  {order.timeline.map((step, index) => (
-                    <div key={index} className="relative flex gap-4">
-                      <div className={`w-8 h-8 rounded-full flex items-center justify-center z-10 ${
-                        step.completed 
-                          ? 'bg-green-500 text-white' 
-                          : 'bg-gray-200 text-gray-400'
-                      }`}>
-                        {step.completed ? (
-                          <CheckCircle className="w-4 h-4" />
-                        ) : (
-                          <Clock className="w-4 h-4" />
-                        )}
-                      </div>
-                      <div className="flex-1 pb-6">
-                        <div className="flex items-center justify-between">
-                          <p className={`font-medium ${step.completed ? 'text-gray-900' : 'text-gray-400'}`}>
-                            {step.status}
-                          </p>
-                          <span className="text-sm text-gray-500">{step.date}</span>
+            {order.status !== 'cancelled' && (
+              <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+                <h2 className="font-bold text-gray-900 mb-5">Suivi en temps réel</h2>
+                <div className="space-y-0">
+                  {statusSteps.map((step, index) => {
+                    const isCompleted = index <= currentStepIndex
+                    const isCurrent = index === currentStepIndex
+                    const Icon = step.icon
+                    return (
+                      <div key={step.key} className="flex gap-4">
+                        <div className="flex flex-col items-center">
+                          <div className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all ${
+                            isCompleted
+                              ? 'bg-green-600 border-green-600 text-white'
+                              : 'bg-white border-gray-200 text-gray-300'
+                          } ${isCurrent ? 'ring-4 ring-green-500/20' : ''}`}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          {index < statusSteps.length - 1 && (
+                            <div className={`w-0.5 h-10 mt-1 ${isCompleted && index < currentStepIndex ? 'bg-green-500' : 'bg-gray-200'}`} />
+                          )}
                         </div>
-                        <p className="text-sm text-gray-500 mt-1">{step.description}</p>
+                        <div className="pb-6">
+                          <p className={`font-semibold text-sm ${isCompleted ? 'text-gray-900' : 'text-gray-400'}`}>
+                            {step.label}
+                            {isCurrent && <span className="ml-2 text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">En cours</span>}
+                          </p>
+                          <p className={`text-xs mt-0.5 ${isCompleted ? 'text-gray-500' : 'text-gray-300'}`}>{step.desc}</p>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Client & Adresse */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="font-bold text-gray-900 mb-4">Informations de livraison</h2>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="w-8 h-8 bg-green-50 rounded-lg flex items-center justify-center">
+                    <Phone className="w-4 h-4 text-green-600" />
+                  </div>
+                  <div>
+                    <p className="font-medium text-gray-900">{order.client_name}</p>
+                    <p className="text-gray-500">{order.client_phone}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3 text-sm">
+                  <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <p className="text-gray-600">{order.client_address}</p>
                 </div>
               </div>
             </div>
 
-            {/* Items */}
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-              <h3 className="font-bold text-lg text-gray-900 mb-4">Articles commandés</h3>
-              <div className="space-y-4">
-                {order.items.map((item, index) => (
-                  <div key={index} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl">
-                    <img 
-                      src={item.image} 
-                      alt={item.name}
-                      className="w-16 h-16 object-cover rounded-lg"
-                    />
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{item.name}</p>
-                      <p className="text-sm text-gray-500">Quantité: {item.quantity}</p>
+            {/* Articles */}
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="font-bold text-gray-900 mb-4">Articles commandés</h2>
+              <div className="space-y-3">
+                {parsedItems.map((item: any, i: number) => (
+                  <div key={i} className="flex items-center justify-between py-2 border-b border-gray-50 last:border-0">
+                    <div>
+                      <p className="font-medium text-sm text-gray-900">{item.name}</p>
+                      <p className="text-xs text-gray-500">Qté: {item.quantity}</p>
                     </div>
+                    <p className="font-bold text-green-600 text-sm">{(item.price * item.quantity).toLocaleString()} F</p>
                   </div>
                 ))}
-              </div>
-              <div className="mt-4 pt-4 border-t border-gray-100 flex justify-between items-center">
-                <span className="font-medium text-gray-700">Total</span>
-                <span className="text-2xl font-bold text-green-600">{order.total.toLocaleString()} FCFA</span>
+                <div className="flex justify-between font-bold pt-2">
+                  <span>Total</span>
+                  <span className="text-green-600 text-lg">{order.total?.toLocaleString()} F</span>
+                </div>
               </div>
             </div>
 
-            {/* Contact */}
-            <div className="bg-green-50 rounded-2xl p-6">
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center shrink-0">
-                  <Phone className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h4 className="font-bold text-gray-900">Besoin d'aide ?</h4>
-                  <p className="text-gray-600 mt-1">
-                    Contactez notre service client pour toute question sur votre commande.
-                  </p>
-                  <a 
-                    href="https://wa.me/22370000000" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 mt-3 text-green-600 font-medium hover:text-green-700"
-                  >
-                    Contacter sur WhatsApp
-                  </a>
-                </div>
-              </div>
+            {/* Support */}
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-100 p-5">
+              <p className="font-semibold text-gray-900 mb-1">Besoin d'aide ?</p>
+              <p className="text-sm text-gray-600 mb-3">Notre équipe est disponible pour vous aider.</p>
+              <a
+                href={`https://wa.me/83806129?text=Bonjour, j'ai une question sur ma commande ${order.order_number}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-green-600 text-white px-4 py-2 rounded-xl font-medium text-sm hover:bg-green-700 transition-colors"
+              >
+                <MessageCircle className="w-4 h-4" /> Contacter le support WhatsApp
+              </a>
             </div>
           </div>
         )}

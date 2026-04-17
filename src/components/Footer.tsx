@@ -77,6 +77,11 @@ export default function Footer() {
                   <a href="#" className="text-sm text-gray-400 hover:text-green-400 transition-colors">{item}</a>
                 </li>
               ))}
+              <li>
+                <a href="https://r-chicken.com" target="_blank" rel="noopener noreferrer" className="text-sm text-orange-400 hover:text-orange-300 transition-colors flex items-center gap-1">
+                  🍗 R-Chicken Restaurant
+                </a>
+              </li>
             </ul>
           </div>
 

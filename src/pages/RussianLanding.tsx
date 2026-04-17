@@ -22,10 +22,10 @@ export default function RussianLanding() {
 
         {/* Title */}
         <h1 className="text-4xl font-bold text-white mb-2">
-          Русский магазин
+          Магазин Мали
         </h1>
-        <p className="text-xl text-gray-400 mb-1">Boutique Russe</p>
-        <p className="text-gray-500 mb-8">Mali • Bamako</p>
+        <p className="text-xl text-gray-400 mb-1">Boutique Mali</p>
+        <p className="text-gray-500 mb-8">Bamako</p>
 
         {/* Services */}
         <div className="grid grid-cols-2 gap-3 mb-8">

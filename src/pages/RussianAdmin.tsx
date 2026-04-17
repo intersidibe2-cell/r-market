@@ -1,9 +1,9 @@
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3, ArrowRightLeft,
   TrendingUp, Truck, Search, Plus, Trash2, Edit, Eye, Download,
-  Bell, Calendar, Package2, X, DollarSign, Wine, Gift, Globe, Menu, ArrowLeft, Home, RefreshCw
+  Bell, Calendar, Package2, X, DollarSign, Wine, Gift, Globe, Menu, ArrowLeft, Home, RefreshCw, LogOut
 } from 'lucide-react'
 import { russianProducts, russianCategories, initialRussianOrders, type RussianProduct } from '../data/russianProducts'
 
@@ -21,6 +21,9 @@ export default function RussianAdmin() {
   const [orderFilter, setOrderFilter] = useState('all')
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [lang, setLang] = useState<'ru' | 'fr'>('ru')
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [currentUser, setCurrentUser] = useState('')
+  const navigate = useNavigate()
   
   const [orders, setOrders] = useState(initialRussianOrders)
   const [products, setProducts] = useState(russianProducts)
@@ -39,6 +42,24 @@ export default function RussianAdmin() {
     name: '', nameRu: '', price: '', originalPrice: '', stock: '', image: '', 
     description: '', descriptionRu: '', category: 'souvenirs' 
   })
+
+  // Check login status
+  useEffect(() => {
+    const loggedIn = localStorage.getItem('russian_admin_logged_in')
+    const user = localStorage.getItem('russian_admin_user')
+    if (loggedIn === 'true' && user) {
+      setIsLoggedIn(true)
+      setCurrentUser(user)
+    } else {
+      navigate('/russian-login')
+    }
+  }, [navigate])
+
+  const handleLogout = () => {
+    localStorage.removeItem('russian_admin_logged_in')
+    localStorage.removeItem('russian_admin_user')
+    navigate('/russian-login')
+  }
 
   const filteredOrders = orderFilter === 'all' ? orders : orders.filter(o => o.status === orderFilter)
   
@@ -198,6 +219,11 @@ export default function RussianAdmin() {
             <Link to="/russian" className="hidden sm:flex items-center gap-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors">
               🇷🇺 Boutique
             </Link>
+            <span className="text-sm text-gray-500">{currentUser}</span>
+            <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-2 bg-red-100 text-red-700 rounded-lg text-sm font-medium hover:bg-red-200 transition-colors">
+              <LogOut className="w-4 h-4" />
+              {t('Выход', 'Déconnexion')}
+            </button>
             <button className="relative p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
               <Bell className="w-5 h-5" />
               <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>

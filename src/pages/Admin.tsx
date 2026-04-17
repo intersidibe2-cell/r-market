@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import {
   LayoutDashboard, Package, ShoppingCart, Users, Settings, BarChart3,
@@ -8,8 +8,26 @@ import {
   ArrowUpCircle, AlertTriangle, CheckCircle, Clock, Scale, Box,
   QrCode, Barcode
 } from 'lucide-react'
-import { products as initialProducts, categories, paymentMethods } from '../data/products'
+import { categories, paymentMethods } from '../data/products'
+import { loadProducts, addProduct, updateProduct, deleteProduct } from '../lib/products'
+import { supabase } from '../lib/supabase'
 import ImageUpload from '../components/ImageUpload'
+
+// Load products from localStorage or use default
+const getInitialProducts = () => {
+  try {
+    const saved = localStorage.getItem('rmarket_products')
+    if (saved) return JSON.parse(saved)
+  } catch (e) { console.error('Error loading products:', e) }
+  return []
+}
+
+// Save products to localStorage
+const saveProducts = (products: any[]) => {
+  try {
+    localStorage.setItem('rmarket_products', JSON.stringify(products))
+  } catch (e) { console.error('Error saving products:', e) }
+}
 
 const initialOrders = [
   { id: 'CMD-001', customer: 'Moussa Dembélé', phone: '+223 70 12 34 56', total: 65000, status: 'pending', date: '02/04/2026', items: 2, payment: 'Orange Money', address: 'Bamako, Quartier ACI' },
@@ -40,12 +58,33 @@ export default function Admin() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   
   const [orders, setOrders] = useState(initialOrders)
-  const [products, setProducts] = useState(initialProducts)
+  const [products, setProducts] = useState<any[]>([])
+  const [loadingProducts, setLoadingProducts] = useState(true)
   const [customers] = useState(initialCustomers)
 
+  // Charger les produits depuis Supabase au démarrage
+  useEffect(() => {
+    const loadProds = async () => {
+      try {
+        const data = await loadProducts()
+        setProducts(data.length > 0 ? data : getInitialProducts())
+        setLoadingProducts(false)
+      } catch (error) {
+        console.error('Error loading products:', error)
+        setProducts(getInitialProducts())
+        setLoadingProducts(false)
+      }
+    }
+    loadProds()
+  }, [])
+
   const [newProduct, setNewProduct] = useState({ 
-    name: '', price: '', originalPrice: '', stock: '', image: '', description: '', category: 'mode' 
+    name: '', price: '', originalPrice: '', stock: '', image: '', description: '', category: 'mode', supplierId: '' 
   })
+
+  // New supplier form
+  const [showNewSupplier, setShowNewSupplier] = useState(false)
+  const [newSupplier, setNewSupplier] = useState({ name: '', contact: '', phone: '', city: '', location: '', category: 'mode' })
 
   // Inventory state
   const [inventoryItems, setInventoryItems] = useState([
@@ -112,14 +151,38 @@ export default function Admin() {
       reviews: 0,
       stock: parseInt(newProduct.stock) || 100,
       sold: 0,
+      supplierId: newProduct.supplierId ? parseInt(newProduct.supplierId) : null,
     }
     setProducts([...products, product])
-    setNewProduct({ name: '', price: '', originalPrice: '', stock: '', image: '', description: '', category: 'mode' })
+    saveProducts([...products, product])
+    setNewProduct({ name: '', price: '', originalPrice: '', stock: '', image: '', description: '', category: 'mode', supplierId: '' })
     setShowAddProduct(false)
   }
 
   const deleteProduct = (id: number) => {
-    setProducts(products.filter((p) => p.id !== id))
+    const updated = products.filter((p) => p.id !== id)
+    setProducts(updated)
+    saveProducts(updated)
+  }
+
+  const addNewSupplier = () => {
+    if (!newSupplier.name || !newSupplier.phone) return
+    const supplier: any = {
+      id: Math.max(...suppliers.map(s => s.id), 0) + 1,
+      name: newSupplier.name,
+      contact: newSupplier.contact,
+      phone: newSupplier.phone,
+      city: newSupplier.city,
+      location: newSupplier.location,
+      category: newSupplier.category,
+      productsCount: 0,
+      productsNeedingPhotos: 0,
+      status: 'active'
+    }
+    setSuppliers([...suppliers, supplier])
+    setNewProduct({...newProduct, supplierId: String(supplier.id)})
+    setShowNewSupplier(false)
+    setNewSupplier({ name: '', contact: '', phone: '', city: '', location: '', category: 'mode' })
   }
 
   const updateOrderStatus = (orderId: string, status: string) => {
@@ -135,17 +198,17 @@ export default function Admin() {
 
   const tabs = [
     { id: 'dashboard', label: 'Tableau de bord', icon: LayoutDashboard },
-    { id: 'orders', label: 'Commandes', icon: ShoppingCart },
-    { id: 'products', label: 'Produits', icon: Package },
-    { id: 'inventory', label: 'Inventaire', icon: Warehouse },
-    { id: 'delivery', label: 'Livraisons', icon: Truck },
-    { id: 'returns', label: 'Retours', icon: RefreshCw },
-    { id: 'reports', label: 'Rapports', icon: FileText },
-    { id: 'finances', label: 'Finances', icon: Wallet },
-    { id: 'suppliers', label: 'Fournisseurs', icon: Users2 },
-    { id: 'customers', label: 'Clients', icon: Users },
-    { id: 'analytics', label: 'Statistiques', icon: BarChart3 },
-    { id: 'settings', label: 'Paramètres', icon: Settings },
+    { id: 'orders', label: '📦 Commandes', icon: ShoppingCart },
+    { id: 'products', label: '👕 Produits', icon: Package },
+    { id: 'inventory', label: '📋 Inventaire', icon: Warehouse },
+    { id: 'delivery', label: '🚚 Livraisons', icon: Truck },
+    { id: 'suppliers', label: '🏪 Fournisseurs', icon: Users2 },
+    { id: 'customers', label: '👥 Clients', icon: Users },
+    { id: 'returns', label: '🔄 Retours', icon: RefreshCw },
+    { id: 'finances', label: '💰 Finances', icon: Wallet },
+    { id: 'analytics', label: '📊 Statistiques', icon: BarChart3 },
+    { id: 'reports', label: '📑 Rapports', icon: FileText },
+    { id: 'settings', label: '⚙️ Paramètres', icon: Settings },
   ]
 
   return (
@@ -253,7 +316,7 @@ export default function Admin() {
             <div className="space-y-6">
               {/* Stats Cards */}
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <button onClick={() => setActiveTab('finances')} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-green-300 transition-all text-left w-full">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm font-medium text-gray-500">Revenus totaux</span>
                     <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
@@ -266,9 +329,9 @@ export default function Admin() {
                     <TrendingUp className="w-4 h-4" />
                     <span className="text-sm font-medium">+12.5% ce mois</span>
                   </div>
-                </div>
+                </button>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <button onClick={() => setActiveTab('orders')} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-300 transition-all text-left w-full">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm font-medium text-gray-500">Commandes</span>
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center">
@@ -281,9 +344,9 @@ export default function Admin() {
                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded-full">{pendingOrders} en attente</span>
                     <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">{shippedOrders} expédiées</span>
                   </div>
-                </div>
+                </button>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <button onClick={() => setActiveTab('products')} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-orange-300 transition-all text-left w-full">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm font-medium text-gray-500">Produits</span>
                     <div className="w-12 h-12 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
@@ -296,9 +359,9 @@ export default function Admin() {
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">{totalStock} unités</span>
                     {lowStock > 0 && <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded-full">{lowStock} bas stock</span>}
                   </div>
-                </div>
+                </button>
 
-                <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md transition-shadow">
+                <button onClick={() => setActiveTab('customers')} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 hover:shadow-md hover:border-red-300 transition-all text-left w-full">
                   <div className="flex items-center justify-between mb-4">
                     <span className="text-sm font-medium text-gray-500">Clients</span>
                     <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center">
@@ -311,7 +374,7 @@ export default function Admin() {
                     <TrendingUp className="w-4 h-4" />
                     <span className="text-sm font-medium">+8 nouveaux ce mois</span>
                   </div>
-                </div>
+                </button>
               </div>
 
               {/* Quick Actions */}
@@ -579,6 +642,28 @@ export default function Admin() {
                         </div>
                       </div>
                       <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Fournisseur</label>
+                        <div className="flex gap-2">
+                          <select 
+                            value={newProduct.supplierId} 
+                            onChange={e => setNewProduct({...newProduct, supplierId: e.target.value})}
+                            className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500"
+                          >
+                            <option value="">Sélectionner un fournisseur</option>
+                            {suppliers.filter(s => s.status === 'active').map(s => (
+                              <option key={s.id} value={s.id}>{s.name} ({s.city})</option>
+                            ))}
+                          </select>
+                          <button 
+                            type="button"
+                            onClick={() => setShowNewSupplier(true)}
+                            className="px-4 py-3 bg-green-100 text-green-700 rounded-xl text-sm font-medium hover:bg-green-200 transition-colors flex items-center gap-1"
+                          >
+                            <Plus className="w-4 h-4" /> Nouveau
+                          </button>
+                        </div>
+                      </div>
+                      <div>
                         <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
                         <textarea value={newProduct.description} onChange={e => setNewProduct({...newProduct, description: e.target.value})} rows={3}
                           className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500 resize-none" placeholder="Description du produit..." />
@@ -602,6 +687,72 @@ export default function Admin() {
                       </button>
                       <button onClick={addProduct} className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-medium transition-all shadow-lg">
                         Ajouter le produit 🇲🇱
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* New Supplier Modal */}
+              {showNewSupplier && (
+                <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4 backdrop-blur-sm">
+                  <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md">
+                    <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+                      <div>
+                        <h3 className="text-xl font-bold text-gray-900">Nouveau fournisseur</h3>
+                        <p className="text-sm text-gray-500">Ajouter un nouveau fournisseur</p>
+                      </div>
+                      <button onClick={() => setShowNewSupplier(false)} className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg">
+                        <X className="w-5 h-5" />
+                      </button>
+                    </div>
+                    <div className="p-6 space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Nom du fournisseur *</label>
+                        <input type="text" value={newSupplier.name} onChange={e => setNewSupplier({...newSupplier, name: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500" placeholder="Ex: Boutique ABC" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Contact</label>
+                        <input type="text" value={newSupplier.contact} onChange={e => setNewSupplier({...newSupplier, contact: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500" placeholder="Nom de la personne" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Téléphone *</label>
+                        <input type="tel" value={newSupplier.phone} onChange={e => setNewSupplier({...newSupplier, phone: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500" placeholder="+223 XX XX XX XX" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Ville</label>
+                        <select value={newSupplier.city} onChange={e => setNewSupplier({...newSupplier, city: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500">
+                          <option value="">Sélectionner</option>
+                          {['Bamako', 'Ségou', 'Mopti', 'Sikasso', 'Kayes', 'Koulikoro', 'Bandiagara', 'Sangha'].map(city => (
+                            <option key={city} value={city}>{city}</option>
+                          ))}
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Adresse</label>
+                        <input type="text" value={newSupplier.location} onChange={e => setNewSupplier({...newSupplier, location: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500" placeholder="Adresse exacte" />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">Catégorie</label>
+                        <select value={newSupplier.category} onChange={e => setNewSupplier({...newSupplier, category: e.target.value})}
+                          className="w-full px-4 py-3 border border-gray-200 rounded-xl text-sm focus:outline-none focus:border-green-500">
+                          {categories.filter(c => c.id !== 'all').map(c => (
+                            <option key={c.id} value={c.id}>{c.emoji} {c.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className="p-6 border-t border-gray-100 flex gap-3 bg-gray-50 rounded-b-3xl">
+                      <button onClick={() => setShowNewSupplier(false)} className="flex-1 border border-gray-200 text-gray-700 py-3 rounded-xl font-medium hover:bg-gray-100 transition-colors">
+                        Annuler
+                      </button>
+                      <button onClick={addNewSupplier} className="flex-1 bg-gradient-to-r from-green-600 to-green-700 text-white py-3 rounded-xl font-medium transition-all shadow-lg">
+                        Ajouter
                       </button>
                     </div>
                   </div>
@@ -1367,7 +1518,7 @@ export default function Admin() {
                   <h3 className="text-2xl font-bold text-gray-900">👥 Gestion des fournisseurs</h3>
                   <p className="text-sm text-gray-500">Partenaires et approvisionnement</p>
                 </div>
-                <button className="bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg">
+                <button onClick={() => setShowNewSupplier(true)} className="bg-gradient-to-r from-green-600 to-green-700 text-white px-5 py-2.5 rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg">
                   <Plus className="w-4 h-4" /> Nouveau fournisseur
                 </button>
               </div>

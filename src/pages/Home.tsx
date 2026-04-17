@@ -3,10 +3,36 @@ import { ArrowRight, Truck, Shield, RefreshCw, Star, Zap, TrendingUp, Clock, Glo
 import ProductCard from '../components/ProductCard'
 import HeroSlider from '../components/HeroSlider'
 import SEO from '../components/SEO'
-import { products, categories } from '../data/products'
+import { categories } from '../data/products'
+import { loadProducts } from '../lib/products'
+import { useState, useEffect } from 'react'
+
+// Flash sale timer — expire à minuit chaque jour
+const getFlashTimer = () => {
+  const now = new Date()
+  const end = new Date(now)
+  end.setHours(23, 59, 59, 0)
+  const diff = Math.max(0, Math.floor((end.getTime() - now.getTime()) / 1000))
+  const h = Math.floor(diff / 3600).toString().padStart(2, '0')
+  const m = Math.floor((diff % 3600) / 60).toString().padStart(2, '0')
+  const s = (diff % 60).toString().padStart(2, '0')
+  return `${h}:${m}:${s}`
+}
 
 export default function Home() {
-  const bestSellers = [...products].sort((a, b) => b.sold - a.sold).slice(0, 8)
+  const [products, setProducts] = useState<any[]>([])
+  const [flashTimer, setFlashTimer] = useState(getFlashTimer())
+  
+  useEffect(() => {
+    loadProducts().then(data => setProducts(data))
+  }, [])
+
+  useEffect(() => {
+    const interval = setInterval(() => setFlashTimer(getFlashTimer()), 1000)
+    return () => clearInterval(interval)
+  }, [])
+  
+  const bestSellers = [...products].sort((a: any, b: any) => (b.sold || 0) - (a.sold || 0)).slice(0, 8)
   const newProducts = products.filter(p => p.badge === 'Nouveau' || p.badge === 'Tendance').slice(0, 4)
   const promoProducts = products.filter(p => p.badge === 'Promo').slice(0, 4)
 
@@ -97,9 +123,9 @@ export default function Home() {
                 <Zap className="w-6 h-6 text-red-500 fill-red-500" />
                 <h2 className="text-2xl font-bold text-gray-900">Ventes Flash</h2>
               </div>
-              <div className="flex items-center gap-1 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full animate-pulse">
+              <div className="flex items-center gap-1 bg-red-500 text-white text-xs font-bold px-3 py-1.5 rounded-full">
                 <Clock className="w-3 h-3" />
-                02:45:30
+                {flashTimer}
               </div>
             </div>
             <Link to="/shop" className="text-red-600 text-sm font-medium hover:text-red-700 flex items-center gap-1">
@@ -268,7 +294,7 @@ export default function Home() {
           </div>
           <h2 className="text-3xl font-bold text-white mb-3">Boutique Russe</h2>
           <p className="text-white/80 mb-6 max-w-md mx-auto">
-            Produits maliens pour les russes au Mali. Souvenirs, artisanat, alimentation et plus encore.
+            Produits maliens au Mali. Souvenirs, artisanat, alimentation et plus encore.
           </p>
           <Link 
             to="/russian" 

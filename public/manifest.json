@@ -1,95 +1,21 @@
 {
-  "name": "R-Market - Boutique en ligne Mali",
+  "name": "R-Market Mali",
   "short_name": "R-Market",
-  "description": "Votre marketplace en ligne au Mali. Mode, électronique, artisanat et plus.",
+  "description": "Votre marketplace en ligne N°1 au Mali",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#16a34a",
   "orientation": "portrait-primary",
-  "icons": [
-    {
-      "src": "/icons/icon-72x72.png",
-      "sizes": "72x72",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-96x96.png",
-      "sizes": "96x96",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-128x128.png",
-      "sizes": "128x128",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-144x144.png",
-      "sizes": "144x144",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-152x152.png",
-      "sizes": "152x152",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-384x384.png",
-      "sizes": "384x384",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "/icons/icon-512x512.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
-  ],
-  "categories": ["shopping", "lifestyle"],
   "lang": "fr",
-  "dir": "ltr",
+  "icons": [
+    { "src": "/logo.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" },
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml" }
+  ],
+  "categories": ["shopping", "business"],
   "shortcuts": [
-    {
-      "name": "Boutique",
-      "short_name": "Boutique",
-      "description": "Voir tous les produits",
-      "url": "/shop",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Panier",
-      "short_name": "Panier",
-      "description": "Voir mon panier",
-      "url": "/cart",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
-    },
-    {
-      "name": "Commandes",
-      "short_name": "Commandes",
-      "description": "Suivre mes commandes",
-      "url": "/account/orders",
-      "icons": [{ "src": "/icons/icon-96x96.png", "sizes": "96x96" }]
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "/screenshots/home.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "narrow"
-    }
-  ],
-  "prefer_related_applications": false
+    { "name": "Boutique", "short_name": "Shop", "description": "Accéder à la boutique", "url": "/shop" },
+    { "name": "Mon panier", "short_name": "Panier", "description": "Voir le panier", "url": "/cart" },
+    { "name": "Suivi commande", "short_name": "Suivi", "description": "Suivre ma commande", "url": "/order-tracking" }
+  ]
 }

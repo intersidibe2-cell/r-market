@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { useState, useEffect, useRef } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { ShoppingCart, Menu, X, Search, Bell, ShoppingBag, Package, House, Settings, Heart, User, LogOut, Globe, DollarSign, Star, Truck, Lock } from 'lucide-react'
 import { useCart } from '../context/CartContext'
 import { useFavorites } from '../context/FavoritesContext'
@@ -8,6 +8,7 @@ import { useCurrency, Currency } from '../context/CurrencyContext'
 import { useAdultAccess } from '../context/AdultAccessContext'
 import { languages, Language } from '../i18n'
 import { categories } from '../data/products'
+import { loadProducts } from '../lib/products'
 
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
@@ -15,6 +16,50 @@ export default function Header() {
   const [langMenuOpen, setLangMenuOpen] = useState(false)
   const [currencyMenuOpen, setCurrencyMenuOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
+  const [searchResults, setSearchResults] = useState<any[]>([])
+  const [allProducts, setAllProducts] = useState<any[]>([])
+  const [searchFocused, setSearchFocused] = useState(false)
+  const searchRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    loadProducts().then(data => setAllProducts(data))
+  }, [])
+
+  useEffect(() => {
+    if (searchQuery.trim().length < 2) { setSearchResults([]); return }
+    const q = searchQuery.toLowerCase()
+    const results = allProducts
+      .filter(p => p.name?.toLowerCase().includes(q) || p.description?.toLowerCase().includes(q) || p.category?.toLowerCase().includes(q))
+      .slice(0, 6)
+    setSearchResults(results)
+  }, [searchQuery, allProducts])
+
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setSearchFocused(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchQuery.trim()) {
+      navigate(`/shop?q=${encodeURIComponent(searchQuery.trim())}`)
+      setSearchFocused(false)
+      setSearchQuery('')
+    }
+  }
+
+  const handleSelectProduct = (id: number) => {
+    navigate(`/product/${id}`)
+    setSearchFocused(false)
+    setSearchQuery('')
+  }
   
   const { totalItems } = useCart()
   const { totalFavorites } = useFavorites()
@@ -26,6 +71,7 @@ export default function Header() {
   const navLinks = [
     { label: 'Accueil', path: '/', icon: House },
     { label: 'Boutique', path: '/shop', icon: ShoppingBag },
+    { label: 'Restaurant', path: 'https://r-chicken.com', icon: ShoppingBag, external: true },
     { label: 'Suivi', path: '/order-tracking', icon: Truck },
     { label: 'Fidélité', path: '/loyalty', icon: Star },
     { label: 'Mon Profil', path: '/account', icon: User },
@@ -70,15 +116,44 @@ export default function Header() {
           </div>
 
           {/* Search Bar */}
-          <div className="flex-1 max-w-xl mx-4">
-            <div className="relative">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <div className="flex-1 max-w-xl mx-4" ref={searchRef}>
+            <form onSubmit={handleSearchSubmit} className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 z-10" />
               <input
                 type="text"
-                placeholder="Rechercher..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                onFocus={() => setSearchFocused(true)}
+                placeholder="Rechercher un produit..."
                 className="w-full pl-10 pr-4 py-2 rounded-lg text-sm bg-white/20 placeholder-white/70 text-white border border-white/30 focus:bg-white focus:text-gray-900 focus:placeholder-gray-400 transition-all"
               />
-            </div>
+              {/* Autocomplete dropdown */}
+              {searchFocused && searchResults.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+                  {searchResults.map(p => (
+                    <button
+                      key={p.id}
+                      type="button"
+                      onClick={() => handleSelectProduct(p.id)}
+                      className="w-full flex items-center gap-3 px-4 py-3 hover:bg-gray-50 text-left transition-colors"
+                    >
+                      {p.image && <img src={p.image} alt="" className="w-10 h-10 rounded-lg object-cover flex-shrink-0" />}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">{p.name}</p>
+                        <p className="text-xs text-green-600 font-semibold">{p.price?.toLocaleString()} FCFA</p>
+                      </div>
+                      <span className="text-xs text-gray-400 flex-shrink-0">{p.category}</span>
+                    </button>
+                  ))}
+                  <button
+                    type="submit"
+                    className="w-full px-4 py-3 text-sm text-center text-green-600 font-medium hover:bg-green-50 border-t border-gray-100"
+                  >
+                    Voir tous les résultats pour "{searchQuery}"
+                  </button>
+                </div>
+              )}
+            </form>
           </div>
 
           {/* Currency Selector */}
@@ -231,6 +306,21 @@ export default function Header() {
             <nav className="hidden lg:flex items-center gap-1">
               {navLinks.map(link => {
                 const isActive = location.pathname === link.path
+                const Icon = link.icon
+                if (link.external) {
+                  return (
+                    <a
+                      key={link.path}
+                      href={link.path}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-gray-700 hover:bg-orange-50 hover:text-orange-700"
+                    >
+                      <Icon className="w-4 h-4" />
+                      {link.label}
+                    </a>
+                  )
+                }
                 return (
                   <Link
                     key={link.path}
@@ -239,7 +329,7 @@ export default function Header() {
                       isActive ? 'bg-green-50 text-green-700' : 'text-gray-700 hover:bg-green-50'
                     }`}
                   >
-                    <link.icon className="w-4 h-4" />
+                    <Icon className="w-4 h-4" />
                     {link.label}
                   </Link>
                 )
@@ -271,7 +361,7 @@ export default function Header() {
 
             <div className="border-t pt-2 mt-2">
               <p className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase">Catégories</p>
-              {categories.filter(c => c.id !== 'all' && c.id !== 'adulte').map(cat => (
+              {categories.filter(c => c.id !== 'all').map(cat => (
                 <Link
                   key={cat.id}
                   to={`/shop?category=${cat.id}`}

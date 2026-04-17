@@ -170,7 +170,7 @@ export default function RussianProducts() {
             <span className="text-2xl">🇷🇺</span>
             Produits Boutique Russe
           </h1>
-          <p className="text-gray-500 text-sm mt-1">Produits maliens pour les russes au Mali • {products.length} produits</p>
+          <p className="text-gray-500 text-sm mt-1">Produits Mali • {products.length} produits</p>
         </div>
         <button
           onClick={() => setShowAddModal(true)}
