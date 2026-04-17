@@ -1,7 +1,17 @@
 -- =============================================
--- R-MARKET E-COMMERCE - SCHEMA UNIFIE v2
--- Executer dans Supabase SQL Editor
--- =============================================
+-- ETAPE 0: Migrer les donnees existantes AVANT de modifier la contrainte
+-- ============================================
+
+-- Mettre a jour les statuts existants vers les nouveaux statuts
+UPDATE commandes SET 
+  status = CASE 
+    WHEN status = 'confirmed' THEN 'sent_to_supplier'
+    WHEN status = 'shipped' THEN 'in_delivery'
+    WHEN status = 'delivered' THEN 'delivered'
+    WHEN status = 'cancelled' THEN 'cancelled'
+    ELSE 'pending'
+  END
+WHERE status NOT IN ('pending', 'sent_to_supplier', 'picked_up', 'qr_labeled', 'in_delivery', 'delivered', 'cancelled', 'unavailable');
 
 -- ============================================
 -- ETAPE 1: MODIFIER TABLE COMMANDES
@@ -15,7 +25,7 @@ ALTER TABLE commandes ADD CONSTRAINT commandes_status_check
   CHECK (status IN (
     'pending',              -- En attente (nouvelle commande)
     'sent_to_supplier',     -- Envoyee au fournisseur via WhatsApp
-    'picked_up',            -- Recuperee par l equipe
+    'picked_up',            -- Recuperee par l'equipe
     'qr_labeled',           -- QR code colle + stockage temporaire
     'in_delivery',          -- En cours de livraison
     'delivered',            -- Livree au client
@@ -101,14 +111,6 @@ BEGIN
   END IF;
 END
 $$;
-
--- ============================================
--- ETAPE 6: CREER BUCKET STORAGE
--- ============================================
--- IMPORTANT: Apres avoir execute ce SQL, aller dans:
--- Supabase Dashboard > Storage > New Bucket
--- Nom: product-photos
--- Public: OUI (cocher)
 
 -- ============================================
 -- VERIFICATION
