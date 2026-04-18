@@ -135,8 +135,10 @@ function App() {
                                   <Route path="/compare" element={<Compare />} />
                                   <Route path="/loyalty" element={<Loyalty />} />
                                   <Route path="/international" element={<International />} />
-                                  <Route path="/international-landing" element={<InternationalLanding />} />
-                                  <Route path="*" element={<Navigate to="/" replace />} />
+                                   <Route path="/international-landing" element={<InternationalLanding />} />
+                                   <Route path="/military-qr" element={<Navigate to="/military-qr-code" replace />} />
+                                   <Route path="/admin-panel" element={<Navigate to="/admin" replace />} />
+                                   <Route path="*" element={<Navigate to="/" replace />} />
                                 </Routes>
                               </main>
                               <Footer />
