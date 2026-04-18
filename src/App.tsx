@@ -18,11 +18,11 @@ import ScrollToTop from './components/ScrollToTop'
 import ToastContainer from './components/Toast'
 import CompareBar from './components/CompareBar'
 import WhatsAppButton from './components/WhatsAppButton'
-import ProtectedRoute from './components/ProtectedRoute'
-import AdminLayout from './layouts/AdminLayout'
-import BottomNav from './components/BottomNav'
 
 import Home from './pages/Home'
+import Login from './pages/Login'
+import AccountPage from './pages/AccountPage'
+import AdminDashboard from './pages/admin/AdminDashboard'
 import UserManagement from './pages/admin/UserManagement'
 import RussianOrders from './pages/admin/RussianOrders'
 import RussianProducts from './pages/admin/RussianProducts'
@@ -52,104 +52,40 @@ import ProductDetail from './pages/ProductDetail'
 import Cart from './pages/Cart'
 import Checkout from './pages/Checkout'
 import Favorites from './pages/Favorites'
-import Admin from './pages/Admin'
 import RussianShop from './pages/RussianShop'
 import RussianProductDetail from './pages/RussianProductDetail'
 import RussianAdmin from './pages/RussianAdmin'
 import RussianLanding from './pages/RussianLanding'
+import RussianLogin from './pages/RussianLogin'
 import BambaraCourse from './pages/BambaraCourse'
-import QRCodePage from './pages/QRCodePage'
-import AccountPage from './pages/AccountPage'
-import Login from './pages/Login'
-import Compare from './pages/Compare'
-import OrderTracking from './pages/OrderTracking'
-import Loyalty from './pages/Loyalty'
-import DeliveryScan from './pages/DeliveryScan'
-import AdminDeliveryScan from './pages/admin/DeliveryScan'
-import BarcodeScanner from './pages/BarcodeScanner'
 import AdultShop from './pages/AdultShop'
-import International from './pages/International'
+import BarcodeScanner from './pages/BarcodeScanner'
+import Contact from './pages/Contact'
+import DeliveryScan from './pages/DeliveryScan'
 import MilitaryQRCode from './pages/MilitaryQRCode'
-import AdminDashboard from './pages/admin/AdminDashboard'
+import OrderTracking from './pages/OrderTracking'
+import Compare from './pages/Compare'
+import Loyalty from './pages/Loyalty'
+import International from './pages/International'
+import InternationalLanding from './pages/InternationalLanding'
 
-export default function App() {
+function App() {
   return (
     <HelmetProvider>
-      <AdultAccessProvider>
+      <AuthProvider>
         <NotificationProvider>
-          <AuthProvider>
-            <AuditProvider>
-              <CurrencyProvider>
-                <PromoProvider>
-                  <ReviewProvider>
-                    <LoyaltyProvider>
-                      <CompareProvider>
-                        <CartProvider>
-                          <FavoritesProvider>
-                            <ToastContainer />
-                        
-                        <Routes>
-                          {/* Routes sans layout */}
-                          <Route path="/login" element={<Login />} />
-                          
-                          {/* Admin Panel unifié */}
-                          <Route path="/admin" element={<Navigate to="/admin-panel" replace />} />
-                          <Route path="/admin-panel" element={<AdminLayout />}>
-                            <Route index element={<AdminDashboard />} />
-                            <Route path="dashboard" element={<AdminDashboard />} />
-                            <Route path="orders" element={<OrdersMali />} />
-                            <Route path="products" element={<ProductsMali />} />
-                            <Route path="inventory" element={<Inventory />} />
-                            <Route path="delivery" element={<Delivery />} />
-                            <Route path="returns" element={<Returns />} />
-                            <Route path="reports" element={<Reports />} />
-                            <Route path="finances" element={<Finances />} />
-                            <Route path="suppliers" element={<Suppliers />} />
-                            <Route path="customers" element={<CustomersMali />} />
-                            <Route path="content" element={<ContentManager />} />
-                            <Route path="photos" element={<PhotoManagement />} />
-                            <Route path="qrcodes" element={<QRCodeGenerator />} />
-                            <Route path="photo-planning" element={<PhotoPlanning />} />
-                            <Route path="users" element={<UserManagement />} />
-                            <Route path="russian-orders" element={<RussianOrders />} />
-                            <Route path="russian-products" element={<RussianProducts />} />
-                            <Route path="analytics" element={<Analytics />} />
-                            <Route path="analytics/behavior" element={<BehaviorAnalytics />} />
-                            <Route path="analytics/heatmap" element={<HeatmapPage />} />
-                            <Route path="analytics/predictive" element={<PredictiveAnalytics />} />
-                            <Route path="delivery-management" element={<DeliveryManagement />} />
-                            <Route path="international-shops" element={<InternationalShops />} />
-                            <Route path="settings" element={<SettingsPage />} />
-                            <Route path="delivery-scan" element={<AdminDeliveryScan />} />
-                            <Route path="exchange-rates" element={<ExchangeRates />} />
-                          </Route>
-                          
-                          {/* QR Code militaire */}
-                          <Route path="/military-qr" element={<MilitaryQRCode />} />
-                          
-                           {/* Routes avec layout */}
-                           <Route path="/ru" element={<RussianLanding />} />
-                           <Route path="/russian" element={<RussianShop />} />
-                           <Route path="/russian/product/:id" element={<RussianProductDetail />} />
-                           <Route path="/russian-login" element={<RussianLogin />} />
-                           <Route path="/russian-admin" element={<RussianAdmin />} />
-                           <Route path="/bambara-course" element={<BambaraCourse />} />
-                           <Route path="/qr-code" element={<QRCodePage />} />
-                           <Route path="/account" element={<AccountPage />} />
-                           <Route path="/compare" element={<Compare />} />
-                           <Route path="/order-tracking" element={<OrderTracking />} />
-                           <Route path="/order-tracking/:orderId" element={<OrderTracking />} />
-                           <Route path="/loyalty" element={<Loyalty />} />
-                           <Route path="/delivery-scan" element={<DeliveryScan />} />
-                           <Route path="/barcode-scanner" element={<BarcodeScanner />} />
-                           <Route path="/admin/barcode-scanner" element={<BarcodeScanner />} />
-                          
-                          {/* Routes principales avec Header/Footer */}
-                          <Route path="/*" element={
-                            <div className="min-h-screen bg-gray-50 flex flex-col">
-                              <ScrollToTop />
+          <FavoritesProvider>
+            <CartProvider>
+              <CompareProvider>
+                <AuditProvider>
+                  <LoyaltyProvider>
+                    <PromoProvider>
+                      <ReviewProvider>
+                        <CurrencyProvider>
+                          <AdultAccessProvider>
+                            <div className="min-h-screen bg-gray-50">
                               <Header />
-                              <main className="flex-1">
+                              <main>
                                 <Routes>
                                   <Route path="/" element={<Home />} />
                                   <Route path="/shop" element={<Shop />} />
@@ -157,28 +93,71 @@ export default function App() {
                                   <Route path="/cart" element={<Cart />} />
                                   <Route path="/checkout" element={<Checkout />} />
                                   <Route path="/favorites" element={<Favorites />} />
-                                  <Route path="/adult" element={<AdultShop />} />
+                                  <Route path="/login" element={<Login />} />
+                                  <Route path="/russian" element={<RussianLanding />} />
+                                  <Route path="/russian/shop" element={<RussianShop />} />
+                                  <Route path="/russian/product/:id" element={<RussianProductDetail />} />
+                                  <Route path="/account" element={<AccountPage />} />
+                                  <Route path="/admin" element={<AdminDashboard />} />
+                                  <Route path="/admin/orders-mali" element={<OrdersMali />} />
+                                  <Route path="/admin/products-mali" element={<ProductsMali />} />
+                                  <Route path="/admin/inventory" element={<Inventory />} />
+                                  <Route path="/admin/suppliers" element={<Suppliers />} />
+                                  <Route path="/admin/customers" element={<CustomersMali />} />
+                                  <Route path="/admin/finances" element={<Finances />} />
+                                  <Route path="/admin/reports" element={<Reports />} />
+                                  <Route path="/admin/returns" element={<Returns />} />
+                                  <Route path="/admin/delivery" element={<Delivery />} />
+                                  <Route path="/admin/exchange-rates" element={<ExchangeRates />} />
+                                  <Route path="/admin/photo-management" element={<PhotoManagement />} />
+                                  <Route path="/admin/qr-code-generator" element={<QRCodeGenerator />} />
+                                  <Route path="/admin/photo-planning" element={<PhotoPlanning />} />
+                                  <Route path="/admin/content-manager" element={<ContentManager />} />
+                                  <Route path="/admin/settings" element={<SettingsPage />} />
+                                  <Route path="/admin/international-shops" element={<InternationalShops />} />
+                                  <Route path="/admin/delivery-management" element={<DeliveryManagement />} />
+                                  <Route path="/admin/predictive-analytics" element={<PredictiveAnalytics />} />
+                                  <Route path="/admin/heatmap" element={<HeatmapPage />} />
+                                  <Route path="/admin/behavior-analytics" element={<BehaviorAnalytics />} />
+                                  <Route path="/admin/analytics" element={<Analytics />} />
+                                  <Route path="/admin/user-management" element={<UserManagement />} />
+                                  <Route path="/admin/russian-login" element={<RussianLogin />} />
+                                  <Route path="/admin/russian-admin" element={<RussianAdmin />} />
+                                  <Route path="/admin/russian-products" element={<RussianProducts />} />
+                                  <Route path="/admin/russian-orders" element={<RussianOrders />} />
+                                  <Route path="/bambara-course" element={<BambaraCourse />} />
+                                  <Route path="/adult-shop" element={<AdultShop />} />
+                                  <Route path="/contact" element={<Contact />} />
+                                  <Route path="/barcode-scanner" element={<BarcodeScanner />} />
+                                  <Route path="/delivery-scan" element={<DeliveryScan />} />
+                                  <Route path="/military-qr-code" element={<MilitaryQRCode />} />
+                                  <Route path="/order-tracking" element={<OrderTracking />} />
+                                  <Route path="/compare" element={<Compare />} />
+                                  <Route path="/loyalty" element={<Loyalty />} />
                                   <Route path="/international" element={<International />} />
+                                  <Route path="/international-landing" element={<InternationalLanding />} />
+                                  <Route path="*" element={<Navigate to="/" replace />} />
                                 </Routes>
                               </main>
                               <Footer />
-                              <BottomNav />
+                              <ScrollToTop />
+                              <ToastContainer />
                               <CompareBar />
                               <WhatsAppButton />
                             </div>
-                          } />
-                        </Routes>
-                        </FavoritesProvider>
-                      </CartProvider>
-                    </CompareProvider>
+                          </AdultAccessProvider>
+                        </CurrencyProvider>
+                      </ReviewProvider>
+                    </PromoProvider>
                   </LoyaltyProvider>
-                </ReviewProvider>
-              </PromoProvider>
-            </CurrencyProvider>
-          </AuditProvider>
-        </AuthProvider>
-      </NotificationProvider>
-     </AdultAccessProvider>
+                </AuditProvider>
+              </CompareProvider>
+            </CartProvider>
+          </FavoritesProvider>
+        </NotificationProvider>
+      </AuthProvider>
     </HelmetProvider>
   )
 }
+
+export default App

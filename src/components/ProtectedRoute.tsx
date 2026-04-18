@@ -4,7 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { Loader2 } from 'lucide-react'
 
 interface ProtectedRouteProps {
-  children: ReactNode
+  children?: ReactNode
   requiredPermission?: string
   requiredRoles?: string[]
 }
@@ -65,7 +65,7 @@ export default function ProtectedRoute({
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès restreint</h2>
           <p className="text-gray-600 mb-6">
-            Cette page est réservée à certains types d'utilisateurs.
+            Cette page est réservés à certains types d'utilisateurs.
           </p>
           <a 
             href="/" 
