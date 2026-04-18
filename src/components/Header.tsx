@@ -20,11 +20,19 @@ export default function Header() {
   const [searchResults, setSearchResults] = useState<any[]>([])
   const [allProducts, setAllProducts] = useState<any[]>([])
   const [searchFocused, setSearchFocused] = useState(false)
+  const [logoUrl, setLogoUrl] = useState('/logo.svg')
   const searchRef = useRef<HTMLDivElement>(null)
   const navigate = useNavigate()
 
   useEffect(() => {
     loadProducts().then(data => setAllProducts(data))
+  }, [])
+
+  useEffect(() => {
+    const savedLogo = localStorage.getItem('rmarket_logo')
+    if (savedLogo) {
+      setLogoUrl(savedLogo)
+    }
   }, [])
 
   useEffect(() => {
@@ -191,7 +199,7 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center gap-2 md:gap-3 group min-w-0">
-              <img src="/logo.svg" alt="R-Market" className="w-10 h-10 md:w-12 md:h-12 rounded-xl shadow-lg transform group-hover:scale-105 transition-transform duration-200" />
+              <img src={logoUrl} alt="R-Market" className="w-10 h-10 md:w-12 md:h-12 rounded-xl shadow-lg transform group-hover:scale-105 transition-transform duration-200" onError={(e) => { (e.target as HTMLImageElement).src = '/logo.svg' }} />
               <div className="hidden sm:block min-w-0">
                 <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 whitespace-nowrap leading-none truncate">R-Market</h1>
                 <p className="hidden lg:block text-xs text-gray-500 whitespace-nowrap mt-0.5">Votre marketplace au Mali</p>

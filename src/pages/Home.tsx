@@ -3,9 +3,22 @@ import { ArrowRight, Truck, Shield, RefreshCw, Star, Zap, TrendingUp, Clock, Glo
 import ProductCard from '../components/ProductCard'
 import HeroSlider from '../components/HeroSlider'
 import SEO from '../components/SEO'
-import { categories } from '../data/products'
+import { categories as defaultCategories } from '../data/products'
 import { loadProducts } from '../lib/products'
 import { useState, useEffect } from 'react'
+
+// Charger les catégories personnalisées depuis localStorage
+function loadCustomCategories() {
+  try {
+    const saved = localStorage.getItem('rmarket_categories')
+    if (saved) {
+      return JSON.parse(saved)
+    }
+  } catch (e) {
+    console.error('Error loading categories:', e)
+  }
+  return null
+}
 
 // Flash sale timer — expire à minuit chaque jour
 const getFlashTimer = () => {
@@ -22,15 +35,26 @@ const getFlashTimer = () => {
 export default function Home() {
   const [products, setProducts] = useState<any[]>([])
   const [flashTimer, setFlashTimer] = useState(getFlashTimer())
+  const [customCategories, setCustomCategories] = useState<any[]>([])
   
   useEffect(() => {
     loadProducts().then(data => setProducts(data))
   }, [])
 
   useEffect(() => {
+    const saved = loadCustomCategories()
+    if (saved) {
+      setCustomCategories(saved)
+    }
+  }, [])
+
+  useEffect(() => {
     const interval = setInterval(() => setFlashTimer(getFlashTimer()), 1000)
     return () => clearInterval(interval)
   }, [])
+
+  // Utiliser les catégories personnalisées si elles existent, sinon les catégories par défaut
+  const categories = customCategories.length > 0 ? customCategories : defaultCategories
   
   const bestSellers = [...products].sort((a: any, b: any) => (b.sold || 0) - (a.sold || 0)).slice(0, 8)
   const newProducts = products.filter(p => p.badge === 'Nouveau' || p.badge === 'Tendance').slice(0, 4)

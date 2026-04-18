@@ -1,7 +1,17 @@
 import { useState, useEffect, useCallback } from 'react'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 
-const slides = [
+interface Slide {
+  image: string
+  title: string
+  subtitle: string
+  cta: string
+  link: string
+  gradient: string
+  active?: boolean
+}
+
+const defaultSlides: Slide[] = [
   {
     image: "https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=1400&h=500&fit=crop&crop=face",
     title: "Bienvenue sur R-Market",
@@ -44,29 +54,74 @@ const slides = [
   },
 ]
 
+function loadSlides(): Slide[] {
+  try {
+    const saved = localStorage.getItem('rmarket_sliders')
+    if (saved) {
+      const parsed = JSON.parse(saved)
+      // Filtrer seulement les slides actifs
+      const activeSlides = parsed.filter((s: Slide) => s.active !== false)
+      if (activeSlides.length > 0) {
+        return activeSlides
+      }
+    }
+  } catch (e) {
+    console.error('Error loading sliders:', e)
+  }
+  return defaultSlides
+}
+
 export default function HeroSlider() {
+  const [slides, setSlides] = useState<Slide[]>([])
   const [current, setCurrent] = useState(0)
   const [isTransitioning, setIsTransitioning] = useState(false)
 
+  useEffect(() => {
+    setSlides(loadSlides())
+    
+    // Écouter les changements de localStorage
+    const handleStorage = () => {
+      setSlides(loadSlides())
+    }
+    
+    window.addEventListener('storage', handleStorage)
+    // Vérifier aussi toutes les 2 secondes pour les changements dans le même onglet
+    const interval = setInterval(() => {
+      setSlides(loadSlides())
+    }, 2000)
+    
+    return () => {
+      window.removeEventListener('storage', handleStorage)
+      clearInterval(interval)
+    }
+  }, [])
+
   const goTo = useCallback((index: number) => {
-    if (isTransitioning) return
+    if (isTransitioning || slides.length === 0) return
     setIsTransitioning(true)
     setCurrent(index)
     setTimeout(() => setIsTransitioning(false), 500)
-  }, [isTransitioning])
+  }, [isTransitioning, slides.length])
 
   const next = useCallback(() => {
+    if (slides.length === 0) return
     goTo((current + 1) % slides.length)
-  }, [current, goTo])
+  }, [current, goTo, slides.length])
 
   const prev = useCallback(() => {
+    if (slides.length === 0) return
     goTo((current - 1 + slides.length) % slides.length)
-  }, [current, goTo])
+  }, [current, goTo, slides.length])
 
   useEffect(() => {
+    if (slides.length === 0) return
     const timer = setInterval(next, 5000)
     return () => clearInterval(timer)
-  }, [next])
+  }, [next, slides.length])
+
+  if (slides.length === 0) {
+    return null
+  }
 
   return (
     <div className="relative h-64 sm:h-80 md:h-96 lg:h-[440px] overflow-hidden rounded-2xl">
