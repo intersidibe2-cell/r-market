@@ -79,7 +79,6 @@ export default function Header() {
   const navLinks = [
     { label: 'Accueil', path: '/', icon: House },
     { label: 'Boutique', path: '/shop', icon: ShoppingBag },
-    { label: 'Restaurant', path: 'https://r-chicken.com', icon: ShoppingBag, external: true },
     { label: 'Suivi', path: '/order-tracking', icon: Truck },
     { label: 'Fidélité', path: '/loyalty', icon: Star },
     { label: 'Mon Profil', path: '/account', icon: User },
@@ -315,20 +314,6 @@ export default function Header() {
               {navLinks.map(link => {
                 const isActive = location.pathname === link.path
                 const Icon = link.icon
-                if (link.external) {
-                  return (
-                    <a
-                      key={link.path}
-                      href={link.path}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 text-gray-700 hover:bg-orange-50 hover:text-orange-700"
-                    >
-                      <Icon className="w-4 h-4" />
-                      {link.label}
-                    </a>
-                  )
-                }
                 return (
                   <Link
                     key={link.path}

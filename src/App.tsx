@@ -68,7 +68,6 @@ import Compare from './pages/Compare'
 import Loyalty from './pages/Loyalty'
 import International from './pages/International'
 import InternationalLanding from './pages/InternationalLanding'
-import RussianRestaurant from './pages/RussianRestaurant'
 
 function App() {
   return (
@@ -98,7 +97,6 @@ function App() {
                                   <Route path="/russian" element={<RussianLanding />} />
                                   <Route path="/russian/shop" element={<RussianShop />} />
                                   <Route path="/russian/product/:id" element={<RussianProductDetail />} />
-                                  <Route path="/russian/restaurant" element={<RussianRestaurant />} />
                                   <Route path="/account" element={<AccountPage />} />
                                   <Route path="/admin" element={<AdminDashboard />} />
                                   <Route path="/admin/orders-mali" element={<OrdersMali />} />

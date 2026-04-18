@@ -64,12 +64,17 @@ export default function RussianLanding() {
             <p className="text-xs text-gray-500">Change</p>
           </Link>
           
-          {/* Restaurant - NOUVEAU */}
-          <Link to="/russian/restaurant" className="bg-gray-800 rounded-xl p-4 border border-gray-700 hover:border-orange-500 transition-colors">
-            <UtensilsCrossed className="w-8 h-8 mx-auto text-orange-400" />
+          {/* Restaurant R-Chicken - EXTERNE */}
+          <a 
+            href="https://www.r-chicken.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="bg-gray-800 rounded-xl p-4 border border-gray-700 hover:border-orange-500 transition-colors"
+          >
+            <span className="text-2xl">🍗</span>
             <p className="text-sm text-gray-300 mt-2">Ресторан</p>
-            <p className="text-xs text-gray-500">Restaurant</p>
-          </Link>
+            <p className="text-xs text-gray-500">R-Chicken</p>
+          </a>
           
           {/* Taxi Heetch - NOUVEAU */}
           <a 
