@@ -103,6 +103,14 @@ export default function AdminDashboard() {
 
   return (
     <div className="space-y-6">
+      {/* Lien rapide vers le panneau 双 administratif Mali+Russie */}
+      <section className="bg-white rounded-xl p-4 border border-gray-100">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-bold">Vue unifiée Admin</h2>
+          <Link to="/admin/dual" className="px-3 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700">Voir tout (Mali + Russie)</Link>
+        </div>
+        <p className="text-sm text-gray-600">Accèdez rapidement au panneau affichant Mali et Russie en une seule vue.</p>
+      </section>
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>

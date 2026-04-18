@@ -56,6 +56,7 @@ import RussianShop from './pages/RussianShop'
 import RussianProductDetail from './pages/RussianProductDetail'
 import RussianAdmin from './pages/RussianAdmin'
 import RussianLanding from './pages/RussianLanding'
+import DualAdmin from './pages/admin/DualAdmin'
 import RussianLogin from './pages/RussianLogin'
 import BambaraCourse from './pages/BambaraCourse'
 import AdultShop from './pages/AdultShop'
@@ -131,6 +132,7 @@ function App() {
                                   <Route path="/barcode-scanner" element={<BarcodeScanner />} />
                                   <Route path="/delivery-scan" element={<DeliveryScan />} />
                                   <Route path="/military-qr-code" element={<MilitaryQRCode />} />
+                                  <Route path="/admin/dual" element={<DualAdmin />} />
                                   <Route path="/order-tracking" element={<OrderTracking />} />
                                   <Route path="/compare" element={<Compare />} />
                                   <Route path="/loyalty" element={<Loyalty />} />
